@@ -33,7 +33,7 @@ fmt:
 #	godep go fix .
 
 build: $(NAME)
-	
+
 $(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE)
 	godep go build -ldflags "$(LDFLAGS)" -o $(NAME)
 
@@ -50,10 +50,10 @@ run: $(NAME)
 	./$(NAME) -listen :80 -target http://localhost:8000
 
 container: $(DEPS) docker/Dockerfile
-	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'"
-	upx -q -9 $(NAME)
-	cp $(NAME) docker
-	sudo docker build -t $(NAME):$(BUILD_NUM) docker
+	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o $(NAME)
+	#upx -9 -q $(NAME) -o docker/app
+	cp $(NAME) docker/app
+	docker build -t $(NAME):$(BUILD_NUM) docker
 
 run_container:
 	#sudo docker run --name mysql -e MYSQL_USER=certs -e MYSQL_PASSWORD=certs -e MYSQL_DATABASE=certs -e MYSQL_ROOT_PASSWORD=password -d mysql
@@ -64,4 +64,4 @@ $(BUILD_NUMBER_FILE):
 	@echo $$(($$(cat $(BUILD_NUMBER_FILE)) + 1)) > $(BUILD_NUMBER_FILE)
 
 clean:
-	- rm -f certs *.zip *.js *.out
+	- rm -f certs *.zip *.js *.out docker/app
