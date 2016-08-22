@@ -55,6 +55,9 @@ container: $(DEPS) docker/Dockerfile
 	cp $(NAME) docker/app
 	docker build -t $(NAME):$(BUILD_NUM) docker
 
+deploy:
+	oc new-app --file openshift-deployer-template.json -p APPLICATION=backend,BASE_IMAGESTREAM=scratch,GIT_URI=https://github.com/mchudgins/golang-backend-starter.git
+
 run_container:
 	#sudo docker run --name mysql -e MYSQL_USER=certs -e MYSQL_PASSWORD=certs -e MYSQL_DATABASE=certs -e MYSQL_ROOT_PASSWORD=password -d mysql
 	sudo docker run -it --rm -p 9443:8443 -p 9444:8444 -e DB="certs:certs@tcp(mysql:3306)/certs?parseTime=true" --link mysql certs
