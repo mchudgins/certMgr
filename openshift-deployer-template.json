@@ -136,7 +136,15 @@
                                     "capabilities": {}, 
                                     "privileged": false
                                 }, 
-                                "terminationMessagePath": "/dev/termination-log"
+                                "terminationMessagePath": "/dev/termination-log",
+                                "readinessProbe": {
+                                    "httpGet" : {
+                                        "path": "/healthz",
+                                        "port": 8080
+                                    },
+                                    "initialDelaySeconds": 3,
+                                    "timeoutSeconds": 1
+                                }
                             }
                         ], 
                         "dnsPolicy": "ClusterFirst", 
