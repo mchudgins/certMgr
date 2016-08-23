@@ -17,6 +17,8 @@ var (
 // NewAppConfig sets up all the basic configuration data from flags, env, etc
 func NewAppConfig() (*AppConfig, error) {
 
+	flag.Parse()
+
 	addr := os.Getenv("HTTP_ADDRESS")
 	if len(addr) == 0 {
 		addr = *listenAddr
