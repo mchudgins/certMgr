@@ -3,13 +3,19 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"text/template"
 
+	"golang.org/x/net/context"
+
 	"github.com/mchudgins/golang-backend-starter/healthz"
 	"github.com/mchudgins/golang-backend-starter/utils"
+	"google.golang.org/grpc"
 )
+
+type server struct{}
 
 var (
 	// boilerplate variables for good SDLC hygiene.  These are auto-magically
@@ -19,6 +25,11 @@ var (
 	builder   string
 	goversion string
 )
+
+// SayHello implements helloworld.GreeterServer
+func (s *server) SayHello(ctx context.Context, in *HelloRequest) (*HelloReply, error) {
+	return &HelloReply{Message: "Hello " + in.Name}, nil
+}
 
 func main() {
 	cfg, err := utils.NewAppConfig()
@@ -57,6 +68,14 @@ func main() {
 			fmt.Fprintf(w, "Unable to execute template: %s", err)
 		}
 	})
+
+	lis, err := net.Listen("tcp", cfg.GRPCPort)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	s := grpc.NewServer()
+	RegisterGreeterServer(s, &server{})
+	go s.Serve(lis)
 
 	log.Printf("HTTP service listening on %s", cfg.HTTPListenAddress)
 	err = http.ListenAndServe(cfg.HTTPListenAddress, nil)
