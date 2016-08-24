@@ -69,12 +69,13 @@ func main() {
 		}
 	})
 
-	lis, err := net.Listen("tcp", cfg.GRPCPort)
+	lis, err := net.Listen("tcp", cfg.GRPCListenAddress)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
 	RegisterGreeterServer(s, &server{})
+	log.Printf("gRPC service listening on %s", cfg.GRPCListenAddress)
 	go s.Serve(lis)
 
 	log.Printf("HTTP service listening on %s", cfg.HTTPListenAddress)

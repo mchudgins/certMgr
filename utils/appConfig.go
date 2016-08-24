@@ -8,11 +8,11 @@ import (
 // AppConfig provides the global configuration of the application
 type AppConfig struct {
 	HTTPListenAddress string
-	GRPCPort          string
+	GRPCListenAddress string
 }
 
 var (
-	listenAddr = flag.String("listen", ":8080", "listen address for the http server")
+	listenAddr = flag.String("http", ":8080", "listen address for the http server")
 	grpcAddr   = flag.String("grpc", ":50051", "listen address for the gRPC server")
 )
 
@@ -31,5 +31,5 @@ func NewAppConfig() (*AppConfig, error) {
 		grpc = *grpcAddr
 	}
 
-	return &AppConfig{HTTPListenAddress: addr, GRPCPort: grpc}, nil
+	return &AppConfig{HTTPListenAddress: addr, GRPCListenAddress: grpc}, nil
 }

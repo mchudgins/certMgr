@@ -34,7 +34,10 @@ fmt:
 
 build: $(NAME)
 
-$(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE)
+service.pb.go: service.proto
+	protoc --go_out=plugins=grpc:. *.proto
+
+$(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) service.pb.go
 	godep go build -ldflags "$(LDFLAGS)" -o $(NAME)
 
 test: $(DEPS)
@@ -46,8 +49,8 @@ fulltest: $(DEPS)
 	godep go test -v -blockprofile=block.out
 	godep go test -v -memprofile=mem.out
 
-run:
-	godep go run -ldflags "$(LDFLAGS)" $(DEPS) -listen :9090
+run: $(DEPS) service.pb.go
+	godep go run -ldflags "$(LDFLAGS)" $^ -http :9090
 
 container: $(DEPS) docker/Dockerfile
 	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o $(NAME)
@@ -67,4 +70,4 @@ $(BUILD_NUMBER_FILE):
 	@echo $$(($$(cat $(BUILD_NUMBER_FILE)) + 1)) > $(BUILD_NUMBER_FILE)
 
 clean:
-	- rm -f certs *.zip *.js *.out docker/app
+	- rm -f certs *.zip *.js *.out docker/app *.pb.go
