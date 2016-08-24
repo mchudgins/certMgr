@@ -296,7 +296,7 @@ Server hostname: {{ .Hostname }}
 
 	<section class="col-xs-12 col-sm-6 col-md-6">
 		<h2>Modifying your application</h2>
-		<p>Modify this on github.com/mchudgins/django-ex</p>
+		<p>Modify this on github.com/mchudgins/golang-backend-starter</p>
 	</section>
         </div>
 
