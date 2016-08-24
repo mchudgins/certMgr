@@ -46,8 +46,8 @@ fulltest: $(DEPS)
 	godep go test -v -blockprofile=block.out
 	godep go test -v -memprofile=mem.out
 
-run: $(NAME)
-	./$(NAME) -listen :80 -target http://localhost:8000
+run:
+	godep go run -ldflags "$(LDFLAGS)" $(DEPS) -listen :9090
 
 container: $(DEPS) docker/Dockerfile
 	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o $(NAME)

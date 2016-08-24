@@ -289,10 +289,7 @@ $ git push</pre>
 
                 <h2>Request information</h2>
 <pre>
-Server hostname: {{ hostname }}
-Database server: {{ database.engine }} ({{ database.url }})
-{% if database.is_sqlite %}<span class="warning">Data persistence warning: You are currently using SQLite. This is fine for development, but your data won't be persisted across application deployments.</span>{% endif %}
-Page views: {{ count }}
+Server hostname: {{ .Hostname }}
 </pre>
 
           </section>
@@ -300,10 +297,6 @@ Page views: {{ count }}
 	<section class="col-xs-12 col-sm-6 col-md-6">
 		<h2>Modifying your application</h2>
 		<p>Modify this on github.com/mchudgins/django-ex</p>
-	</section>
-	<section class="col-xs-12 col-sm-6 col-md-6">
-		<h2>Yikes</h2>
-		<p>Remote IP: {{ INTERNAL_IPs }}</p>
 	</section>
         </div>
 

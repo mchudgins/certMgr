@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"text/template"
 
 	"github.com/mchudgins/golang-backend-starter/healthz"
 	"github.com/mchudgins/golang-backend-starter/utils"
@@ -41,7 +42,20 @@ func main() {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, html, hostname, version)
+		type data struct {
+			Hostname string
+		}
+
+		tmp, err := template.New("/").Parse(html)
+		if err != nil {
+			fmt.Fprintf(w, "Unable to parse template: %s", err)
+			return
+		}
+
+		err = tmp.Execute(w, data{Hostname: hostname})
+		if err != nil {
+			fmt.Fprintf(w, "Unable to execute template: %s", err)
+		}
 	})
 
 	log.Printf("HTTP service listening on %s", cfg.HTTPListenAddress)
