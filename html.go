@@ -203,7 +203,7 @@ pre {
 
 <section class='container'>
           <hgroup>
-            <h1>Welcome to your Django application on OpenShift</h1>
+            <h1>Welcome to your Go application on OpenShift</h1>
           </hgroup>
 
 
@@ -215,7 +215,7 @@ pre {
 
               <h2>Deploying code changes</h2>
                 <p>
-                  The source code for this application is available to be forked from the <a href="https://www.github.com/openshift/django-ex">OpenShift GitHub repository</a>.
+                  The source code for this application is available to be forked from the <a href="https://www.github.com/mchudgins/golang/backend-starter">GitHub repository</a>.
                   You can configure a webhook in your repository to make OpenShift automatically start a build whenever you push your code:
                 </p>
 
@@ -282,7 +282,6 @@ $ git push</pre>
                     <li><a href="http://docs.openshift.org/latest/welcome/index.html">OpenShift Documentation</a></li>
                     <li><a href="https://github.com/openshift/origin">Openshift Origin GitHub</a></li>
                     <li><a href="https://github.com/openshift/source-to-image">Source To Image GitHub</a></li>
-                    <li><a href="http://docs.openshift.org/latest/using_images/s2i_images/python.html">Getting Started with Python on OpenShift</a></li>
                     <li><a href="http://stackoverflow.com/questions/tagged/openshift">Stack Overflow questions for OpenShift</a></li>
                     <li><a href="http://git-scm.com/documentation">Git documentation</a></li>
                   </ul>
