@@ -12,6 +12,7 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/go-kit/kit/endpoint"
 	"github.com/mchudgins/golang-backend-starter/healthz"
 	"github.com/mchudgins/golang-backend-starter/utils"
 	"google.golang.org/grpc"
@@ -20,6 +21,8 @@ import (
 type server struct{}
 
 var (
+	helloEndpoint = endpoint.Chain(endpointLog("SayHello"))(hello)
+
 	// boilerplate variables for good SDLC hygiene.  These are auto-magically
 	// injected by the Makefile & linker working together.
 	version   string
@@ -28,18 +31,53 @@ var (
 	goversion string
 )
 
+func hello(ctx context.Context, req interface{}) (resp interface{}, err error) {
+	log.Printf("in hello3()")
+	return &HelloReply{Message: "Hello " + "fubar"}, nil
+}
+
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *HelloRequest) (*HelloReply, error) {
-	return &HelloReply{Message: "Hello " + in.Name}, nil
+	resp, err := helloEndpoint(ctx, in)
+	return resp.(*HelloReply), err
+}
+
+func endpointLog(s string) endpoint.Middleware {
+	return func(next endpoint.Endpoint) endpoint.Endpoint {
+		return func(ctx context.Context, request interface{}) (interface{}, error) {
+			log.Printf("endpointLog %s+", s)
+			defer log.Printf("endpointLog %s-", s)
+
+			//			BaseLogger.Log("level", "debug", "msg", fmt.Sprintf("Type of request: %T", request))
+
+			var txid string
+
+			if c, fOK := request.(Correlator); fOK {
+				txid = c.CorrelationID()
+			} else if req, fOK := request.(*http.Request); fOK {
+				txid = req.Header.Get("X-Correlation-ID")
+			} else {
+				log.Printf("no CorrelationID")
+			}
+
+			if len(txid) == 0 {
+				log.Printf("Request is missing 'X-Correlation-ID' header: %+v", request)
+			}
+
+			ctx = context.WithValue(ctx, "txid", txid)
+
+			return next(ctx, request)
+		}
+	}
 }
 
 func main() {
 	cfg, err := utils.NewAppConfig()
 	if err != nil {
-		log.Fatalf("Unable to initialize the application (%s).  Exiting now.", err)
+		log.Printf("Unable to initialize the application (%s).  Exiting now.", err)
 	}
 
-	log.Println("Starting app...")
+	log.Printf("Starting app...")
 
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -49,7 +87,7 @@ func main() {
 	hc, err := healthz.NewConfig(cfg)
 	healthzHandler, err := healthz.Handler(hc)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	http.Handle("/healthz", healthzHandler)

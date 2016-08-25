@@ -20,9 +20,7 @@ LDFLAGS	:= -X 'main.version=$(VERSION)' \
 	-X 'main.goversion=$(GOVERSION)' \
 	-X 'main.buildNum=$(BUILD_NUM)'
 
-
-DEPS := $(shell ls *.go)
-
+DEPS := $(shell ls *.go | sed 's/.*_test.go//g')
 
 .PHONY: fmt test fulltest run container clean site $(BUILD_NUMBER_FILE)
 
@@ -41,6 +39,9 @@ $(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) service.pb.go
 	godep go build -ldflags "$(LDFLAGS)" -o $(NAME)
 
 test: $(DEPS)
+	godep go test -v $$(go list ./... | grep -v /vendor/ | grep -v /cmd/)
+
+coverage: $(DEPS)
 	godep go test -v -coverprofile=cover.out $$(go list ./... | grep -v /vendor/ | grep -v /cmd/)
 	godep go tool cover -html=cover.out -o cover.html
 
