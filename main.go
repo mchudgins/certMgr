@@ -71,6 +71,9 @@ func main() {
 		}
 	})
 
+	// make a channel to listen on events,
+	// then launch the servers.
+
 	errc := make(chan error)
 
 	// interrupt handler
