@@ -6,6 +6,8 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"text/template"
 
 	"golang.org/x/net/context"
@@ -39,6 +41,11 @@ func main() {
 
 	log.Println("Starting app...")
 
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	hc, err := healthz.NewConfig(cfg)
 	healthzHandler, err := healthz.Handler(hc)
 	if err != nil {
@@ -46,11 +53,6 @@ func main() {
 	}
 
 	http.Handle("/healthz", healthzHandler)
-
-	hostname, err := os.Hostname()
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		type data struct {
@@ -69,16 +71,35 @@ func main() {
 		}
 	})
 
-	lis, err := net.Listen("tcp", cfg.GRPCListenAddress)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	s := grpc.NewServer()
-	RegisterGreeterServer(s, &server{})
-	log.Printf("gRPC service listening on %s", cfg.GRPCListenAddress)
-	go s.Serve(lis)
+	errc := make(chan error)
 
-	log.Printf("HTTP service listening on %s", cfg.HTTPListenAddress)
-	err = http.ListenAndServe(cfg.HTTPListenAddress, nil)
-	log.Printf("ListenAndServe:  %s", err)
+	// interrupt handler
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		errc <- fmt.Errorf("%s", <-c)
+	}()
+
+	// gRPC server
+	go func() {
+		lis, err := net.Listen("tcp", cfg.GRPCListenAddress)
+		if err != nil {
+			errc <- err
+			return
+		}
+
+		s := grpc.NewServer()
+		RegisterGreeterServer(s, &server{})
+		log.Printf("gRPC service listening on %s", cfg.GRPCListenAddress)
+		errc <- s.Serve(lis)
+	}()
+
+	// http server
+	go func() {
+		log.Printf("HTTP service listening on %s", cfg.HTTPListenAddress)
+		errc <- http.ListenAndServe(cfg.HTTPListenAddress, nil)
+	}()
+
+	// wait for somthin'
+	log.Printf("exit: %s", <-errc)
 }
