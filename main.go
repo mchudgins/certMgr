@@ -9,10 +9,14 @@ import (
 	"os/signal"
 	"syscall"
 	"text/template"
+	"time"
 
+	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/metrics"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/mchudgins/golang-backend-starter/healthz"
 	"github.com/mchudgins/golang-backend-starter/utils"
 	"google.golang.org/grpc"
@@ -21,7 +25,29 @@ import (
 type server struct{}
 
 var (
-	helloEndpoint = endpoint.Chain(endpointLog("SayHello"))(hello)
+	fieldKeys    = []string{"method", "error"}
+	requestCount = kitprometheus.NewCounter(stdprometheus.CounterOpts{
+		Namespace: "my_group",
+		Subsystem: "cert_service",
+		Name:      "request_count",
+		Help:      "Number of requests received.",
+	}, fieldKeys)
+	requestLatency = metrics.NewTimeHistogram(time.Microsecond, kitprometheus.NewSummary(stdprometheus.SummaryOpts{
+		Namespace: "my_group",
+		Subsystem: "cert_service",
+		Name:      "request_latency_microseconds",
+		Help:      "Total duration of requests in microseconds.",
+	}, fieldKeys))
+	countResult = kitprometheus.NewSummary(stdprometheus.SummaryOpts{
+		Namespace: "my_group",
+		Subsystem: "cert_service",
+		Name:      "count_result",
+		Help:      "The result of each count method.",
+	}, []string{}) // no fields here
+	counters = instrumentation{requestCount, requestLatency, countResult}
+
+	helloEndpoint = endpoint.Chain(endpointInstrumentation(&counters, "SayHello"),
+		endpointLog("SayHello"))(hello)
 
 	// boilerplate variables for good SDLC hygiene.  These are auto-magically
 	// injected by the Makefile & linker working together.
@@ -40,6 +66,32 @@ func hello(ctx context.Context, req interface{}) (resp interface{}, err error) {
 func (s *server) SayHello(ctx context.Context, in *HelloRequest) (*HelloReply, error) {
 	resp, err := helloEndpoint(ctx, in)
 	return resp.(*HelloReply), err
+}
+
+type instrumentation struct {
+	requestCount   metrics.Counter
+	requestLatency metrics.TimeHistogram
+	countResult    metrics.Histogram
+}
+
+func endpointInstrumentation(i *instrumentation, s string) endpoint.Middleware {
+	return func(next endpoint.Endpoint) endpoint.Endpoint {
+		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+			log.Printf("endpointInstrumentation+")
+			defer log.Printf("endpointInstrumentation-")
+
+			defer func(begin time.Time) {
+				methodField := metrics.Field{Key: "method", Value: s}
+				errorField := metrics.Field{Key: "error", Value: fmt.Sprintf("%v", err)}
+				i.requestCount.With(methodField).With(errorField).Add(1)
+				i.requestLatency.With(methodField).With(errorField).Observe(time.Since(begin))
+			}(time.Now())
+
+			response, err = next(ctx, request)
+
+			return
+		}
+	}
 }
 
 func endpointLog(s string) endpoint.Middleware {

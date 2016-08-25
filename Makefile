@@ -32,7 +32,7 @@ fmt:
 
 build: $(NAME)
 
-service.pb.go: service.proto
+service.pb.go common.pb.proto: service.proto common.proto
 	protoc --go_out=plugins=grpc:. *.proto
 
 $(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) service.pb.go

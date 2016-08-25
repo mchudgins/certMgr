@@ -4,6 +4,8 @@
 
  syntax = "proto3";
 
+ import "common.proto";
+
  option java_multiple_files = true;
  option java_package = "com.dstsytems.examples.helloworld";
  option java_outer_classname = "HelloWorldProto";
@@ -18,10 +20,12 @@
 
  // The request message containing the user's name.
  message HelloRequest {
-   string name = 1;
+  CommonRequest common = 1;
+  string name = 10;
  }
 
  // The response message containing the greetings
  message HelloReply {
-   string message = 1;
+  CommonResponse common = 1;
+  string message = 10;
  }
