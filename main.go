@@ -28,6 +28,7 @@ var (
 	version   string
 	buildTime string
 	builder   string
+	buildNum  string
 	goversion string
 )
 
@@ -48,12 +49,14 @@ func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
 }
 
 func main() {
+	log.Printf("golang-backend-starter: version %s; buildTime: %s; built by: %s; buildNum: %s; (%s)",
+		version, buildTime, builder, buildNum, goversion)
 	cfg, err := utils.NewAppConfig()
 	if err != nil {
 		log.Printf("Unable to initialize the application (%s).  Exiting now.", err)
 	}
 
-	log.Printf("Starting app...")
+	log.Printf("Starting app ...")
 
 	hostname, err := os.Hostname()
 	if err != nil {

@@ -54,7 +54,6 @@ run: $(DEPS) service.pb.go $(BUILD_NUMBER_FILE)
 	godep go run -ldflags "$(LDFLAGS)" $^ -http :9090
 
 container: $(DEPS) docker/Dockerfile service.pb.go common.pb.go
-	@echo printenv | sort
 	go get ./...
 	godep restore
 	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o $(NAME)
