@@ -9,14 +9,12 @@ import (
 	"os/signal"
 	"syscall"
 	"text/template"
-	"time"
 
-	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	"github.com/mwitkow/go-grpc-middleware"
+	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
 
-	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/metrics"
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
+	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/mchudgins/golang-backend-starter/healthz"
 	"github.com/mchudgins/golang-backend-starter/utils"
 	"google.golang.org/grpc"
@@ -25,30 +23,6 @@ import (
 type server struct{}
 
 var (
-	fieldKeys    = []string{"method", "error"}
-	requestCount = kitprometheus.NewCounter(stdprometheus.CounterOpts{
-		Namespace: "my_group",
-		Subsystem: "cert_service",
-		Name:      "request_count",
-		Help:      "Number of requests received.",
-	}, fieldKeys)
-	requestLatency = metrics.NewTimeHistogram(time.Microsecond, kitprometheus.NewSummary(stdprometheus.SummaryOpts{
-		Namespace: "my_group",
-		Subsystem: "cert_service",
-		Name:      "request_latency_microseconds",
-		Help:      "Total duration of requests in microseconds.",
-	}, fieldKeys))
-	countResult = kitprometheus.NewSummary(stdprometheus.SummaryOpts{
-		Namespace: "my_group",
-		Subsystem: "cert_service",
-		Name:      "count_result",
-		Help:      "The result of each count method.",
-	}, []string{}) // no fields here
-	counters = instrumentation{requestCount, requestLatency, countResult}
-
-	helloEndpoint = endpoint.Chain(endpointInstrumentation(&counters, "SayHello"),
-		endpointLog("SayHello"))(hello)
-
 	// boilerplate variables for good SDLC hygiene.  These are auto-magically
 	// injected by the Makefile & linker working together.
 	version   string
@@ -57,69 +31,19 @@ var (
 	goversion string
 )
 
-func hello(ctx context.Context, req interface{}) (resp interface{}, err error) {
-	log.Printf("in hello3()")
-	return &HelloReply{Message: "Hello " + "fubar"}, nil
-}
-
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *HelloRequest) (*HelloReply, error) {
-	resp, err := helloEndpoint(ctx, in)
-	return resp.(*HelloReply), err
+	return &HelloReply{Message: "Hello " + in.Name}, nil
 }
 
-type instrumentation struct {
-	requestCount   metrics.Counter
-	requestLatency metrics.TimeHistogram
-	countResult    metrics.Histogram
-}
-
-func endpointInstrumentation(i *instrumentation, s string) endpoint.Middleware {
-	return func(next endpoint.Endpoint) endpoint.Endpoint {
-		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-			log.Printf("endpointInstrumentation+")
-			defer log.Printf("endpointInstrumentation-")
-
-			defer func(begin time.Time) {
-				methodField := metrics.Field{Key: "method", Value: s}
-				errorField := metrics.Field{Key: "error", Value: fmt.Sprintf("%v", err)}
-				i.requestCount.With(methodField).With(errorField).Add(1)
-				i.requestLatency.With(methodField).With(errorField).Observe(time.Since(begin))
-			}(time.Now())
-
-			response, err = next(ctx, request)
-
-			return
-		}
-	}
-}
-
-func endpointLog(s string) endpoint.Middleware {
-	return func(next endpoint.Endpoint) endpoint.Endpoint {
-		return func(ctx context.Context, request interface{}) (interface{}, error) {
-			log.Printf("endpointLog %s+", s)
-			defer log.Printf("endpointLog %s-", s)
-
-			//			BaseLogger.Log("level", "debug", "msg", fmt.Sprintf("Type of request: %T", request))
-
-			var txid string
-
-			if c, fOK := request.(Correlator); fOK {
-				txid = c.CorrelationID()
-			} else if req, fOK := request.(*http.Request); fOK {
-				txid = req.Header.Get("X-Correlation-ID")
-			} else {
-				log.Printf("no CorrelationID")
-			}
-
-			if len(txid) == 0 {
-				log.Printf("Request is missing 'X-Correlation-ID' header: %+v", request)
-			}
-
-			ctx = context.WithValue(ctx, "txid", txid)
-
-			return next(ctx, request)
-		}
+func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context,
+		req interface{},
+		info *grpc.UnaryServerInfo,
+		handler grpc.UnaryHandler) (interface{}, error) {
+		log.Printf("grpcEndpointLog %s+", s)
+		defer log.Printf("grpcEndpointLog %s-", s)
+		return handler(ctx, req)
 	}
 }
 
@@ -143,7 +67,7 @@ func main() {
 	}
 
 	http.Handle("/healthz", healthzHandler)
-
+	http.Handle("/metrics", prometheus.Handler())
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		type data struct {
 			Hostname string
@@ -181,7 +105,10 @@ func main() {
 			return
 		}
 
-		s := grpc.NewServer()
+		s := grpc.NewServer(
+			grpc_middleware.WithUnaryServerChain(
+				grpcEndpointLog("hello"),
+				grpc_prometheus.UnaryServerInterceptor))
 		RegisterGreeterServer(s, &server{})
 		log.Printf("gRPC service listening on %s", cfg.GRPCListenAddress)
 		errc <- s.Serve(lis)

@@ -23,6 +23,8 @@ _testmain.go
 *.test
 *.prof
 
+*.pb.go
+
 build.num
 golang-backend-starter
 docker/app
