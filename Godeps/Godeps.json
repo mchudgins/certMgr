@@ -2,5 +2,138 @@
 	"ImportPath": "github.com/mchudgins/golang-backend-starter",
 	"GoVersion": "go1.7",
 	"GodepVersion": "v63",
-	"Deps": []
+	"Deps": [
+		{
+			"ImportPath": "github.com/beorn7/perks/quantile",
+			"Rev": "3ac7bf7a47d159a033b107610db8a1b6575507a4"
+		},
+		{
+			"ImportPath": "github.com/go-kit/kit/log",
+			"Rev": "ec8b02591ee873433565a1ae9d317353412d1d27"
+		},
+		{
+			"ImportPath": "github.com/go-kit/kit/log/term",
+			"Rev": "ec8b02591ee873433565a1ae9d317353412d1d27"
+		},
+		{
+			"ImportPath": "github.com/golang/protobuf/proto",
+			"Rev": "888eb0692c857ec880338addf316bd662d5e630e"
+		},
+		{
+			"ImportPath": "github.com/grpc-ecosystem/go-grpc-prometheus",
+			"Rev": "1de93bf4027517a7db2a7c3e56809a5e90ad322e"
+		},
+		{
+			"ImportPath": "github.com/matttproud/golang_protobuf_extensions/pbutil",
+			"Rev": "d0c3fe89de86839aecf2e0579c40ba3bb336a453"
+		},
+		{
+			"ImportPath": "github.com/mwitkow/go-grpc-middleware",
+			"Rev": "738ca93aaf9868a814906d5ea2d9373922d27959"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_golang/prometheus",
+			"Comment": "0.7.0-74-g90c15b5",
+			"Rev": "90c15b5efa0dc32a7d259234e02ac9a99e6d3b82"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_model/go",
+			"Comment": "model-0.0.2-12-gfa8ad6f",
+			"Rev": "fa8ad6fec33561be4280a8f0514318c79d7f6cb6"
+		},
+		{
+			"ImportPath": "github.com/prometheus/common/expfmt",
+			"Rev": "40456948a47496dc22168e6af39297a2f8fbf38c"
+		},
+		{
+			"ImportPath": "github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
+			"Rev": "40456948a47496dc22168e6af39297a2f8fbf38c"
+		},
+		{
+			"ImportPath": "github.com/prometheus/common/model",
+			"Rev": "40456948a47496dc22168e6af39297a2f8fbf38c"
+		},
+		{
+			"ImportPath": "github.com/prometheus/procfs",
+			"Rev": "b71f1520e06fd169804f5c7fa20217caf169ae30"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "7394c112eae4dba7e96bfcfe738e6373d61772b4"
+		},
+		{
+			"ImportPath": "golang.org/x/net/http2",
+			"Rev": "7394c112eae4dba7e96bfcfe738e6373d61772b4"
+		},
+		{
+			"ImportPath": "golang.org/x/net/http2/hpack",
+			"Rev": "7394c112eae4dba7e96bfcfe738e6373d61772b4"
+		},
+		{
+			"ImportPath": "golang.org/x/net/internal/timeseries",
+			"Rev": "7394c112eae4dba7e96bfcfe738e6373d61772b4"
+		},
+		{
+			"ImportPath": "golang.org/x/net/lex/httplex",
+			"Rev": "7394c112eae4dba7e96bfcfe738e6373d61772b4"
+		},
+		{
+			"ImportPath": "golang.org/x/net/trace",
+			"Rev": "7394c112eae4dba7e96bfcfe738e6373d61772b4"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc",
+			"Comment": "v1.0.1-GA-3-g7f06136",
+			"Rev": "7f061361d341377488b24c7337c809c17f355531"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/codes",
+			"Comment": "v1.0.1-GA-3-g7f06136",
+			"Rev": "7f061361d341377488b24c7337c809c17f355531"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/credentials",
+			"Comment": "v1.0.1-GA-3-g7f06136",
+			"Rev": "7f061361d341377488b24c7337c809c17f355531"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/grpclog",
+			"Comment": "v1.0.1-GA-3-g7f06136",
+			"Rev": "7f061361d341377488b24c7337c809c17f355531"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/internal",
+			"Comment": "v1.0.1-GA-3-g7f06136",
+			"Rev": "7f061361d341377488b24c7337c809c17f355531"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/metadata",
+			"Comment": "v1.0.1-GA-3-g7f06136",
+			"Rev": "7f061361d341377488b24c7337c809c17f355531"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/naming",
+			"Comment": "v1.0.1-GA-3-g7f06136",
+			"Rev": "7f061361d341377488b24c7337c809c17f355531"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/peer",
+			"Comment": "v1.0.1-GA-3-g7f06136",
+			"Rev": "7f061361d341377488b24c7337c809c17f355531"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/transport",
+			"Comment": "v1.0.1-GA-3-g7f06136",
+			"Rev": "7f061361d341377488b24c7337c809c17f355531"
+		},
+		{
+			"ImportPath": "gopkg.in/logfmt.v0",
+			"Rev": "c50dc9aa845e681529d8e49d3dc11ec0195aacac"
+		},
+		{
+			"ImportPath": "gopkg.in/stack.v1",
+			"Comment": "v1.4.0",
+			"Rev": "0585967eab0016c8e4e2d55ac20585b469574cec"
+		}
+	]
 }
