@@ -5,6 +5,7 @@ import (
 	"log"
 	"testing"
 
+	pb "github.com/mchudgins/golang-service-starter/service"
 	"google.golang.org/grpc"
 )
 
@@ -20,11 +21,11 @@ func TestHello(t *testing.T) {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
-	c := NewGreeterClient(conn)
+	c := pb.NewGreeterClient(conn)
 
 	// Contact the server and print out its response.
 	name := defaultName
-	r, err := c.SayHello(context.Background(), &HelloRequest{Name: name})
+	r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}

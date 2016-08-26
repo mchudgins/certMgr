@@ -1,4 +1,4 @@
-package main
+package utils
 
 // Correlator returns the value of X-Correlation-ID from the HTTP request
 type Correlator interface {

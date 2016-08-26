@@ -10,7 +10,7 @@
  option java_package = "com.dstsytems.examples.helloworld";
  option java_outer_classname = "HelloWorldProto";
 
- package main;
+ package service;
 
  // The greeting service definition.
  service Greeter {

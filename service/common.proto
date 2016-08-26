@@ -8,7 +8,7 @@
  option java_package = "com.dstsytems.pb.common";
  option java_outer_classname = "CommonProto";
 
- package main;
+ package service;
 
  // The request message containing:
  //   - the authenticated user ID

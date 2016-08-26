@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/mchudgins/golang-backend-starter/utils"
+	"github.com/mchudgins/golang-service-starter/utils"
 )
 
 // Config provides data for the healthz handler

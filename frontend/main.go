@@ -15,8 +15,8 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
-	"github.com/mchudgins/golang-backend-starter/healthz"
-	"github.com/mchudgins/golang-backend-starter/utils"
+	"github.com/mchudgins/golang-service-starter/healthz"
+	"github.com/mchudgins/golang-service-starter/utils"
 	"google.golang.org/grpc"
 )
 
@@ -49,7 +49,7 @@ func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
 }
 
 func main() {
-	log.Printf("golang-backend-starter: version %s; buildTime: %s; built by: %s; buildNum: %s; (%s)",
+	log.Printf("golang-frontend-starter: version %s; buildTime: %s; built by: %s; buildNum: %s; (%s)",
 		version, buildTime, builder, buildNum, goversion)
 
 	cfg, err := utils.NewAppConfig()

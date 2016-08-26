@@ -20,6 +20,8 @@ LDFLAGS	:= -X 'main.version=$(VERSION)' \
 	-X 'main.goversion=$(GOVERSION)' \
 	-X 'main.buildNum=$(BUILD_NUM)'
 
+PB_DEPS := ../service/service.pb.go ../service/common.pb.go
+
 DEPS := $(shell ls *.go | sed 's/.*_test.go//g')
 
 .PHONY: fmt test fulltest run container clean site $(BUILD_NUMBER_FILE)
@@ -32,10 +34,10 @@ fmt:
 
 build: $(NAME)
 
-service.pb.go common.pb.proto: service.proto common.proto
-	protoc --go_out=plugins=grpc:. *.proto
+$(PB_DEPS): ../service/service.proto ../service/common.proto
+	cd ../service && protoc --go_out=plugins=grpc:. *.proto
 
-$(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) service.pb.go
+$(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) $(PB_DEPS)
 	godep go build -ldflags "$(LDFLAGS)" -o $(NAME)
 
 test: $(DEPS)
@@ -50,10 +52,10 @@ fulltest: $(DEPS)
 	godep go test -v -blockprofile=block.out
 	godep go test -v -memprofile=mem.out
 
-run: $(DEPS) service.pb.go $(BUILD_NUMBER_FILE)
+run: $(DEPS) $(BUILD_NUMBER_FILE)
 	godep go run -ldflags "$(LDFLAGS)" $^ -http :9090
 
-container: $(DEPS) docker/Dockerfile service.pb.go common.pb.go
+container: $(DEPS) docker/Dockerfile $(PB_DEPS)
 	go get ./...
 	godep restore
 	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o $(NAME)
@@ -73,4 +75,4 @@ $(BUILD_NUMBER_FILE):
 	@echo $$(($$(cat $(BUILD_NUMBER_FILE)) + 1)) > $(BUILD_NUMBER_FILE)
 
 clean:
-	- rm -f certs *.zip *.js *.out docker/app *.pb.go
+	- rm -f certs *.zip *.js *.out docker/app ../service-spec/*.pb.go
