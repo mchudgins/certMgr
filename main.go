@@ -107,8 +107,8 @@ func main() {
 
 		s := grpc.NewServer(
 			grpc_middleware.WithUnaryServerChain(
-				grpcEndpointLog("hello"),
-				grpc_prometheus.UnaryServerInterceptor))
+				grpc_prometheus.UnaryServerInterceptor,
+				grpcEndpointLog("hello")))
 		RegisterGreeterServer(s, &server{})
 		log.Printf("gRPC service listening on %s", cfg.GRPCListenAddress)
 		errc <- s.Serve(lis)
