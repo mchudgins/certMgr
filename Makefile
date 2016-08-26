@@ -10,8 +10,8 @@ GOVERSION := $(shell go version)
 BUILDTIME := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 BUILDDATE := $(shell date -u +"%B %d, %Y")
 BUILDER	:= $(shell echo "`git config user.name` <`git config user.email`>")
-BUILD_NUMBER_FILE=build.num
-BUILD_NUM := $(shell if [ -f build.num ]; then cat build.num; else echo 1 >build.num && echo 1; fi)
+BUILD_NUMBER_FILE=.buildnum
+BUILD_NUM := $(shell if [ -f ${BUILD_NUMBER_FILE} ]; then cat ${BUILD_NUMBER_FILE}; else echo 0; fi)
 PKG_RELEASE ?= 1
 PROJECT_URL := "git@svn.dstresearch.com:devOps/certManager"
 LDFLAGS	:= -X 'main.version=$(VERSION)' \
@@ -50,7 +50,7 @@ fulltest: $(DEPS)
 	godep go test -v -blockprofile=block.out
 	godep go test -v -memprofile=mem.out
 
-run: $(DEPS) service.pb.go
+run: $(DEPS) service.pb.go $(BUILD_NUMBER_FILE)
 	godep go run -ldflags "$(LDFLAGS)" $^ -http :9090
 
 container: $(DEPS) docker/Dockerfile service.pb.go common.pb.go
