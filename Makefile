@@ -54,6 +54,7 @@ run: $(DEPS) service.pb.go
 	godep go run -ldflags "$(LDFLAGS)" $^ -http :9090
 
 container: $(DEPS) docker/Dockerfile service.pb.go common.pb.go
+	go get ./...
 	godep restore
 	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o $(NAME)
 	upx -9 -q $(NAME) -o docker/app
