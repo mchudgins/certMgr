@@ -33,5 +33,4 @@ golang-frontend-starter
 */Godeps/_workspace
 */bindata.go
 
-service/*.go
 service/*.json
