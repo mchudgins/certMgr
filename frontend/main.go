@@ -127,6 +127,7 @@ func main() {
 		})
 
 		mux.Handle("/api/v1/", gw)
+		mux.Handle("/v1/", gw)
 		mux.Handle("/healthz", healthzHandler)
 		mux.Handle("/metrics", prometheus.Handler())
 		mux.HandleFunc("/swagger/", serveSwaggerData)
