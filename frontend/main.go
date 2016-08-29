@@ -14,8 +14,8 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/mchudgins/go-service-helper/pkg/serveSwagger"
 	"github.com/mchudgins/golang-service-starter/healthz"
-	"github.com/mchudgins/golang-service-starter/pkg/serveSwagger"
 	pb "github.com/mchudgins/golang-service-starter/service"
 	"github.com/mchudgins/golang-service-starter/utils"
 	"google.golang.org/grpc"
@@ -64,7 +64,6 @@ func (l *loggingWriter) Write(data []byte) (int, error) {
 }
 
 func (l *loggingWriter) WriteHeader(status int) {
-	log.Printf("http status: %d", status)
 	l.statusCode = status
 	l.w.WriteHeader(status)
 }
@@ -74,6 +73,13 @@ func (l *loggingWriter) Length() int {
 }
 
 func (l *loggingWriter) StatusCode() int {
+
+	// if nobody set the status, but data has been written
+	// then all must be well.
+	if l.statusCode == 0 && l.contentLength > 0 {
+		return http.StatusOK
+	}
+
 	return l.statusCode
 }
 
@@ -174,7 +180,7 @@ func main() {
 {
 "endpoints" :
 	[
-	"/v1/echo",
+	"/api/v1/echo",
 	"/healthz",
 	"/metrics",
 	"/swagger/",
@@ -184,7 +190,7 @@ func main() {
 `)
 		})
 
-		mux.Handle("/v1/", gw)
+		mux.Handle("/api/v1/", gw)
 		mux.Handle("/healthz", healthzHandler)
 		mux.Handle("/metrics", prometheus.Handler())
 		mux.HandleFunc("/swagger/", serveSwaggerData)
