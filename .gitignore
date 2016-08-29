@@ -29,11 +29,9 @@ build.num
 .buildnum
 golang-backend-starter
 golang-frontend-starter
-docker/app
-backend/Godeps/_workspace
-backend/docker/app
-frontend/Godeps/_workspace
-frontend/bindata.go
+*/docker/app
+*/Godeps/_workspace
+*/bindata.go
 
 service/*.go
 service/*.json
