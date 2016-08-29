@@ -65,31 +65,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	hc, err := healthz.NewConfig(cfg)
-	healthzHandler, err := healthz.Handler(hc)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	http.Handle("/healthz", healthzHandler)
-	http.Handle("/metrics", prometheus.Handler())
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		type data struct {
-			Hostname string
-		}
-
-		tmp, err := template.New("/").Parse(html)
-		if err != nil {
-			fmt.Fprintf(w, "Unable to parse template: %s", err)
-			return
-		}
-
-		err = tmp.Execute(w, data{Hostname: hostname})
-		if err != nil {
-			fmt.Fprintf(w, "Unable to execute template: %s", err)
-		}
-	})
-
 	// make a channel to listen on events,
 	// then launch the servers.
 
@@ -121,6 +96,31 @@ func main() {
 
 	// http server
 	go func() {
+		hc, err := healthz.NewConfig(cfg)
+		healthzHandler, err := healthz.Handler(hc)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		http.Handle("/healthz", healthzHandler)
+		http.Handle("/metrics", prometheus.Handler())
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			type data struct {
+				Hostname string
+			}
+
+			tmp, err := template.New("/").Parse(html)
+			if err != nil {
+				fmt.Fprintf(w, "Unable to parse template: %s", err)
+				return
+			}
+
+			err = tmp.Execute(w, data{Hostname: hostname})
+			if err != nil {
+				fmt.Fprintf(w, "Unable to execute template: %s", err)
+			}
+		})
+
 		log.Printf("HTTP service listening on %s", cfg.HTTPListenAddress)
 		errc <- http.ListenAndServe(cfg.HTTPListenAddress, nil)
 	}()

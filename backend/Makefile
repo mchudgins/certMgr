@@ -35,7 +35,12 @@ fmt:
 build: $(NAME)
 
 $(PB_DEPS): ../service/service.proto ../service/common.proto
-	cd ../service && protoc --go_out=plugins=grpc:. *.proto
+	cd ../service \
+		&& protoc -I/usr/local/include -I. \
+			-I$(GOPATH)/src \
+			-I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+			--go_out=Mgoogle/api/annotations.proto=github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api,plugins=grpc:. \
+			*.proto
 
 $(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) $(PB_DEPS)
 	godep go build -ldflags "$(LDFLAGS)" -o $(NAME)
@@ -75,4 +80,4 @@ $(BUILD_NUMBER_FILE):
 	@echo $$(($$(cat $(BUILD_NUMBER_FILE)) + 1)) > $(BUILD_NUMBER_FILE)
 
 clean:
-	- rm -f certs *.zip *.js *.out docker/app ../service-spec/*.pb.go
+	- rm -f certs *.zip *.js *.out docker/app ../service/*.pb.go

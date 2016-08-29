@@ -2,30 +2,36 @@
  * this is a sample protobuf definition
  */
 
- syntax = "proto3";
+syntax = "proto3";
 
- import "common.proto";
+import "common.proto";
 
- option java_multiple_files = true;
- option java_package = "com.dstsytems.examples.helloworld";
- option java_outer_classname = "HelloWorldProto";
+option java_multiple_files = true;
+option java_package = "com.dstsytems.examples.helloworld";
+option java_outer_classname = "HelloWorldProto";
 
- package service;
+package service;
 
- // The greeting service definition.
- service Greeter {
-   // Sends a greeting
-   rpc SayHello (HelloRequest) returns (HelloReply) {}
+import "google/api/annotations.proto";
+
+// The greeting service definition.
+service Greeter {
+ // Sends a greeting
+ rpc SayHello (HelloRequest) returns (HelloReply) {
+ option (google.api.http) = {
+    get: "/v1/echo"
+  };
  }
+}
 
- // The request message containing the user's name.
- message HelloRequest {
+// The request message containing the user's name.
+message HelloRequest {
   CommonRequest common = 1;
   string name = 10;
- }
+}
 
- // The response message containing the greetings
- message HelloReply {
+// The response message containing the greetings
+message HelloReply {
   CommonResponse common = 1;
   string message = 10;
- }
+}

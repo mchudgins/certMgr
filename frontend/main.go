@@ -3,19 +3,20 @@ package main
 import (
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
-	"text/template"
+	"time"
 
-	"github.com/mwitkow/go-grpc-middleware"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
 
-	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/mchudgins/golang-service-starter/healthz"
+	"github.com/mchudgins/golang-service-starter/pkg/serveSwagger"
+	pb "github.com/mchudgins/golang-service-starter/service"
 	"github.com/mchudgins/golang-service-starter/utils"
 	"google.golang.org/grpc"
 )
@@ -23,6 +24,7 @@ import (
 type server struct{}
 
 var (
+	swagger = MustAsset("../service/service.swagger.json")
 	// boilerplate variables for good SDLC hygiene.  These are auto-magically
 	// injected by the Makefile & linker working together.
 	version   string
@@ -32,20 +34,89 @@ var (
 	goversion string
 )
 
-// SayHello implements helloworld.GreeterServer
-func (s *server) SayHello(ctx context.Context, in *HelloRequest) (*HelloReply, error) {
-	return &HelloReply{Message: "Hello " + in.Name}, nil
+func serveSwaggerData(w http.ResponseWriter, r *http.Request) {
+	if !strings.HasSuffix(r.URL.Path, ".swagger.json") {
+		log.Printf("Not Found: %s", r.URL.Path)
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write(swagger)
 }
 
-func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
-	return func(ctx context.Context,
-		req interface{},
-		info *grpc.UnaryServerInfo,
-		handler grpc.UnaryHandler) (interface{}, error) {
-		log.Printf("grpcEndpointLog %s+", s)
-		defer log.Printf("grpcEndpointLog %s-", s)
-		return handler(ctx, req)
-	}
+type loggingWriter struct {
+	w             http.ResponseWriter
+	statusCode    int
+	contentLength int
+}
+
+func NewLoggingWriter(w http.ResponseWriter) *loggingWriter {
+	return &loggingWriter{w: w}
+}
+
+func (l *loggingWriter) Header() http.Header {
+	return l.w.Header()
+}
+
+func (l *loggingWriter) Write(data []byte) (int, error) {
+	l.contentLength += len(data)
+	return l.w.Write(data)
+}
+
+func (l *loggingWriter) WriteHeader(status int) {
+	log.Printf("http status: %d", status)
+	l.statusCode = status
+	l.w.WriteHeader(status)
+}
+
+func (l *loggingWriter) Length() int {
+	return l.contentLength
+}
+
+// httpLogger provides per request log statements (ala Apache httpd)
+func httpLogger(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		lw := NewLoggingWriter(w)
+		defer func() {
+			end := time.Now()
+			duration := end.Sub(start)
+			log.Printf("uri: %s; status: %d, contentLength: %d, duration: %.3f; ua: %s",
+				r.URL,
+				lw.statusCode,
+				lw.Length(),
+				duration.Seconds()*1000,
+				r.UserAgent())
+		}()
+
+		h.ServeHTTP(lw, r)
+
+	})
+}
+
+// allowCORS allows Cross Origin Resource Sharing from any origin.
+// Don't do this without consideration in production systems.
+func allowCORS(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if origin := r.Header.Get("Origin"); origin != "" {
+			log.Printf("Origin: %s", origin)
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			if r.Method == "OPTIONS" && r.Header.Get("Access-Control-Request-Method") != "" {
+				preflightHandler(w, r)
+				return
+			}
+		}
+		h.ServeHTTP(w, r)
+	})
+}
+
+func preflightHandler(w http.ResponseWriter, r *http.Request) {
+	headers := []string{"Content-Type", "Accept"}
+	w.Header().Set("Access-Control-Allow-Headers", strings.Join(headers, ","))
+	methods := []string{"GET", "HEAD", "POST", "PUT", "DELETE"}
+	w.Header().Set("Access-Control-Allow-Methods", strings.Join(methods, ","))
+	log.Printf("preflight request for %s", r.URL.Path)
+	return
 }
 
 func main() {
@@ -57,37 +128,11 @@ func main() {
 		log.Printf("Unable to initialize the application (%s).  Exiting now.", err)
 	}
 
-	log.Printf("Starting app ...")
-
 	hostname, err := os.Hostname()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	hc, err := healthz.NewConfig(cfg)
-	healthzHandler, err := healthz.Handler(hc)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	http.Handle("/healthz", healthzHandler)
-	http.Handle("/metrics", prometheus.Handler())
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		type data struct {
-			Hostname string
-		}
-
-		tmp, err := template.New("/").Parse(html)
-		if err != nil {
-			fmt.Fprintf(w, "Unable to parse template: %s", err)
-			return
-		}
-
-		err = tmp.Execute(w, data{Hostname: hostname})
-		if err != nil {
-			fmt.Fprintf(w, "Unable to execute template: %s", err)
-		}
-	})
+	log.Printf("Starting app on host %s...", hostname)
 
 	// make a channel to listen on events,
 	// then launch the servers.
@@ -101,27 +146,58 @@ func main() {
 		errc <- fmt.Errorf("%s", <-c)
 	}()
 
-	// gRPC server
+	// http server
 	go func() {
-		lis, err := net.Listen("tcp", cfg.GRPCListenAddress)
+		ctx := context.Background()
+		ctx, cancel := context.WithCancel(ctx)
+		defer cancel()
+
+		mux := http.NewServeMux()
+		gw := runtime.NewServeMux()
+
+		hc, err := healthz.NewConfig(cfg)
+		healthzHandler, err := healthz.Handler(hc)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, `
+{
+"endpoints" :
+	[
+	"/v1/echo",
+	"/healthz",
+	"/metrics",
+	"/swagger/",
+	"/swagger-ui/"
+	]
+}
+`)
+		})
+
+		mux.Handle("/v1/", gw)
+		mux.Handle("/healthz", healthzHandler)
+		mux.Handle("/metrics", prometheus.Handler())
+		mux.HandleFunc("/swagger/", serveSwaggerData)
+		mux.HandleFunc("/swagger-ui/", serveSwagger.ServeHTTP)
+		/*
+			http.HandleFunc("/v1/", func(w http.ResponseWriter, r *http.Request) {
+				log.Printf("/api+")
+				defer log.Printf("/api-")
+
+				gw.ServeHTTP(w, r)
+			})
+		*/
+		opts := []grpc.DialOption{grpc.WithInsecure()}
+		err = pb.RegisterGreeterHandlerFromEndpoint(ctx, gw, cfg.GRPCListenAddress, opts)
 		if err != nil {
 			errc <- err
 			return
 		}
 
-		s := grpc.NewServer(
-			grpc_middleware.WithUnaryServerChain(
-				grpc_prometheus.UnaryServerInterceptor,
-				grpcEndpointLog("hello")))
-		RegisterGreeterServer(s, &server{})
-		log.Printf("gRPC service listening on %s", cfg.GRPCListenAddress)
-		errc <- s.Serve(lis)
-	}()
-
-	// http server
-	go func() {
 		log.Printf("HTTP service listening on %s", cfg.HTTPListenAddress)
-		errc <- http.ListenAndServe(cfg.HTTPListenAddress, nil)
+		errc <- http.ListenAndServe(cfg.HTTPListenAddress, httpLogger(allowCORS(mux)))
 	}()
 
 	// wait for somthin'

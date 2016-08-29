@@ -32,10 +32,31 @@ fmt:
 
 build: $(NAME)
 
-service.pb.go common.pb.proto: service.proto common.proto
-	protoc --go_out=plugins=grpc:. *.proto
+../service/service.pb.go ../service/common.pb.proto: ../service/service.proto ../service/common.proto
+	cd ../service \
+		&& protoc -I/usr/local/include -I. \
+			-I$(GOPATH)/src \
+			-I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+			--go_out=Mgoogle/api/annotations.proto=github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api,plugins=grpc:. \
+			*.proto
 
-$(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) service.pb.go
+../service/service.pb.gw.go: ../service/service.proto
+	cd ../service \
+		&& protoc -I/usr/local/include -I. \
+ 			-I$(GOPATH)/src \
+ 			-I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+ 			--grpc-gateway_out=logtostderr=true:. \
+ 			service.proto \
+		&& protoc -I/usr/local/include -I. \
+			 -I$(GOPATH)/src \
+			 -I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+			 --swagger_out=logtostderr=true:. \
+			 service.proto
+
+bindata.go: ../service/service.pb.gw.go
+	go-bindata ../service/service.swagger.json $(GOPATH)/src/github.com/swagger-api/swagger-ui/dist
+
+$(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) ../service/service.pb.go ../service/service.pb.gw.go
 	godep go build -ldflags "$(LDFLAGS)" -o $(NAME)
 
 test: $(DEPS)
@@ -50,7 +71,7 @@ fulltest: $(DEPS)
 	godep go test -v -blockprofile=block.out
 	godep go test -v -memprofile=mem.out
 
-run: $(DEPS) service.pb.go $(BUILD_NUMBER_FILE)
+run: $(DEPS) $(BUILD_NUMBER_FILE)
 	godep go run -ldflags "$(LDFLAGS)" $^ -http :9090
 
 container: $(DEPS) docker/Dockerfile service.pb.go common.pb.go
@@ -73,4 +94,4 @@ $(BUILD_NUMBER_FILE):
 	@echo $$(($$(cat $(BUILD_NUMBER_FILE)) + 1)) > $(BUILD_NUMBER_FILE)
 
 clean:
-	- rm -f certs *.zip *.js *.out docker/app *.pb.go
+	- rm -f certs *.zip *.js *.out docker/app ../service/*.go ../service/*.json
