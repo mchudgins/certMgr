@@ -73,6 +73,10 @@ func (l *loggingWriter) Length() int {
 	return l.contentLength
 }
 
+func (l *loggingWriter) StatusCode() int {
+	return l.statusCode
+}
+
 // httpLogger provides per request log statements (ala Apache httpd)
 func httpLogger(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -81,9 +85,13 @@ func httpLogger(h http.Handler) http.Handler {
 		defer func() {
 			end := time.Now()
 			duration := end.Sub(start)
-			log.Printf("uri: %s; status: %d, contentLength: %d, duration: %.3f; ua: %s",
+			log.Printf("host: %s; uri: %s; remoteAddress: %s; method:  %s; proto: %s; status: %d, contentLength: %d, duration: %.3f; ua: %s",
+				r.Host,
+				r.RemoteAddr,
 				r.URL,
-				lw.statusCode,
+				r.Method,
+				r.Proto,
+				lw.StatusCode(),
 				lw.Length(),
 				duration.Seconds()*1000,
 				r.UserAgent())
