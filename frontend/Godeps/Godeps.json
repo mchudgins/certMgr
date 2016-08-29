@@ -8,6 +8,10 @@
 			"Rev": "3ac7bf7a47d159a033b107610db8a1b6575507a4"
 		},
 		{
+			"ImportPath": "github.com/elazarl/go-bindata-assetfs",
+			"Rev": "57eb5e1fc594ad4b0b1dbea7b286d299e0cb43c2"
+		},
+		{
 			"ImportPath": "github.com/go-kit/kit/log",
 			"Rev": "ec8b02591ee873433565a1ae9d317353412d1d27"
 		},
@@ -52,11 +56,15 @@
 			"Rev": "d0c3fe89de86839aecf2e0579c40ba3bb336a453"
 		},
 		{
-			"ImportPath": "github.com/mchudgins/golang-service-starter/healthz",
-			"Rev": "464b863f94690ed5acb9c82ec6dd4a69c2d7b975"
+			"ImportPath": "github.com/mchudgins/go-service-helper/pkg/loggingWriter",
+			"Rev": "b4e85aa0a43817a0ec6dc2de117640749d7417a3"
 		},
 		{
-			"ImportPath": "github.com/mchudgins/golang-service-starter/pkg/serveSwagger",
+			"ImportPath": "github.com/mchudgins/go-service-helper/pkg/serveSwagger",
+			"Rev": "b4e85aa0a43817a0ec6dc2de117640749d7417a3"
+		},
+		{
+			"ImportPath": "github.com/mchudgins/golang-service-starter/healthz",
 			"Rev": "464b863f94690ed5acb9c82ec6dd4a69c2d7b975"
 		},
 		{
