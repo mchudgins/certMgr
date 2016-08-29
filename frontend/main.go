@@ -87,8 +87,8 @@ func httpLogger(h http.Handler) http.Handler {
 			duration := end.Sub(start)
 			log.Printf("host: %s; uri: %s; remoteAddress: %s; method:  %s; proto: %s; status: %d, contentLength: %d, duration: %.3f; ua: %s",
 				r.Host,
+				r.RequestURI,
 				r.RemoteAddr,
-				r.URL,
 				r.Method,
 				r.Proto,
 				lw.StatusCode(),
@@ -188,7 +188,10 @@ func main() {
 		mux.Handle("/healthz", healthzHandler)
 		mux.Handle("/metrics", prometheus.Handler())
 		mux.HandleFunc("/swagger/", serveSwaggerData)
-		mux.HandleFunc("/swagger-ui/", serveSwagger.ServeHTTP)
+
+		swaggerProxy, _ := serveSwagger.NewSwaggerProxy("/swagger-ui/")
+		mux.HandleFunc("/swagger-ui/", swaggerProxy.ServeHTTP)
+
 		/*
 			http.HandleFunc("/v1/", func(w http.ResponseWriter, r *http.Request) {
 				log.Printf("/api+")
