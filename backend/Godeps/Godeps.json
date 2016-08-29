@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/mchudgins/golang-backend-starter",
+	"ImportPath": "github.com/mchudgins/golang-service-starter/backend",
 	"GoVersion": "go1.7",
 	"GodepVersion": "v63",
 	"Deps": [
@@ -16,7 +16,15 @@
 			"Rev": "ec8b02591ee873433565a1ae9d317353412d1d27"
 		},
 		{
+			"ImportPath": "github.com/golang/protobuf/jsonpb",
+			"Rev": "888eb0692c857ec880338addf316bd662d5e630e"
+		},
+		{
 			"ImportPath": "github.com/golang/protobuf/proto",
+			"Rev": "888eb0692c857ec880338addf316bd662d5e630e"
+		},
+		{
+			"ImportPath": "github.com/golang/protobuf/protoc-gen-go/descriptor",
 			"Rev": "888eb0692c857ec880338addf316bd662d5e630e"
 		},
 		{
@@ -24,8 +32,40 @@
 			"Rev": "1de93bf4027517a7db2a7c3e56809a5e90ad322e"
 		},
 		{
+			"ImportPath": "github.com/grpc-ecosystem/grpc-gateway/runtime",
+			"Comment": "v1.1.0",
+			"Rev": "a8f25bd1ab549f8b87afd48aa9181221e9d439bb"
+		},
+		{
+			"ImportPath": "github.com/grpc-ecosystem/grpc-gateway/runtime/internal",
+			"Comment": "v1.1.0",
+			"Rev": "a8f25bd1ab549f8b87afd48aa9181221e9d439bb"
+		},
+		{
+			"ImportPath": "github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api",
+			"Comment": "v1.1.0",
+			"Rev": "a8f25bd1ab549f8b87afd48aa9181221e9d439bb"
+		},
+		{
+			"ImportPath": "github.com/grpc-ecosystem/grpc-gateway/utilities",
+			"Comment": "v1.1.0",
+			"Rev": "a8f25bd1ab549f8b87afd48aa9181221e9d439bb"
+		},
+		{
 			"ImportPath": "github.com/matttproud/golang_protobuf_extensions/pbutil",
 			"Rev": "d0c3fe89de86839aecf2e0579c40ba3bb336a453"
+		},
+		{
+			"ImportPath": "github.com/mchudgins/golang-service-starter/healthz",
+			"Rev": "d4c6b519ef59d66e063ee8ea3cd0359c4c8fe14d"
+		},
+		{
+			"ImportPath": "github.com/mchudgins/golang-service-starter/service",
+			"Rev": "d4c6b519ef59d66e063ee8ea3cd0359c4c8fe14d"
+		},
+		{
+			"ImportPath": "github.com/mchudgins/golang-service-starter/utils",
+			"Rev": "d4c6b519ef59d66e063ee8ea3cd0359c4c8fe14d"
 		},
 		{
 			"ImportPath": "github.com/mwitkow/go-grpc-middleware",
