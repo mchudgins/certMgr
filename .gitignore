@@ -23,7 +23,7 @@ _testmain.go
 *.test
 *.prof
 
-*.pb.go
+#*.pb.go
 
 build.num
 .buildnum
