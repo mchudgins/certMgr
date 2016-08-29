@@ -72,7 +72,7 @@ fulltest: $(DEPS)
 	godep go test -v -memprofile=mem.out
 
 run: $(DEPS) $(BUILD_NUMBER_FILE)
-	godep go run -ldflags "$(LDFLAGS)" $^ -http :9090
+	godep go run -ldflags "$(LDFLAGS)" $(DEPS) -http :9090
 
 container: $(DEPS) docker/Dockerfile service.pb.go common.pb.go
 	go get ./...
