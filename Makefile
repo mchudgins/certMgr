@@ -63,8 +63,8 @@ build: $(NAME)
 cmd/bindata.go: pkg/service/service.pb.gw.go
 	@echo The next step will generate a message "(\"no buildable Go source files\")" which may be safely ignored.
 	@-go get github.com/swagger-api/swagger-ui
-	go-bindata -pkg cmd pkg/service/service.swagger.json $(GOPATH)/src/github.com/swagger-api/swagger-ui/dist
-	mv bindata.go cmd
+	go-bindata -pkg frontend pkg/service/service.swagger.json $(GOPATH)/src/github.com/swagger-api/swagger-ui/dist
+	mv bindata.go pkg/frontend
 
 $(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
 	go build -ldflags "$(LDFLAGS)" -o $(NAME)
@@ -100,4 +100,5 @@ $(BUILD_NUMBER_FILE):
 	@echo $$(($$(cat $(BUILD_NUMBER_FILE)) + 1)) > $(BUILD_NUMBER_FILE)
 
 clean:
-	- rm -f certs *.zip *.js *.out docker/app pkg/service/*.go pkg/service/*.json
+	- rm -f certs $(NAME) *.zip *.js *.out docker/app pkg/service/*.go \
+			pkg/service/*.json pkg/frontend/bindata.go

@@ -27,8 +27,7 @@ _testmain.go
 
 build.num
 .buildnum
-golang-backend-starter
-golang-frontend-starter
+golang-service-starter
 */docker/app
 */Godeps/_workspace
 */bindata.go

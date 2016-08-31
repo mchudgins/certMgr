@@ -1,4 +1,4 @@
-package cmd
+package backend
 
 var html = `
 <!doctype html>
