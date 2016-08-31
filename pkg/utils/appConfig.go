@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"flag"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 // AppConfig provides the global configuration of the application
@@ -11,24 +12,26 @@ type AppConfig struct {
 	GRPCListenAddress string
 }
 
-var (
-	listenAddr = flag.String("http", ":8080", "listen address for the http server")
-	grpcAddr   = flag.String("grpc", ":50051", "listen address for the gRPC server")
-)
-
 // NewAppConfig sets up all the basic configuration data from flags, env, etc
-func NewAppConfig() (*AppConfig, error) {
+func NewAppConfig(cmd *cobra.Command) (*AppConfig, error) {
 
-	flag.Parse()
+	grpcAddr, err := cmd.Flags().GetString("grpc")
+	if err != nil {
+	}
 
-	addr := os.Getenv("HTTP_ADDRESS")
-	if len(addr) == 0 {
-		addr = *listenAddr
+	httpAddr, err := cmd.Flags().GetString("http")
+	if err != nil {
+		return nil, err
 	}
 
 	grpc := os.Getenv("GRPC_ADDRESS")
 	if len(grpc) == 0 {
-		grpc = *grpcAddr
+		grpc = grpcAddr
+	}
+
+	addr := os.Getenv("HTTP_ADDRESS")
+	if len(addr) == 0 {
+		addr = httpAddr
 	}
 
 	return &AppConfig{HTTPListenAddress: addr, GRPCListenAddress: grpc}, nil

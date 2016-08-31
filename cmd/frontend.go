@@ -1,6 +1,21 @@
-package main
+// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,30 +24,44 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/prometheus/client_golang/prometheus"
-	"golang.org/x/net/context"
-
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/mchudgins/go-service-helper/pkg/loggingWriter"
 	"github.com/mchudgins/go-service-helper/pkg/serveSwagger"
-	"github.com/mchudgins/golang-service-starter/healthz"
-	pb "github.com/mchudgins/golang-service-starter/service"
-	"github.com/mchudgins/golang-service-starter/utils"
+	"github.com/mchudgins/golang-service-starter/pkg/healthz"
+	pb "github.com/mchudgins/golang-service-starter/pkg/service"
+	"github.com/mchudgins/golang-service-starter/pkg/utils"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 )
 
-type server struct{}
-
+// frontendCmd represents the frontend command
 var (
-	swagger = MustAsset("../service/service.swagger.json")
-	// boilerplate variables for good SDLC hygiene.  These are auto-magically
-	// injected by the Makefile & linker working together.
-	version   string
-	buildTime string
-	builder   string
-	buildNum  string
-	goversion string
+	swagger     = MustAsset("pkg/service/service.swagger.json")
+	frontendCmd = &cobra.Command{
+		Use:   "frontend",
+		Short: "launch a 'frontend' for the sample service",
+		Long: `Launch a 'frontend' API server for the sample service.
+
+The frontend service accepts and provides JSON for the gRPC backend.`,
+		Run: frontend,
+	}
 )
+
+func init() {
+	RootCmd.AddCommand(frontendCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// frontendCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// frontendCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+}
 
 func serveSwaggerData(w http.ResponseWriter, r *http.Request) {
 	if !strings.HasSuffix(r.URL.Path, ".swagger.json") {
@@ -69,20 +98,12 @@ func preflightHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func main() {
-	log.Printf("golang-frontend-starter: version %s; buildTime: %s; built by: %s; buildNum: %s; (%s)",
-		version, buildTime, builder, buildNum, goversion)
+func frontend(cmd *cobra.Command, args []string) {
 
-	cfg, err := utils.NewAppConfig()
+	cfg, err := utils.NewAppConfig(cmd)
 	if err != nil {
 		log.Printf("Unable to initialize the application (%s).  Exiting now.", err)
 	}
-
-	hostname, err := os.Hostname()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("Starting app on host %s...", hostname)
 
 	// make a channel to listen on events,
 	// then launch the servers.
@@ -115,13 +136,13 @@ func main() {
 			fmt.Fprintf(w, `
 {
 "endpoints" :
-	[
-	"/api/v1/echo",
-	"/healthz",
-	"/metrics",
-	"/swagger/",
-	"/swagger-ui/"
-	]
+[
+"/api/v1/echo",
+"/healthz",
+"/metrics",
+"/swagger/",
+"/swagger-ui/"
+]
 }
 `)
 		})
@@ -136,12 +157,12 @@ func main() {
 		mux.HandleFunc("/swagger-ui/", swaggerProxy.ServeHTTP)
 
 		/*
-			http.HandleFunc("/v1/", func(w http.ResponseWriter, r *http.Request) {
-				log.Printf("/api+")
-				defer log.Printf("/api-")
+		   http.HandleFunc("/v1/", func(w http.ResponseWriter, r *http.Request) {
+		     log.Printf("/api+")
+		     defer log.Printf("/api-")
 
-				gw.ServeHTTP(w, r)
-			})
+		     gw.ServeHTTP(w, r)
+		   })
 		*/
 		opts := []grpc.DialOption{grpc.WithInsecure()}
 		err = pb.RegisterGreeterHandlerFromEndpoint(ctx, gw, cfg.GRPCListenAddress, opts)
