@@ -24,16 +24,6 @@ import (
 
 type server struct{}
 
-var (
-	// boilerplate variables for good SDLC hygiene.  These are auto-magically
-	// injected by the Makefile & linker working together.
-	version   string
-	buildTime string
-	builder   string
-	buildNum  string
-	goversion string
-)
-
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	log.Printf("ctx: %+v", ctx)
@@ -53,8 +43,7 @@ func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
 
 // Run the backend command
 func Run(cmd *cobra.Command, args []string) {
-	log.Printf("golang-backend-starter: version %s; buildTime: %s; built by: %s; buildNum: %s; (%s)",
-		version, buildTime, builder, buildNum, goversion)
+	utils.StartMessage()
 
 	cfg, err := utils.NewAppConfig(cmd)
 	if err != nil {

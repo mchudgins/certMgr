@@ -14,32 +14,9 @@
 
 package main
 
-import (
-	"log"
-	"os"
-
-	"github.com/mchudgins/golang-service-starter/cmd"
-)
-
-var (
-	// boilerplate variables for good SDLC hygiene.  These are auto-magically
-	// injected by the Makefile & linker working together.
-	version   string
-	buildTime string
-	builder   string
-	buildNum  string
-	goversion string
-)
+import "github.com/mchudgins/golang-service-starter/cmd"
 
 func main() {
-	log.Printf("golang-frontend-starter: version %s; buildTime: %s; built by: %s; buildNum: %s; (%s)",
-		version, buildTime, builder, buildNum, goversion)
-
-	hostname, err := os.Hostname()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("Starting app on host %s...", hostname)
 
 	cmd.Execute()
 }
