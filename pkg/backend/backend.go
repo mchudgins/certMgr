@@ -20,6 +20,7 @@ import (
 	"github.com/mchudgins/golang-service-starter/pkg/utils"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 type server struct{}
@@ -27,6 +28,11 @@ type server struct{}
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	log.Printf("ctx: %+v", ctx)
+	md, _ := metadata.FromContext(ctx)
+	//log.Printf("x-correlation-id: %s", md["x-correlation-id"])
+	for key, value := range md {
+		log.Printf("md[ %s ] : %s", key, value[0])
+	}
 	return &pb.HelloReply{Message: "Hello " + in.Name}, nil
 }
 

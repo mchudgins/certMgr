@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	XCorrID = "X-Correlation-ID"
+	XCorrID                  = "X-Correlation-ID"
+	grpcMetadataHeaderPrefix = "Grpc-Metadata-"
 )
 
 // Correlator returns the value of X-Correlation-ID from the HTTP request
@@ -37,6 +38,7 @@ func (c CoreRequest) CorrelateRequest(h http.Handler) http.Handler {
 		if len(id) == 0 {
 			id = c.CorrelationID()
 		}
+		r.Header.Set(grpcMetadataHeaderPrefix+XCorrID, id)
 		w.Header().Set(XCorrID, id)
 		h.ServeHTTP(w, r)
 	})
