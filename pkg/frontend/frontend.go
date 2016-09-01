@@ -112,7 +112,12 @@ func Run(cmd *cobra.Command, args []string) {
 `)
 		})
 
-		mux.Handle("/api/v1/", gw)
+		secProxy, err := NewSecurityProxy("https://auth.dstcorp.io/login")
+		if err != nil {
+			log.Panic(err)
+		}
+
+		mux.Handle("/api/v1/", secProxy.Handler(gw))
 		mux.Handle("/healthz", healthzHandler)
 		mux.Handle("/metrics", prometheus.Handler())
 		mux.HandleFunc("/swagger/", serveSwaggerData)
