@@ -6,6 +6,10 @@ import (
 	"github.com/rs/xid"
 )
 
+const (
+	XCorrID = "X-Correlation-ID"
+)
+
 // Correlator returns the value of X-Correlation-ID from the HTTP request
 type Correlator interface {
 	CorrelationID() string
@@ -29,7 +33,11 @@ func NewCoreRequest() *CoreRequest {
 
 func (c CoreRequest) CorrelateRequest(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("X-Correlation-ID", c.CorrelationID())
+		id := r.Header.Get(XCorrID)
+		if len(id) == 0 {
+			id = c.CorrelationID()
+		}
+		w.Header().Set(XCorrID, id)
 		h.ServeHTTP(w, r)
 	})
 }
