@@ -10,6 +10,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/afex/hystrix-go/hystrix"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/mchudgins/go-service-helper/pkg/loggingWriter"
 	"github.com/mchudgins/go-service-helper/pkg/serveSwagger"
@@ -97,6 +98,22 @@ func Run(cmd *cobra.Command, args []string) {
 			log.Panic(err)
 		}
 
+		// set up the backend's proxy
+		secProxy, err := NewSecurityProxy("https://auth.dstcorp.io/login")
+		if err != nil {
+			log.Panic(err)
+		}
+
+		circuitBreaker, err := utils.NewHystrixHelper("grpc")
+		if err != nil {
+			log.Fatalf("Error creating circuitBreaker: %s", err)
+		}
+
+		mux.Handle("/api/v1/", secProxy.Handler(circuitBreaker.Handler(gw)))
+
+		// now set up all the other, supporting url handlers for the frontend
+
+		// this handler gives 'em a sitemap
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, `
 {
@@ -112,23 +129,22 @@ func Run(cmd *cobra.Command, args []string) {
 `)
 		})
 
-		secProxy, err := NewSecurityProxy("https://auth.dstcorp.io/login")
-		if err != nil {
-			log.Panic(err)
-		}
-
-		circuitBreaker, err := utils.NewHystrixHelper("grpc")
-		if err != nil {
-			log.Fatalf("Error creating circuitBreaker: %s", err)
-		}
-
-		mux.Handle("/api/v1/", secProxy.Handler(circuitBreaker.Handler(gw)))
+		// add a /healthz endpoint to monitor this instance's health
 		mux.Handle("/healthz", healthzHandler)
-		mux.Handle("/metrics", prometheus.Handler())
-		mux.HandleFunc("/swagger/", serveSwaggerData)
 
+		// prometheus for metrics
+		mux.Handle("/metrics", prometheus.Handler())
+
+		// swagger for discovery
+		mux.HandleFunc("/swagger/", serveSwaggerData)
 		swaggerProxy, _ := serveSwagger.NewSwaggerProxy("/swagger-ui/")
 		mux.HandleFunc("/swagger-ui/", swaggerProxy.ServeHTTP)
+
+		// Enable hystrix dashboard metrics
+		hystrixStreamHandler := hystrix.NewStreamHandler()
+		hystrixStreamHandler.Start()
+
+		mux.Handle("/hystrix", hystrixStreamHandler)
 
 		/*
 		   http.HandleFunc("/v1/", func(w http.ResponseWriter, r *http.Request) {
@@ -152,6 +168,6 @@ func Run(cmd *cobra.Command, args []string) {
 			correlator.CorrelateRequest(loggingWriter.HttpLogger(allowCORS(mux))))
 	}()
 
-	// wait for somthin'
+	// wait for somethin'
 	log.Printf("exit: %s", <-errc)
 }
