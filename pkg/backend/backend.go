@@ -43,7 +43,7 @@ func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
 
 // Run the backend command
 func Run(cmd *cobra.Command, args []string) {
-	utils.StartMessage()
+	utils.StartUpMessage()
 
 	cfg, err := utils.NewAppConfig(cmd)
 	if err != nil {

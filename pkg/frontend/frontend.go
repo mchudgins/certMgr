@@ -63,7 +63,7 @@ func preflightHandler(w http.ResponseWriter, r *http.Request) {
 
 // Run the frontend command
 func Run(cmd *cobra.Command, args []string) {
-	utils.StartMessage()
+	utils.StartUpMessage()
 
 	cfg, err := utils.NewAppConfig(cmd)
 	if err != nil {

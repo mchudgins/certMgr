@@ -14,7 +14,7 @@ var (
 	goversion string
 )
 
-func StartMessage() {
+func StartUpMessage() {
 	log.Printf("golang-service-starter: version %s; buildTime: %s; built by: %s; buildNum: %s; (%s)",
 		version, buildTime, builder, buildNum, goversion)
 }
