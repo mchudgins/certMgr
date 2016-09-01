@@ -9,7 +9,10 @@ import (
 )
 
 type hystrixHelper struct {
-	commandName   string
+	commandName string
+}
+
+type writer struct {
 	w             http.ResponseWriter
 	statusCode    int
 	contentLength int
@@ -21,25 +24,26 @@ func NewLoggingWriter(w http.ResponseWriter) *loggingWriter {
 }
 */
 
-func (l *hystrixHelper) Header() http.Header {
+func (l *writer) Header() http.Header {
 	return l.w.Header()
 }
 
-func (l *hystrixHelper) Write(data []byte) (int, error) {
+func (l *writer) Write(data []byte) (int, error) {
 	l.contentLength += len(data)
 	return l.w.Write(data)
 }
 
-func (l *hystrixHelper) WriteHeader(status int) {
+func (l *writer) WriteHeader(status int) {
+	//log.Printf("StatusCode: %d", status)
 	l.statusCode = status
 	l.w.WriteHeader(status)
 }
 
-func (l *hystrixHelper) Length() int {
+func (l *writer) Length() int {
 	return l.contentLength
 }
 
-func (l *hystrixHelper) StatusCode() int {
+func (l *writer) StatusCode() int {
 
 	// if nobody set the status, but data has been written
 	// then all must be well.
@@ -57,18 +61,26 @@ func NewHystrixHelper(commandName string) (*hystrixHelper, error) {
 func (y *hystrixHelper) Handler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := hystrix.Do(y.commandName, func() (err error) {
-			y.w = w
-			h.ServeHTTP(y, r)
-			rc := y.StatusCode()
+			//log.Printf("breaker closed")
+
+			monitor := &writer{w: w}
+			//log.Printf("monitor.StatusCode: %d", monitor.StatusCode())
+			h.ServeHTTP(monitor, r)
+
+			rc := monitor.StatusCode()
 			if rc >= 500 && rc < 600 {
+				//log.Printf("StatusCode indicates backend failure")
 				return fmt.Errorf("backend failure")
 			}
 			return nil
 		}, func(err error) error {
-			log.Printf("hystrix error handler for command %s with error %s", y.commandName, err)
-			w.WriteHeader(http.StatusServiceUnavailable)
+			//log.Printf("breaker open")
+			//log.Printf("hystrix error handler for command %s with error '%s'", y.commandName, err)
+			//			w.WriteHeader(http.StatusServiceUnavailable)
 			return nil
 		})
-		log.Printf("hystrix.Handler with error: %s", err)
+		if err != nil {
+			log.Printf("hystrix.Handler with error: %s", err)
+		}
 	})
 }

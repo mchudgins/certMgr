@@ -92,19 +92,13 @@ func Run(cmd *cobra.Command, args []string) {
 		mux := http.NewServeMux()
 		gw := runtime.NewServeMux()
 
-		hc, err := healthz.NewConfig(cfg)
-		healthzHandler, err := healthz.Handler(hc)
-		if err != nil {
-			log.Panic(err)
-		}
-
-		// set up the backend's proxy
+		// set up the proxy to the backend
 		secProxy, err := NewSecurityProxy("https://auth.dstcorp.io/login")
 		if err != nil {
 			log.Panic(err)
 		}
 
-		circuitBreaker, err := utils.NewHystrixHelper("grpc")
+		circuitBreaker, err := utils.NewHystrixHelper("grpc-backend")
 		if err != nil {
 			log.Fatalf("Error creating circuitBreaker: %s", err)
 		}
@@ -130,6 +124,11 @@ func Run(cmd *cobra.Command, args []string) {
 		})
 
 		// add a /healthz endpoint to monitor this instance's health
+		hc, err := healthz.NewConfig(cfg)
+		healthzHandler, err := healthz.Handler(hc)
+		if err != nil {
+			log.Panic(err)
+		}
 		mux.Handle("/healthz", healthzHandler)
 
 		// prometheus for metrics
@@ -143,7 +142,6 @@ func Run(cmd *cobra.Command, args []string) {
 		// Enable hystrix dashboard metrics
 		hystrixStreamHandler := hystrix.NewStreamHandler()
 		hystrixStreamHandler.Start()
-
 		mux.Handle("/hystrix", hystrixStreamHandler)
 
 		/*
