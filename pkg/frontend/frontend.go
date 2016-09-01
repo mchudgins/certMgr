@@ -117,7 +117,12 @@ func Run(cmd *cobra.Command, args []string) {
 			log.Panic(err)
 		}
 
-		mux.Handle("/api/v1/", secProxy.Handler(gw))
+		circuitBreaker, err := utils.NewHystrixHelper("grpc")
+		if err != nil {
+			log.Fatalf("Error creating circuitBreaker: %s", err)
+		}
+
+		mux.Handle("/api/v1/", secProxy.Handler(circuitBreaker.Handler(gw)))
 		mux.Handle("/healthz", healthzHandler)
 		mux.Handle("/metrics", prometheus.Handler())
 		mux.HandleFunc("/swagger/", serveSwaggerData)

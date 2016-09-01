@@ -27,6 +27,8 @@ func (s *securityProxy) Handler(h http.Handler) http.Handler {
 			return
 		}
 
+		// Todo:  if the authorization header is present, then determine the
+		// user's ID and pass it along to the backend via the grpc per call credentials
 		h.ServeHTTP(w, r)
 	})
 }
