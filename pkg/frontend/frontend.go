@@ -101,13 +101,13 @@ func Run(cmd *cobra.Command, args []string) {
 			fmt.Fprintf(w, `
 {
 "endpoints" :
-[
-"/api/v1/echo",
-"/healthz",
-"/metrics",
-"/swagger/service.swagger.json",
-"/swagger-ui/"
-]
+  [
+  "/api/v1/echo",
+  "/healthz",
+  "/metrics",
+  "/swagger/service.swagger.json",
+  "/swagger-ui/"
+  ]
 }
 `)
 		})
