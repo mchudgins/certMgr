@@ -14,11 +14,12 @@ BUILD_NUMBER_FILE=.buildnum
 BUILD_NUM := $(shell if [ -f ${BUILD_NUMBER_FILE} ]; then cat ${BUILD_NUMBER_FILE}; else echo 0; fi)
 PKG_RELEASE ?= 1
 PROJECT_URL := "git@github.com:mchudgins/golang-service-starter.git"
-LDFLAGS	:= -X 'utils.version=$(VERSION)' \
-	-X 'utils.buildTime=$(BUILDTIME)' \
-	-X 'utils.builder=$(BUILDER)' \
-	-X 'utils.goversion=$(GOVERSION)' \
-	-X 'utils.buildNum=$(BUILD_NUM)'
+HYGIENEPKG := "github.com/mchudgins/golang-service-starter/pkg/utils"
+LDFLAGS	:= -X '$(HYGIENEPKG).version=$(VERSION)' \
+	-X '$(HYGIENEPKG).buildTime=$(BUILDTIME)' \
+	-X '$(HYGIENEPKG).builder=$(BUILDER)' \
+	-X '$(HYGIENEPKG).goversion=$(GOVERSION)' \
+	-X '$(HYGIENEPKG).buildNum=$(BUILD_NUM)'
 
 DEPS := $(shell ls *.go | sed 's/.*_test.go//g')
 PROTO_GEN_FILES := pkg/service/service.pb.go \

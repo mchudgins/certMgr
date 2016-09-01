@@ -63,6 +63,7 @@ func preflightHandler(w http.ResponseWriter, r *http.Request) {
 
 // Run the frontend command
 func Run(cmd *cobra.Command, args []string) {
+	utils.StartMessage()
 
 	cfg, err := utils.NewAppConfig(cmd)
 	if err != nil {
@@ -104,7 +105,7 @@ func Run(cmd *cobra.Command, args []string) {
 "/api/v1/echo",
 "/healthz",
 "/metrics",
-"/swagger/",
+"/swagger/service.swagger.json",
 "/swagger-ui/"
 ]
 }
