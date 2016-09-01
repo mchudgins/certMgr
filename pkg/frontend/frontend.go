@@ -136,9 +136,10 @@ func Run(cmd *cobra.Command, args []string) {
 		}
 
 		log.Printf("HTTP service listening on %s", cfg.HTTPListenAddress)
+		correlator := utils.NewCoreRequest()
 		errc <- http.ListenAndServe(
 			cfg.HTTPListenAddress,
-			loggingWriter.HttpLogger(allowCORS(mux)))
+			correlator.CorrelateRequest(loggingWriter.HttpLogger(allowCORS(mux))))
 	}()
 
 	// wait for somthin'
