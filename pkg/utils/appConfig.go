@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"log"
+	"net/http"
 	"os"
 	"path"
 	"strings"
@@ -47,13 +48,23 @@ func readConfigFile(uri string) error {
 	}
 	defer file.Close()
 
-	return viper.ReadConfig(file)
+	return viper.MergeConfig(file)
 }
 
 // readConfigViaNet
 func readConfigViaNet(uri string) error {
 
-	return nil
+	// what kind of config file?
+	ext := path.Ext(uri)
+	viper.SetConfigType(ext[1:])
+
+	c := &http.Client{}
+	resp, err := c.Get(uri)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return viper.MergeConfig(resp.Body)
 }
 
 // readConfig
@@ -61,7 +72,7 @@ func readConfig(uri string) error {
 
 	switch uri[0:5] {
 	case "http:":
-		return readConfigViaNet(uri[7:])
+		return readConfigViaNet(uri)
 
 	case "file:":
 		return readConfigFile(uri[7:])
@@ -76,8 +87,6 @@ func readConfig(uri string) error {
 // NewAppConfig sets up all the basic configuration data from flags, env, etc
 func NewAppConfig(cmd *cobra.Command) (*AppConfig, error) {
 	var activeConfig AppConfig
-
-	log.Printf("basename: %s", path.Base(os.Args[0]))
 
 	defaultSettings, err := json.Marshal(defaultConfig)
 	if err != nil {
@@ -114,6 +123,5 @@ func NewAppConfig(cmd *cobra.Command) (*AppConfig, error) {
 	activeConfig.GRPCListenAddress = viper.GetString("grpc")
 
 	log.Printf("Current config:  %+v", activeConfig)
-	panic("done")
 	return &activeConfig, nil
 }
