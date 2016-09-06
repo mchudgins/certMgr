@@ -9,6 +9,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/afex/hystrix-go/hystrix"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -59,12 +60,16 @@ func readConfigViaNet(uri string) error {
 	viper.SetConfigType(ext[1:])
 
 	c := &http.Client{}
-	resp, err := c.Get(uri)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return viper.MergeConfig(resp.Body)
+	err := hystrix.Do("configServer", func() (err error) {
+		resp, err := c.Get(uri)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+		return viper.MergeConfig(resp.Body)
+	}, nil)
+
+	return err
 }
 
 // readConfig
