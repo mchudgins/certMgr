@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -13,85 +14,106 @@ import (
 
 // AppConfig provides the global configuration of the application.
 type AppConfig struct {
+	Config            string `json:"config"`
 	HTTPListenAddress string `json:"http"`
 	GRPCListenAddress string `json:"grpc"`
-	User              User   `json:"user"`
 }
 
-type User struct {
-	UserID string `json:"userID"`
-	Name   string `json:"name"`
-}
-
-type TestConfig struct {
-	HTTPListenAddress string `json:"http"`
-	User              User   `json:"user"`
-}
-
+// the default configuration
 var (
 	defaultConfig = &AppConfig{
+		Config:            "",
 		HTTPListenAddress: ":8080",
 		GRPCListenAddress: ":50051",
-		User: User{
-			UserID: "bones177",
-			Name:   "Bob Jones",
-		},
 	}
 )
 
+// readConfigFile
+func readConfigFile(uri string) error {
+
+	// what kind of config file?
+	ext := path.Ext(uri)
+	viper.SetConfigType(ext[1:])
+
+	// did they include a "file://"?
+	filename := uri
+	if strings.HasPrefix(uri, "file://") {
+		filename = uri[0:len("file://")]
+	}
+
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return viper.ReadConfig(file)
+}
+
+// readConfigViaNet
+func readConfigViaNet(uri string) error {
+
+	return nil
+}
+
+// readConfig
+func readConfig(uri string) error {
+
+	switch uri[0:5] {
+	case "http:":
+		return readConfigViaNet(uri[7:])
+
+	case "file:":
+		return readConfigFile(uri[7:])
+
+	default:
+		log.Printf("Warning: unable to interpret %s as a file or network location.", uri)
+	}
+
+	return nil
+}
+
 // NewAppConfig sets up all the basic configuration data from flags, env, etc
 func NewAppConfig(cmd *cobra.Command) (*AppConfig, error) {
+	var activeConfig AppConfig
+
+	log.Printf("basename: %s", path.Base(os.Args[0]))
 
 	defaultSettings, err := json.Marshal(defaultConfig)
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("defaultConfig    : %+v", defaultConfig)
-	log.Printf("defaultSettings  : %s", defaultSettings)
 
 	viper.SetConfigType("json")
 	viper.ReadConfig(bytes.NewReader(defaultSettings))
-	viper.SetEnvPrefix("fubar")
-	log.Printf("user.name        : %s", viper.GetString("user.name"))
-	log.Printf("FUBAR_GORF       : %s", viper.GetString("GORF"))
-	log.Printf("gorf             : %s", viper.GetString("gorf"))
-
+	viper.SetEnvPrefix("gss")
 	viper.BindPFlags(cmd.Flags())
-	log.Printf("httpaddress      : %s", viper.GetString("http"))
 
-	log.Printf("GRPCListenAddress: %s", viper.GetString("GRPCListenAddress"))
-	log.Printf("grpc             : %s", viper.GetString("grpc"))
+	// afore we do anything, get the value for the config server,
+	// download the config, and feed it into viper
+	configURI := viper.GetString("config")
 
-	var activeConfig AppConfig
+	if len(configURI) == 0 {
+		// fetch the config from the default location, $HOME/.golang-service-starter.yaml
+		home := os.Getenv("HOME")
+		configURI = "file://" + home + "/.golang-service-starter.yaml"
+	}
+
+	err = readConfig(configURI)
+	if err != nil {
+		log.Printf("Warning: unable to obtain configuration from %s -- %s", configURI, err)
+	}
+
 	err = viper.Unmarshal(&activeConfig)
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("TestConfig.HTTPListenAddress: %s", activeConfig.HTTPListenAddress)
-	log.Printf("TestConfig.GRPCListenAddress: %s", activeConfig.GRPCListenAddress)
-	log.Printf("TestConfig.user.name        : %s", activeConfig.User.Name)
-	log.Printf("TestConfig.user.userID      : %s", activeConfig.User.UserID)
+	// flags need special handling (sigh)
+	activeConfig.Config = viper.GetString("config")
+	activeConfig.HTTPListenAddress = viper.GetString("http")
+	activeConfig.GRPCListenAddress = viper.GetString("grpc")
 
-	log.Printf("basename: %s", path.Base(os.Args[0]))
-
-	grpcAddr, err := cmd.Flags().GetString("grpc")
-	if err != nil {
-	}
-
-	httpAddr, err := cmd.Flags().GetString("http")
-	if err != nil {
-		return nil, err
-	}
-
-	grpc := os.Getenv("GRPC_ADDRESS")
-	if len(grpc) == 0 {
-		grpc = grpcAddr
-	}
-
-	addr := os.Getenv("HTTP_ADDRESS")
-	if len(addr) == 0 {
-		addr = httpAddr
-	}
-
-	return &AppConfig{HTTPListenAddress: addr, GRPCListenAddress: grpc}, nil
+	log.Printf("Current config:  %+v", activeConfig)
+	panic("done")
+	return &activeConfig, nil
 }
