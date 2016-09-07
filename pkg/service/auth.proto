@@ -23,6 +23,21 @@ service AuthVerifier {
     get: "/api/v1/token/{token}"
   };
  }
+ rpc Configuration (ConfigurationRequest) returns (ConfigurationResponse) {
+ option (google.api.http) = {
+    get: "/api/v1/sitemap"
+  };
+ }
+}
+
+message ConfigurationRequest {
+  CommonRequest common = 1;
+}
+
+message ConfigurationResponse {
+  CommonResponse common = 1;
+  string logonURL = 10;
+  string logoutURL = 11;
 }
 
 // The request message containing the user's name.

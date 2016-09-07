@@ -2,13 +2,20 @@ package frontend
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"regexp"
 
 	"google.golang.org/grpc"
 
+	"github.com/afex/hystrix-go/hystrix"
 	pb "github.com/mchudgins/golang-service-starter/pkg/service"
+)
+
+const (
+	remoteUserHeader         = "X-RemoteUser"
+	grpcMetadataHeaderPrefix = "Grpc-Metadata-"
 )
 
 var (
@@ -17,8 +24,10 @@ var (
 )
 
 type securityProxy struct {
-	url  string
-	auth pb.AuthVerifierClient
+	url       string
+	auth      pb.AuthVerifierClient
+	logonURL  string
+	logoutURL string
 }
 
 func init() {
@@ -32,8 +41,30 @@ func NewSecurityProxy(idp string) (*securityProxy, error) {
 	}
 
 	client := pb.NewAuthVerifierClient(conn)
+	server := &securityProxy{url: idp, auth: client}
 
-	return &securityProxy{url: idp, auth: client}, nil
+	err = hystrix.Do(server.url, func() (err error) {
+
+		resp, err := client.Configuration(context.Background(),
+			&pb.ConfigurationRequest{})
+		if err != nil {
+			newerr := fmt.Errorf("Unable to retrieve configuration URLs from the authentication service (%s) -- %s", idp, err)
+			return newerr
+		}
+		server.logonURL = resp.LogonURL
+		server.logoutURL = resp.LogoutURL
+
+		return nil
+	}, nil)
+
+	log.Printf("server: %+v", server)
+	return server, err
+}
+
+// DRY: make sure we always redirect to LogonURL in the same way
+func (s *securityProxy) redirectToLogon(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r,
+		s.logonURL, http.StatusTemporaryRedirect)
 }
 
 func (s *securityProxy) Handler(h http.Handler) http.Handler {
@@ -42,19 +73,13 @@ func (s *securityProxy) Handler(h http.Handler) http.Handler {
 
 		auth := r.Header.Get("Authorization")
 		if len(auth) == 0 {
-			http.Redirect(w, r,
-				s.url, http.StatusTemporaryRedirect)
+			s.redirectToLogon(w, r)
 			return
 		}
 
-		log.Printf("auth: %s", auth)
 		if bearerRegex.MatchString(auth) {
-			log.Printf("its a match")
 			result := bearerRegex.FindStringSubmatch(auth)
-			log.Printf("token: %s", result)
-			log.Printf("%d items in result", len(result))
 			if len(result) == 2 {
-				log.Printf("token: %s", result[1])
 				token = result[1]
 			}
 		}
@@ -62,18 +87,32 @@ func (s *securityProxy) Handler(h http.Handler) http.Handler {
 		// Todo:  if the authorization header is present, then determine the
 		// user's ID and pass it along to the backend via the grpc per call credentials
 		if len(token) == 0 {
-			http.Redirect(w, r,
-				s.url, http.StatusTemporaryRedirect)
+			s.redirectToLogon(w, r)
 			return
 		}
 
-		request := &pb.VerificationRequest{Token: token}
-		resp, err := s.auth.VerifyToken(context.Background(), request)
-		if err != nil {
-			log.Printf("VerifyToken:  %s", err)
-		}
-		log.Printf("Response: %+v", resp)
+		var resp *pb.VerificationResponse
 
+		err := hystrix.Do(s.url, func() (err error) {
+			request := &pb.VerificationRequest{Token: token}
+			resp, err = s.auth.VerifyToken(context.Background(), request)
+			if err != nil {
+				log.Printf("VerifyToken:  %s", err)
+			}
+			log.Printf("Response: %+v", resp)
+
+			return nil
+		}, nil)
+
+		if err != nil {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+
+		// resp.UserID needs to be passed along to the backend
+		r.Header.Set(grpcMetadataHeaderPrefix+remoteUserHeader, resp.UserID)
+
+		// finally, pass the request along the processing chain
 		h.ServeHTTP(w, r)
 	})
 }

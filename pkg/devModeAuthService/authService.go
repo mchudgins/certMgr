@@ -22,6 +22,17 @@ import (
 
 type server struct{}
 
+func (s *server) Configuration(ctx context.Context,
+	in *pb.ConfigurationRequest) (*pb.ConfigurationResponse, error) {
+
+	resp := &pb.ConfigurationResponse{
+		LogonURL:  "http://localhost:9999/sigin",
+		LogoutURL: "http://localhost:9999/logout",
+	}
+
+	return resp, nil
+}
+
 func (s *server) VerifyToken(ctx context.Context,
 	in *pb.VerificationRequest) (*pb.VerificationResponse, error) {
 	resp := &pb.VerificationResponse{
