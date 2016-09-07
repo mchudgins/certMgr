@@ -6,11 +6,13 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"time"
 
 	"google.golang.org/grpc"
 
 	"github.com/afex/hystrix-go/hystrix"
 	pb "github.com/mchudgins/golang-service-starter/pkg/service"
+	"github.com/patrickmn/go-cache"
 )
 
 const (
@@ -28,6 +30,7 @@ type securityProxy struct {
 	auth      pb.AuthVerifierClient
 	logonURL  string
 	logoutURL string
+	cache     *cache.Cache
 }
 
 func init() {
@@ -62,6 +65,9 @@ func NewSecurityProxy(idp string) (*securityProxy, error) {
 		return nil
 	}, nil)
 
+	// set up the cache
+	server.cache = cache.New(30*time.Minute, 30*time.Second)
+
 	return server, err
 }
 
@@ -69,6 +75,23 @@ func NewSecurityProxy(idp string) (*securityProxy, error) {
 func (s *securityProxy) redirectToLogon(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r,
 		s.logonURL, http.StatusTemporaryRedirect)
+}
+
+func (s *securityProxy) verifyToken(token string) (*pb.VerificationResponse, error) {
+	var resp *pb.VerificationResponse
+
+	err := hystrix.Do(s.url, func() (err error) {
+
+		request := &pb.VerificationRequest{Token: token}
+		resp, err = s.auth.VerifyToken(context.Background(), request)
+		if err != nil {
+			log.Printf("VerifyToken:  %s for token \"%s\"", err, token)
+		}
+
+		return err
+	}, nil)
+
+	return resp, err
 }
 
 func (s *securityProxy) Handler(h http.Handler) http.Handler {
@@ -97,20 +120,29 @@ func (s *securityProxy) Handler(h http.Handler) http.Handler {
 
 		var resp *pb.VerificationResponse
 
-		err := hystrix.Do(s.url, func() (err error) {
+		// check the process cache to see if the token is valid
+		now := time.Now()
+		cacheHit, found := s.cache.Get(token)
+		if !found { // not in the cache, go get it
+			var err error
+			resp, err = s.verifyToken(token)
 
-			request := &pb.VerificationRequest{Token: token}
-			resp, err = s.auth.VerifyToken(context.Background(), request)
 			if err != nil {
-				log.Printf("VerifyToken:  %s for token \"%s\"", err, token)
+				w.WriteHeader(http.StatusServiceUnavailable)
+				return
 			}
 
-			return err
-		}, nil)
-
-		if err != nil {
-			w.WriteHeader(http.StatusServiceUnavailable)
-			return
+			expires := time.Unix(resp.CacheExpiration, 0)
+			if resp.Valid && expires.After(now) {
+				s.cache.Set(token, resp, expires.Sub(now))
+			}
+		} else { // in the cache, double check it
+			resp = cacheHit.(*pb.VerificationResponse)
+			expires := time.Unix(resp.CacheExpiration, 0)
+			if now.After(expires) {
+				resp.Valid = false
+				s.cache.Delete(token)
+			}
 		}
 
 		// if the token's invalid, send 'em to the logon URL

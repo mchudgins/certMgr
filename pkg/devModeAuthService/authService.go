@@ -38,7 +38,7 @@ func (s *server) VerifyToken(ctx context.Context,
 	resp := &pb.VerificationResponse{
 		Valid:           true,
 		UserID:          in.Token,
-		CacheExpiration: int64(15 * time.Minute),
+		CacheExpiration: time.Now().Add(15 * time.Minute).Unix(),
 	}
 
 	return resp, nil
