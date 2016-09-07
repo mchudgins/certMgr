@@ -2,19 +2,6 @@
 // source: common.proto
 // DO NOT EDIT!
 
-/*
-Package service is a generated protocol buffer package.
-
-It is generated from these files:
-	common.proto
-	service.proto
-
-It has these top-level messages:
-	CommonRequest
-	CommonResponse
-	HelloRequest
-	HelloReply
-*/
 package service
 
 import proto "github.com/golang/protobuf/proto"
@@ -25,12 +12,6 @@ import math "math"
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
-
-// This is a compile-time assertion to ensure that this generated file
-// is compatible with the proto package it is being compiled against.
-// A compilation error at this line likely means your copy of the
-// proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // The request message containing:
 //   - the authenticated user ID
@@ -45,7 +26,7 @@ type CommonRequest struct {
 func (m *CommonRequest) Reset()                    { *m = CommonRequest{} }
 func (m *CommonRequest) String() string            { return proto.CompactTextString(m) }
 func (*CommonRequest) ProtoMessage()               {}
-func (*CommonRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (*CommonRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
 
 // The response message
 type CommonResponse struct {
@@ -55,16 +36,16 @@ type CommonResponse struct {
 func (m *CommonResponse) Reset()                    { *m = CommonResponse{} }
 func (m *CommonResponse) String() string            { return proto.CompactTextString(m) }
 func (*CommonResponse) ProtoMessage()               {}
-func (*CommonResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (*CommonResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
 
 func init() {
 	proto.RegisterType((*CommonRequest)(nil), "service.CommonRequest")
 	proto.RegisterType((*CommonResponse)(nil), "service.CommonResponse")
 }
 
-func init() { proto.RegisterFile("common.proto", fileDescriptor0) }
+func init() { proto.RegisterFile("common.proto", fileDescriptor1) }
 
-var fileDescriptor0 = []byte{
+var fileDescriptor1 = []byte{
 	// 170 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0xe2, 0x49, 0xce, 0xcf, 0xcd,
 	0xcd, 0xcf, 0xd3, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x2f, 0x4e, 0x2d, 0x2a, 0xcb, 0x4c,
