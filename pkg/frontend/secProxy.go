@@ -43,6 +43,11 @@ func NewSecurityProxy(idp string) (*securityProxy, error) {
 	client := pb.NewAuthVerifierClient(conn)
 	server := &securityProxy{url: idp, auth: client}
 
+	hystrix.ConfigureCommand(server.url, hystrix.CommandConfig{
+		Timeout:               250, // 250 ms
+		MaxConcurrentRequests: 100,
+	})
+
 	err = hystrix.Do(server.url, func() (err error) {
 
 		resp, err := client.Configuration(context.Background(),
@@ -57,7 +62,6 @@ func NewSecurityProxy(idp string) (*securityProxy, error) {
 		return nil
 	}, nil)
 
-	log.Printf("server: %+v", server)
 	return server, err
 }
 
@@ -94,18 +98,24 @@ func (s *securityProxy) Handler(h http.Handler) http.Handler {
 		var resp *pb.VerificationResponse
 
 		err := hystrix.Do(s.url, func() (err error) {
+
 			request := &pb.VerificationRequest{Token: token}
 			resp, err = s.auth.VerifyToken(context.Background(), request)
 			if err != nil {
-				log.Printf("VerifyToken:  %s", err)
+				log.Printf("VerifyToken:  %s for token \"%s\"", err, token)
 			}
-			log.Printf("Response: %+v", resp)
 
-			return nil
+			return err
 		}, nil)
 
 		if err != nil {
 			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+
+		// if the token's invalid, send 'em to the logon URL
+		if !resp.Valid {
+			s.redirectToLogon(w, r)
 			return
 		}
 

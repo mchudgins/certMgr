@@ -55,6 +55,9 @@ func (l *writer) StatusCode() int {
 }
 
 func NewHystrixHelper(commandName string) (*hystrixHelper, error) {
+	hystrix.ConfigureCommand(commandName, hystrix.CommandConfig{
+		MaxConcurrentRequests: 100,
+	})
 	return &hystrixHelper{commandName: commandName}, nil
 }
 
