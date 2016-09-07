@@ -9,5 +9,4 @@ Provides an out-of-the-box example of building a frontend/backend microservice u
 * verify that openshift builder works
 * add configserver, hystrix, turbine to openshift deployments
 * recover main_test.go
-* merge current branch into master
 * swagger ui
