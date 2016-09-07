@@ -15,8 +15,7 @@
 package cmd
 
 import (
-	"log"
-
+	"github.com/mchudgins/golang-service-starter/pkg/devModeAuthService"
 	"github.com/spf13/cobra"
 )
 
@@ -31,10 +30,7 @@ the 'userID' to the value of the token supplied.
 
 This means you can 'curl -H "Authorization: bearer IAmBob" http://myservice'`,
 
-	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		log.Printf("'authService' started!  This command is for Development mode ONLY!")
-	},
+	Run: devModeAuthService.Command,
 }
 
 func init() {
@@ -49,5 +45,4 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// authServiceCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }

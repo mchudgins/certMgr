@@ -16,17 +16,19 @@ import (
 
 // AppConfig provides the global configuration of the application.
 type AppConfig struct {
-	Config            string `json:"config"`
-	HTTPListenAddress string `json:"http"`
-	GRPCListenAddress string `json:"grpc"`
+	Config             string `json:"config"`
+	HTTPListenAddress  string `json:"http"`
+	GRPCListenAddress  string `json:"grpc"`
+	AuthServiceAddress string `json:"auth"`
 }
 
 // the default configuration
 var (
 	defaultConfig = &AppConfig{
-		Config:            "",
-		HTTPListenAddress: ":8080",
-		GRPCListenAddress: ":50051",
+		Config:             "",
+		HTTPListenAddress:  ":8080",
+		GRPCListenAddress:  ":50051",
+		AuthServiceAddress: "auth.dstcorp.net:443",
 	}
 )
 
@@ -126,6 +128,7 @@ func NewAppConfig(cmd *cobra.Command) (*AppConfig, error) {
 	activeConfig.Config = viper.GetString("config")
 	activeConfig.HTTPListenAddress = viper.GetString("http")
 	activeConfig.GRPCListenAddress = viper.GetString("grpc")
+	activeConfig.AuthServiceAddress = viper.GetString("auth")
 
 	log.Printf("Current config:  %+v", activeConfig)
 	return &activeConfig, nil

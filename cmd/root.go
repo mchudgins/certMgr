@@ -58,6 +58,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.golang-service-starter.yaml)")
 	RootCmd.PersistentFlags().String("grpc", ":50051", "listen address for the gRPC server")
 	RootCmd.PersistentFlags().String("http", ":8080", "listen address for the http server")
+	RootCmd.PersistentFlags().String("auth", ":50052", "gRPC port for Auth Service")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

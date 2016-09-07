@@ -36,5 +36,5 @@ message VerificationResponse {
   CommonResponse common = 1;
   bool valid = 10;
   string userID = 11;
-  string cacheExpiration = 12;
+  int64 cacheExpiration = 12;
 }

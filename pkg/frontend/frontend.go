@@ -93,7 +93,7 @@ func Run(cmd *cobra.Command, args []string) {
 		gw := runtime.NewServeMux()
 
 		// set up the proxy to the backend
-		secProxy, err := NewSecurityProxy("https://auth.dstcorp.io/login")
+		secProxy, err := NewSecurityProxy(cfg.AuthServiceAddress)
 		if err != nil {
 			log.Panic(err)
 		}
