@@ -67,7 +67,7 @@ cmd/bindata.go: pkg/service/service.pb.gw.go
 	mv bindata.go pkg/frontend
 
 $(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
-	godeps go build -ldflags "$(LDFLAGS)" -o $(NAME)
+	go build -ldflags "$(LDFLAGS)" -o $(NAME)
 
 test: $(DEPS) $(GENERATED_FILES)
 	godep go test -v $$(go list ./... | grep -v /vendor/ | grep -v /cmd/)
@@ -86,8 +86,8 @@ run: $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
 
 container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 	go get ./...
-	godep restore
-	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o $(NAME)
+	#godep restore
+	CGO_ENABLED=0 go build -a -ldflags "$(LDFLAGS) '-s'" -o $(NAME)
 	upx -9 -q $(NAME) -o docker/app
 	cp $(NAME) docker/app
 	docker build -t $(NAME):$(BUILD_NUM) docker
