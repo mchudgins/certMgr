@@ -137,6 +137,7 @@
                         "containers": [
                             {
                                 "image": "${APPLICATION}",
+                                "args": [ "backend" ],
                                 "imagePullPolicy": "IfNotPresent",
                                 "livenessProbe": {
                                     "initialDelaySeconds": 30,

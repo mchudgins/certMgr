@@ -60,7 +60,6 @@ fmt:
 
 build: $(NAME)
 
-
 cmd/bindata.go: pkg/service/service.pb.gw.go
 	@echo The next step will generate a message "(\"no buildable Go source files\")" which may be safely ignored.
 	@-go get github.com/swagger-api/swagger-ui
@@ -68,7 +67,7 @@ cmd/bindata.go: pkg/service/service.pb.gw.go
 	mv bindata.go pkg/frontend
 
 $(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
-	go build -ldflags "$(LDFLAGS)" -o $(NAME)
+	godeps go build -ldflags "$(LDFLAGS)" -o $(NAME)
 
 test: $(DEPS) $(GENERATED_FILES)
 	godep go test -v $$(go list ./... | grep -v /vendor/ | grep -v /cmd/)
