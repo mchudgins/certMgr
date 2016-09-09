@@ -60,7 +60,6 @@ fmt:
 
 build: $(NAME)
 
-
 cmd/bindata.go: pkg/service/service.pb.gw.go
 	@echo The next step will generate a message "(\"no buildable Go source files\")" which may be safely ignored.
 	@-go get github.com/swagger-api/swagger-ui
@@ -87,8 +86,8 @@ run: $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
 
 container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 	go get ./...
-	godep restore
-	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o $(NAME)
+	#godep restore
+	CGO_ENABLED=0 go build -a -ldflags "$(LDFLAGS) '-s'" -o $(NAME)
 	upx -9 -q $(NAME) -o docker/app
 	cp $(NAME) docker/app
 	docker build -t $(NAME):$(BUILD_NUM) docker

@@ -8,6 +8,4 @@ Provides an out-of-the-box example of building a frontend/backend microservice u
 * fix prometheseus /metrics on frontend
 * verify that openshift builder works
 * add configserver, hystrix, turbine to openshift deployments
-* recover main_test.go
-* merge current branch into master
 * swagger ui
