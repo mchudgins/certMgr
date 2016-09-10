@@ -96,8 +96,8 @@
                 "ports": [
                     {
                         "name": "${APPLICATION}-http",
-                        "port": 8080,
-                        "targetPort": 8080
+                        "port": 50051,
+                        "targetPort": 50051
                     }
                 ],
                 "selector": {
@@ -158,6 +158,7 @@
                         "containers": [
                             {
                                 "image": "${APPLICATION}",
+                                "args" : [ "backend" ],
                                 "imagePullPolicy": "IfNotPresent",
                                 "livenessProbe": {
                                     "initialDelaySeconds": 30,
@@ -170,6 +171,10 @@
                                 "ports": [
                                     {
                                         "containerPort": 8080,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 50051,
                                         "protocol": "TCP"
                                     }
                                 ],
@@ -243,7 +248,7 @@
                         "containers": [
                             {
                                 "image": "${APPLICATION}",
-                                "args": [ "backend" ],
+                                "args": [ "frontend", "--grpc=gss-backend:50051" ],
                                 "imagePullPolicy": "IfNotPresent",
                                 "livenessProbe": {
                                     "initialDelaySeconds": 30,
