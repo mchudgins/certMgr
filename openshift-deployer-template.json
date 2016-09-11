@@ -111,6 +111,27 @@
             "apiVersion": "v1",
             "kind": "Service",
             "metadata": {
+                "name": "${APPLICATION}-auth-backend"
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "${APPLICATION}-grpc",
+                        "port": 50051,
+                        "targetPort": 50051
+                    }
+                ],
+                "selector": {
+                    "deploymentconfig": "${APPLICATION}-auth-backend"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
                 "name": "${APPLICATION}"
             },
             "spec": {
@@ -248,7 +269,7 @@
                         "containers": [
                             {
                                 "image": "${APPLICATION}",
-                                "args": [ "frontend", "--grpc=gss-backend:50051" ],
+                                "args": [ "frontend", "--grpc=gss-backend:50051", "--auth=${APPLICATION}-auth-backend:50051" ],
                                 "imagePullPolicy": "IfNotPresent",
                                 "livenessProbe": {
                                     "initialDelaySeconds": 30,
@@ -272,6 +293,84 @@
                                     "initialDelaySeconds": 3,
                                     "timeoutSeconds": 1
                                 },
+                                "resources": {},
+                                "securityContext": {
+                                    "capabilities": {},
+                                    "privileged": false
+                                },
+                                "terminationMessagePath": "/dev/termination-log"
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "restartPolicy": "Always"
+                    }
+                },
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "${APPLICATION}"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "${APPLICATION}:latest"
+                            }
+                        },
+                        "type": "ImageChange"
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "DeploymentConfig",
+            "metadata": {
+                "name": "${APPLICATION}-auth-backend"
+            },
+            "spec": {
+                "replicas": 1,
+                "selector": {
+                    "deploymentconfig": "${APPLICATION}-auth-backend"
+                },
+                "strategy": {
+                    "resources": {},
+                    "rollingParams": {
+                        "intervalSeconds": 1,
+                        "timeoutSeconds": 600,
+                        "updatePeriodSeconds": 1
+                    },
+                    "type": "Rolling"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "deploymentconfig": "${APPLICATION}-auth-backend"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "image": "${APPLICATION}",
+                                "args": [ "authService", "--auth=:50051" ],
+                                "imagePullPolicy": "IfNotPresent",
+                                "livenessProbe": {
+                                    "initialDelaySeconds": 30,
+                                    "tcpSocket": {
+                                        "port": 8080
+                                    },
+                                    "timeoutSeconds": 1
+                                },
+                                "name": "${APPLICATION}",
+                                "ports": [
+                                    {
+                                        "containerPort": 50051,
+                                        "protocol": "TCP"
+                                    }
+                                ],
                                 "resources": {},
                                 "securityContext": {
                                     "capabilities": {},
