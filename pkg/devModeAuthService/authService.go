@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,9 +15,11 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/mchudgins/golang-service-starter/pkg/healthz"
 	pb "github.com/mchudgins/golang-service-starter/pkg/service"
 	"github.com/mchudgins/golang-service-starter/pkg/utils"
 	"github.com/mwitkow/go-grpc-middleware"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cobra"
 )
 
@@ -93,6 +96,26 @@ func Command(cmd *cobra.Command, args []string) {
 		pb.RegisterAuthVerifierServer(s, &server{})
 		log.Printf("gRPC service listening on %s", listenAddress)
 		errc <- s.Serve(lis)
+	}()
+
+	// http server
+	go func() {
+		hc, err := healthz.NewConfig(cfg)
+		healthzHandler, err := healthz.Handler(hc)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		http.Handle("/healthz", healthzHandler)
+		http.Handle("/metrics", prometheus.Handler())
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			type data struct {
+				Hostname string
+			}
+		})
+
+		log.Printf("HTTP service listening on %s", cfg.HTTPListenAddress)
+		errc <- http.ListenAndServe(cfg.HTTPListenAddress, nil)
 	}()
 
 	// wait for somthin'
