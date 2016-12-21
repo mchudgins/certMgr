@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -27,13 +28,19 @@ var cfgFile string
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "certMgr",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Provides an easy-to-use means for managing self-signed certificates",
+	Long: `certMgr provides frontend and backend services for managing self-signed
+certificates via the inter-webs.  It also provides a CLI for boot-strapping
+certMgr itself.  Examples:
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	certMgr backend --http :8080
+		starts the backend service listening on port 8080.
+
+	certMgr frontend
+		starts the frontend service.
+
+	certMgr new certMgr.example.com
+		creates a new certificate and key.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
@@ -59,6 +66,7 @@ func init() {
 	RootCmd.PersistentFlags().String("grpc", ":50051", "listen address for the gRPC server")
 	RootCmd.PersistentFlags().String("http", ":8080", "listen address for the http server")
 	RootCmd.PersistentFlags().String("auth", ":50052", "gRPC port for Auth Service")
+	RootCmd.PersistentFlags().BoolP("verbose", "v", false, "provide verbose output")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -67,6 +75,8 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+	log.SetLevel(log.WarnLevel)
+
 	if cfgFile != "" { // enable ability to specify config file via flag
 		viper.SetConfigFile(cfgFile)
 	}
@@ -77,6 +87,6 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		// fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 }
