@@ -36,20 +36,14 @@ var SimpleCA *ca
 
 // CreateCertificate creates an x509 certificate
 func (s *server) CreateCertificate(ctx context.Context, in *pb.CreateRequest) (*pb.CreateReply, error) {
-	log.Printf("ctx: %+v", ctx)
 
 	md, _ := metadata.FromContext(ctx)
 	for key, value := range md {
 		log.Printf("md[ %s ] : %s", key, value[0])
 	}
 
-	log.Printf("common name:  %s", in.GetName())
 	var validFor time.Duration
 	validFor = time.Duration(in.GetDuration()) * time.Hour * 24
-	log.Printf("duration:  %f days", validFor.Hours()/24)
-	for _, s := range in.GetAlternateNames() {
-		log.Printf("alt:  %s", s)
-	}
 
 	cert, key, err := SimpleCA.CreateCertificate(ctx, in.GetName(), in.GetAlternateNames(), validFor)
 
@@ -111,7 +105,7 @@ func (c ca) CreateCertificate(ctx context.Context,
 	// sign the CSR
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &c.SigningCertificate, publicKey(priv), c.SigningKey)
 	if err != nil {
-		log.WithField("error", err).Error("Unable to CreateCertificate")
+		log.WithError(err).Error("Unable to CreateCertificate")
 	}
 
 	// prepare the response
@@ -121,7 +115,7 @@ func (c ca) CreateCertificate(ctx context.Context,
 		certOut, err := os.Create("cert.pem")
 		defer certOut.Close()
 		if err != nil {
-			log.Fatalf("failed to open cert.pem for writing: %s", err)
+			log.WithError(err).Fatal("failed to open cert.pem for writing")
 		}
 
 		pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
@@ -201,7 +195,7 @@ func pemBlockForKey(priv interface{}) *pem.Block {
 	case *ecdsa.PrivateKey:
 		b, err := x509.MarshalECPrivateKey(k)
 		if err != nil {
-			log.WithField("error", err).Fatal("Unable to marshall ECDSA private key")
+			log.WithError(err).Fatal("Unable to marshall ECDSA private key")
 			os.Exit(2)
 		}
 		return &pem.Block{Type: "EC PRIVATE KEY", Bytes: b}

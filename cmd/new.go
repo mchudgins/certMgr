@@ -56,7 +56,7 @@ var newCmd = &cobra.Command{
 	Long:  `Creates a new certificate and key for the specified common name.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			fmt.Fprintf(cmd.OutOrStderr(), "fatal: a common name for the certificate must be provided on the command line\n")
+			fmt.Fprint(cmd.OutOrStderr(), "fatal: a common name for the certificate must be provided on the command line\n")
 			cmd.Usage()
 			os.Exit(1)
 		}

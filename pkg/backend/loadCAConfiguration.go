@@ -11,18 +11,16 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-const errStr string = "error"
-
 func findAndReadFile(fileName string, fileDesc string) (string, error) {
 	const fileStr string = "file"
 
 	cfg, err := os.Open(fileName)
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.WithFields(log.Fields{fileStr: fileName, errStr: err}).Error(fileDesc + " file does not exist.")
+			log.WithError(err).WithField(fileStr, fileName).Error(fileDesc + " file does not exist.")
 		}
 		if os.IsPermission(err) {
-			log.WithFields(log.Fields{fileStr: fileName, errStr: err}).Error("Insufficient privilege to read " + fileDesc + ".")
+			log.WithError(err).WithField(fileStr, fileName).Error("Insufficient privilege to read " + fileDesc + ".")
 		}
 		return "", err
 	}
@@ -30,13 +28,13 @@ func findAndReadFile(fileName string, fileDesc string) (string, error) {
 
 	info, err := os.Stat(fileName)
 	if err != nil {
-		log.WithFields(log.Fields{fileStr: fileName, errStr: err}).Error("Unable to stat " + fileDesc + " file.")
+		log.WithError(err).WithField(fileStr, fileName).Error("Unable to stat " + fileDesc + " file.")
 	}
 	buf := make([]byte, info.Size())
 
 	cb, err := cfg.Read(buf)
 	if err != nil || int64(cb) != info.Size() {
-		log.WithFields(log.Fields{fileStr: fileName, errStr: err, "bytes read": cb, "bytes expected": info.Size()}).
+		log.WithError(err).WithFields(log.Fields{fileStr: fileName, "bytes read": cb, "bytes expected": info.Size()}).
 			Error("Unable to read the entire " + fileDesc + " file")
 		return "", err
 	}
@@ -86,7 +84,7 @@ func NewCertificateAuthority(caName string,
 	caKey, err := x509.ParsePKCS8PrivateKey(pemKey.Bytes)
 	if err != nil {
 		msg := "Unable to parse certificate's key"
-		log.WithField(errStr, err).Error(msg)
+		log.WithError(err).Error(msg)
 		return nil, errors.New(msg)
 	}
 
@@ -98,7 +96,7 @@ func NewCertificateAuthority(caName string,
 
 	caCertificate, err := x509.ParseCertificate(pemCert.Bytes)
 	if err != nil {
-		log.Error("error parsing CA certificate", errStr, err)
+		log.WithError(err).Error("error parsing CA certificate")
 	}
 
 	log.Infof("permittedDomains:  %s", strings.Join(caCertificate.PermittedDNSDomains, ", "))
