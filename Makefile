@@ -24,7 +24,9 @@ LDFLAGS	:= -X '$(HYGIENEPKG).version=$(VERSION)' \
 DEPS := $(shell ls *.go | sed 's/.*_test.go//g')
 PROTO_GEN_FILES := pkg/service/service.pb.go \
 	pkg/service/common.pb.go \
-	pkg/service/service.pb.gw.go
+	pkg/service/service.pb.gw.go \
+    pkg/service/certMgrService.pb.go \
+    pkg/service/certMgrService.pb.gw.go
 
 GENERATED_FILES := $(PROTO_GEN_FILES) cmd/bindata.go
 
@@ -82,7 +84,7 @@ fulltest: $(DEPS) $(GENERATED_FILES)
 	godep go test -v -memprofile=mem.out
 
 run: $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
-	godep go run -ldflags "$(LDFLAGS)" $(DEPS) -http :9090
+	godep go run -ldflags "$(LDFLAGS)" $(DEPS) backend --http :9090
 
 container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 	go get ./...

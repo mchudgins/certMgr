@@ -1,0 +1,42 @@
+/*
+ * protobuf definition for CertMgr
+ */
+
+syntax = "proto3";
+
+import "common.proto";
+
+option java_multiple_files = true;
+option java_package = "com.dstsytems.certMgr";
+option java_outer_classname = "CertificateManager";
+
+package service;
+
+import "google/api/annotations.proto";
+
+// The greeting service definition.
+service CertMgr {
+
+    // create a new certificate
+    rpc CreateCertificate (CreateRequest) returns (CreateReply) {
+        option (google.api.http) = {
+            post: "/api/v1/certificates"
+        };
+    }
+
+}
+
+// The request message containing the user's name.
+message CreateRequest {
+    CommonRequest common = 1;
+    string name = 10;
+    int64 duration = 15;
+    repeated string alternateNames = 20;
+}
+
+// The response message containing the greetings
+message CreateReply {
+    CommonResponse common = 1;
+    string certificate = 10;
+    string key = 20;
+}

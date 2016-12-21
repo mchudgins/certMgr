@@ -25,15 +25,21 @@ import (
 
 type server struct{}
 
-// SayHello implements helloworld.GreeterServer
-func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
+// CreateCertificate creates an x509 certificate
+func (s *server) CreateCertificate(ctx context.Context, in *pb.CreateRequest) (*pb.CreateReply, error) {
 	log.Printf("ctx: %+v", ctx)
+
 	md, _ := metadata.FromContext(ctx)
-	//log.Printf("x-correlation-id: %s", md["x-correlation-id"])
 	for key, value := range md {
 		log.Printf("md[ %s ] : %s", key, value[0])
 	}
-	return &pb.HelloReply{Message: "Hello " + in.Name}, nil
+
+	log.Printf("common name:  %s", in.GetName())
+	for _, s := range in.GetAlternateNames() {
+		log.Printf("alt:  %s", s)
+	}
+
+	return &pb.CreateReply{}, nil
 }
 
 func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
@@ -87,7 +93,7 @@ func Run(cmd *cobra.Command, args []string) {
 			grpc_middleware.WithUnaryServerChain(
 				grpc_prometheus.UnaryServerInterceptor,
 				grpcEndpointLog("hello")))
-		pb.RegisterGreeterServer(s, &server{})
+		pb.RegisterCertMgrServer(s, &server{})
 		log.Printf("gRPC service listening on %s", cfg.GRPCListenAddress)
 		errc <- s.Serve(lis)
 	}()
