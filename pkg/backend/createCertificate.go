@@ -1,6 +1,8 @@
 package backend
 
 import (
+	"crypto"
+	"crypto/x509"
 	"errors"
 	"log"
 	"net"
@@ -13,9 +15,15 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-type caCert struct {
-	PermittedDNSDomains []string
+type ca struct {
+	Name               string
+	SigningCertificate x509.Certificate
+	SigningKey         crypto.Signer
+	RootCertificate    x509.Certificate
+	Bundle             string
 }
+
+var SimpleCA *ca
 
 // CreateCertificate creates an x509 certificate
 func (s *server) CreateCertificate(ctx context.Context, in *pb.CreateRequest) (*pb.CreateReply, error) {
@@ -37,7 +45,7 @@ func (s *server) CreateCertificate(ctx context.Context, in *pb.CreateRequest) (*
 	return &pb.CreateReply{}, nil
 }
 
-func (c *caCert) validateRequest(requestedHosts []string, validFor time.Duration) ([]string, error) {
+func (c *ca) validateRequest(requestedHosts []string, validFor time.Duration) ([]string, error) {
 	var hosts = make([]string, len(requestedHosts))
 
 	for i, s := range requestedHosts {
@@ -53,7 +61,7 @@ func (c *caCert) validateRequest(requestedHosts []string, validFor time.Duration
 		}
 
 		supportedDomain := false
-		for _, dns := range c.PermittedDNSDomains {
+		for _, dns := range c.SigningCertificate.PermittedDNSDomains {
 			tld := "." + dns
 			if strings.HasSuffix(h, tld) {
 				supportedDomain = true
@@ -68,4 +76,8 @@ func (c *caCert) validateRequest(requestedHosts []string, validFor time.Duration
 	}
 
 	return hosts, nil
+}
+
+func (c ca) String() string {
+	return "Name: " + c.Name + "; ...."
 }
