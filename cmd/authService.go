@@ -22,7 +22,7 @@ import (
 // authServiceCmd represents the authService command
 var authServiceCmd = &cobra.Command{
 	Use:   "authService",
-	Short: "A trivial authentication service",
+	Short: "A trivial authentication service (for development only!)",
 	Long: `The 'authService' is for development purposes only!
 
 It responds 'true' to any token presented to it and sets the
