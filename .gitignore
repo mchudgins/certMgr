@@ -22,3 +22,14 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+#*.pb.go
+
+build.num
+.buildnum
+golang-service-starter
+*/docker/app
+*/Godeps/_workspace
+*/bindata.go
+
+service/*.json

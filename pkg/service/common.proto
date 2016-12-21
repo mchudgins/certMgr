@@ -1,0 +1,26 @@
+/*
+ * this is the base proto upon which all other's should build
+ */
+
+ syntax = "proto3";
+
+ option java_multiple_files = true;
+ option java_package = "com.dstsytems.pb.common";
+ option java_outer_classname = "CommonProto";
+
+ package service;
+
+ // The request message containing:
+ //   - the authenticated user ID
+ //   - the correlationID
+ //   - the spanID
+ message CommonRequest {
+   string user = 1;
+   string correlationID = 2;
+   string spanID = 3;
+ }
+
+ // The response message
+ message CommonResponse {
+   string correlationID = 1;
+ }
