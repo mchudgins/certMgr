@@ -91,10 +91,7 @@ func readConfig(uri string) error {
 	return nil
 }
 
-// NewAppConfig sets up all the basic configuration data from flags, env, etc
-func NewAppConfig(cmd *cobra.Command) (*AppConfig, error) {
-	var activeConfig AppConfig
-
+func NewConfig(cmd *cobra.Command, defaultConfig interface{}, cfg interface{}) error {
 	defaultSettings, err := json.Marshal(defaultConfig)
 	if err != nil {
 		panic(err)
@@ -102,7 +99,7 @@ func NewAppConfig(cmd *cobra.Command) (*AppConfig, error) {
 
 	viper.SetConfigType("json")
 	viper.ReadConfig(bytes.NewReader(defaultSettings))
-	viper.SetEnvPrefix("gss")
+	viper.SetEnvPrefix("certMgr")
 	viper.BindPFlags(cmd.Flags())
 
 	// afore we do anything, get the value for the config server,
@@ -120,16 +117,29 @@ func NewAppConfig(cmd *cobra.Command) (*AppConfig, error) {
 		log.Printf("Warning: unable to obtain configuration from %s -- %s", configURI, err)
 	}
 
-	err = viper.Unmarshal(&activeConfig)
+	err = viper.Unmarshal(cfg)
 	if err != nil {
 		panic(err)
 	}
+
+	return nil
+}
+
+// NewAppConfig sets up all the basic configuration data from flags, env, etc
+func NewAppConfig(cmd *cobra.Command) (*AppConfig, error) {
+	var activeConfig AppConfig
+
+	err := NewConfig(cmd, defaultConfig, &activeConfig)
+	if err != nil {
+		panic(err)
+	}
+
 	// flags need special handling (sigh)
 	activeConfig.Config = viper.GetString("config")
 	activeConfig.HTTPListenAddress = viper.GetString("http")
 	activeConfig.GRPCListenAddress = viper.GetString("grpc")
 	activeConfig.AuthServiceAddress = viper.GetString("auth")
 
-	log.Printf("Current config:  %+v", activeConfig)
+	//	log.Printf("Current config:  %+v", activeConfig)
 	return &activeConfig, nil
 }
