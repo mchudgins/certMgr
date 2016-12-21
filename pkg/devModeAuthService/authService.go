@@ -29,7 +29,7 @@ func (s *server) Configuration(ctx context.Context,
 	in *pb.ConfigurationRequest) (*pb.ConfigurationResponse, error) {
 
 	resp := &pb.ConfigurationResponse{
-		LogonURL:  "http://localhost:9999/sigin",
+		LogonURL:  "http://localhost:9999/signin",
 		LogoutURL: "http://localhost:9999/logout",
 	}
 

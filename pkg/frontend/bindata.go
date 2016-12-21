@@ -87,7 +87,7 @@ func pkgServiceServiceSwaggerJson() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/service/service.swagger.json", size: 2214, mode: os.FileMode(436), modTime: time.Unix(1473283934, 0)}
+	info := bindataFileInfo{name: "pkg/service/service.swagger.json", size: 2214, mode: os.FileMode(436), modTime: time.Unix(1473284620, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
