@@ -74,7 +74,7 @@ func Run(cmd *cobra.Command, args []string) {
 		s := grpc.NewServer(
 			grpc_middleware.WithUnaryServerChain(
 				grpc_prometheus.UnaryServerInterceptor,
-				grpcEndpointLog("hello")))
+				grpcEndpointLog("certMgr")))
 		pb.RegisterCertMgrServer(s, &server{})
 		log.Printf("gRPC service listening on %s", cfg.GRPCListenAddress)
 		errc <- s.Serve(lis)

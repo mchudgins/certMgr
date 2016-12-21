@@ -21,8 +21,10 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/mchudgins/certMgr/pkg/backend"
@@ -36,6 +38,7 @@ type newCmdConfig struct {
 	CertFilename string `json:"certFilename"`
 	KeyFilename  string `json:"keyFilename"`
 	Duration     int    `json:"duration"`
+	Verbose      bool   `json:"verbose"`
 }
 
 // defaultConfig holds default values
@@ -69,8 +72,9 @@ var newCmd = &cobra.Command{
 		cfg.CertFilename = viper.GetString("cert")
 		cfg.KeyFilename = viper.GetString("key")
 		cfg.Duration = viper.GetInt("duration")
+		cfg.Verbose = viper.GetBool("verbose")
 
-		if viper.GetBool("verbose") {
+		if cfg.Verbose {
 			log.SetLevel(log.DebugLevel)
 		}
 		log.Debugf("Current config:  %+v", cfg)
@@ -81,8 +85,32 @@ var newCmd = &cobra.Command{
 			"ca/cap/private/cap-ca.key",
 			"ca/cap/cap-ca.crt")
 		if err != nil {
-			log.WithField("error", err).Fatal("unable to initialize the CA")
+			log.WithError(err).Fatal("unable to initialize the CA")
 		}
+
+		ctx := context.Background()
+		var empty []string
+		cert, key, err := backend.SimpleCA.CreateCertificate(ctx, args[0], empty, time.Duration(cfg.Duration)*time.Hour*24)
+		if err != nil {
+			log.WithField("error", err).Fatal("unable to create certificate")
+		}
+
+		certFile, err := os.OpenFile(cfg.CertFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+		if err != nil {
+			log.WithError(err).WithField("file", cfg.CertFilename).Fatal("unable to open file")
+			os.Exit(1)
+		}
+		defer certFile.Close()
+		certFile.WriteString(cert)
+
+		keyFile, err := os.OpenFile(cfg.KeyFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0400)
+		if err != nil {
+			log.WithError(err).WithField("file", cfg.KeyFilename).Fatal("unable to open file")
+			os.Exit(1)
+		}
+		defer keyFile.Close()
+		keyFile.WriteString(key)
+
 	},
 }
 
