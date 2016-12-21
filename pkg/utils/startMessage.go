@@ -15,6 +15,6 @@ var (
 )
 
 func StartUpMessage() {
-	log.Printf("golang-service-starter: version %s; buildTime: %s; built by: %s; buildNum: %s; (%s)",
+	log.Printf("certMgr: version %s; buildTime: %s; built by: %s; buildNum: %s; (%s)",
 		version, buildTime, builder, buildNum, goversion)
 }

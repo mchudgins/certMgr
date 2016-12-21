@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/mchudgins/golang-service-starter/pkg/frontend"
+	"github.com/mchudgins/certMgr/pkg/frontend"
 	"github.com/spf13/cobra"
 )
 

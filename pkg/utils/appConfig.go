@@ -110,9 +110,9 @@ func NewAppConfig(cmd *cobra.Command) (*AppConfig, error) {
 	configURI := viper.GetString("config")
 
 	if len(configURI) == 0 {
-		// fetch the config from the default location, $HOME/.golang-service-starter.yaml
+		// fetch the config from the default location, $HOME/.certMgr.yaml
 		home := os.Getenv("HOME")
-		configURI = "file://" + home + "/.golang-service-starter.yaml"
+		configURI = "file://" + home + "/.certMgr.yaml"
 	}
 
 	err = readConfig(configURI)

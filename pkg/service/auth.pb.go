@@ -77,6 +77,20 @@ func (m *ConfigurationResponse) GetCommon() *CommonResponse {
 	return nil
 }
 
+func (m *ConfigurationResponse) GetLogonURL() string {
+	if m != nil {
+		return m.LogonURL
+	}
+	return ""
+}
+
+func (m *ConfigurationResponse) GetLogoutURL() string {
+	if m != nil {
+		return m.LogoutURL
+	}
+	return ""
+}
+
 // The request message containing the user's name.
 type VerificationRequest struct {
 	Common *CommonRequest `protobuf:"bytes,1,opt,name=common" json:"common,omitempty"`
@@ -93,6 +107,13 @@ func (m *VerificationRequest) GetCommon() *CommonRequest {
 		return m.Common
 	}
 	return nil
+}
+
+func (m *VerificationRequest) GetToken() string {
+	if m != nil {
+		return m.Token
+	}
+	return ""
 }
 
 // The response message containing the greetings
@@ -115,6 +136,27 @@ func (m *VerificationResponse) GetCommon() *CommonResponse {
 	return nil
 }
 
+func (m *VerificationResponse) GetValid() bool {
+	if m != nil {
+		return m.Valid
+	}
+	return false
+}
+
+func (m *VerificationResponse) GetUserID() string {
+	if m != nil {
+		return m.UserID
+	}
+	return ""
+}
+
+func (m *VerificationResponse) GetCacheExpiration() int64 {
+	if m != nil {
+		return m.CacheExpiration
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*ConfigurationRequest)(nil), "service.ConfigurationRequest")
 	proto.RegisterType((*ConfigurationResponse)(nil), "service.ConfigurationResponse")
@@ -128,7 +170,7 @@ var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion3
+const _ = grpc.SupportPackageIsVersion4
 
 // Client API for AuthVerifier service
 
@@ -226,7 +268,7 @@ var _AuthVerifier_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: fileDescriptor0,
+	Metadata: "auth.proto",
 }
 
 func init() { proto.RegisterFile("auth.proto", fileDescriptor0) }

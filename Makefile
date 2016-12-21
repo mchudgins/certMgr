@@ -13,8 +13,8 @@ BUILDER	:= $(shell echo "`git config user.name` <`git config user.email`>")
 BUILD_NUMBER_FILE=.buildnum
 BUILD_NUM := $(shell if [ -f ${BUILD_NUMBER_FILE} ]; then cat ${BUILD_NUMBER_FILE}; else echo 0; fi)
 PKG_RELEASE ?= 1
-PROJECT_URL := "git@github.com:mchudgins/golang-service-starter.git"
-HYGIENEPKG := "github.com/mchudgins/golang-service-starter/pkg/utils"
+PROJECT_URL := "git@github.com:mchudgins/certMgr.git"
+HYGIENEPKG := "github.com/mchudgins/certMgr/pkg/utils"
 LDFLAGS	:= -X '$(HYGIENEPKG).version=$(VERSION)' \
 	-X '$(HYGIENEPKG).buildTime=$(BUILDTIME)' \
 	-X '$(HYGIENEPKG).builder=$(BUILDER)' \
@@ -93,7 +93,7 @@ container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 	docker build -t $(NAME):$(BUILD_NUM) docker
 
 deploy:
-	oc new-app --file openshift-deployer-template.json -p APPLICATION=gss,BASE_IMAGESTREAM=scratch,GIT_URI=https://github.com/mchudgins/golang-backend-starter.git
+	oc new-app --file openshift-deployer-template.json -p APPLICATION=gss,BASE_IMAGESTREAM=scratch,GIT_URI=https://github.com/mchudgins/certMgr.git
 	oc start-build gss
 
 $(BUILD_NUMBER_FILE):

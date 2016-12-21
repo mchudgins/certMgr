@@ -15,9 +15,9 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
-	"github.com/mchudgins/golang-service-starter/pkg/healthz"
-	pb "github.com/mchudgins/golang-service-starter/pkg/service"
-	"github.com/mchudgins/golang-service-starter/pkg/utils"
+	"github.com/mchudgins/certMgr/pkg/healthz"
+	pb "github.com/mchudgins/certMgr/pkg/service"
+	"github.com/mchudgins/certMgr/pkg/utils"
 	"github.com/mwitkow/go-grpc-middleware"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cobra"

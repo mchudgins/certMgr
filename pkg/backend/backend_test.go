@@ -5,7 +5,7 @@ import (
 	"log"
 	"testing"
 
-	pb "github.com/mchudgins/golang-service-starter/pkg/service"
+	pb "github.com/mchudgins/certMgr/pkg/service"
 	"google.golang.org/grpc"
 )
 

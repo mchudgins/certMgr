@@ -26,7 +26,7 @@ var cfgFile string
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "golang-service-starter",
+	Use:   "certMgr",
 	Short: "A brief description of your application",
 	Long: `A longer description that spans multiple lines and likely contains
 examples and usage of using your application. For example:
@@ -55,7 +55,7 @@ func init() {
 	// Cobra supports Persistent Flags, which, if defined here,
 	// will be global for your application.
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.golang-service-starter.yaml)")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.certMgr.yaml)")
 	RootCmd.PersistentFlags().String("grpc", ":50051", "listen address for the gRPC server")
 	RootCmd.PersistentFlags().String("http", ":8080", "listen address for the http server")
 	RootCmd.PersistentFlags().String("auth", ":50052", "gRPC port for Auth Service")
@@ -71,9 +71,9 @@ func initConfig() {
 		viper.SetConfigFile(cfgFile)
 	}
 
-	viper.SetConfigName(".golang-service-starter") // name of config file (without extension)
-	viper.AddConfigPath("$HOME")                   // adding home directory as first search path
-	viper.AutomaticEnv()                           // read in environment variables that match
+	viper.SetConfigName(".certMgr") // name of config file (without extension)
+	viper.AddConfigPath("$HOME")    // adding home directory as first search path
+	viper.AutomaticEnv()            // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {

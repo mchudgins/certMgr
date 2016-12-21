@@ -28,6 +28,27 @@ func (m *CommonRequest) String() string            { return proto.CompactTextStr
 func (*CommonRequest) ProtoMessage()               {}
 func (*CommonRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
 
+func (m *CommonRequest) GetUser() string {
+	if m != nil {
+		return m.User
+	}
+	return ""
+}
+
+func (m *CommonRequest) GetCorrelationID() string {
+	if m != nil {
+		return m.CorrelationID
+	}
+	return ""
+}
+
+func (m *CommonRequest) GetSpanID() string {
+	if m != nil {
+		return m.SpanID
+	}
+	return ""
+}
+
 // The response message
 type CommonResponse struct {
 	CorrelationID string `protobuf:"bytes,1,opt,name=correlationID" json:"correlationID,omitempty"`
@@ -37,6 +58,13 @@ func (m *CommonResponse) Reset()                    { *m = CommonResponse{} }
 func (m *CommonResponse) String() string            { return proto.CompactTextString(m) }
 func (*CommonResponse) ProtoMessage()               {}
 func (*CommonResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
+
+func (m *CommonResponse) GetCorrelationID() string {
+	if m != nil {
+		return m.CorrelationID
+	}
+	return ""
+}
 
 func init() {
 	proto.RegisterType((*CommonRequest)(nil), "service.CommonRequest")

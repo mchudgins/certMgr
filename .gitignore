@@ -25,9 +25,9 @@ _testmain.go
 
 #*.pb.go
 
+certMgr
 build.num
 .buildnum
-golang-service-starter
 */docker/app
 */Godeps/_workspace
 */bindata.go

@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/afex/hystrix-go/hystrix"
-	pb "github.com/mchudgins/golang-service-starter/pkg/service"
+	pb "github.com/mchudgins/certMgr/pkg/service"
 	"github.com/patrickmn/go-cache"
 )
 

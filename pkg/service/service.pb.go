@@ -37,6 +37,13 @@ func (m *HelloRequest) GetCommon() *CommonRequest {
 	return nil
 }
 
+func (m *HelloRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
 // The response message containing the greetings
 type HelloReply struct {
 	Common  *CommonResponse `protobuf:"bytes,1,opt,name=common" json:"common,omitempty"`
@@ -55,6 +62,13 @@ func (m *HelloReply) GetCommon() *CommonResponse {
 	return nil
 }
 
+func (m *HelloReply) GetMessage() string {
+	if m != nil {
+		return m.Message
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*HelloRequest)(nil), "service.HelloRequest")
 	proto.RegisterType((*HelloReply)(nil), "service.HelloReply")
@@ -66,7 +80,7 @@ var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion3
+const _ = grpc.SupportPackageIsVersion4
 
 // Client API for Greeter service
 
@@ -131,7 +145,7 @@ var _Greeter_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: fileDescriptor2,
+	Metadata: "service.proto",
 }
 
 func init() { proto.RegisterFile("service.proto", fileDescriptor2) }

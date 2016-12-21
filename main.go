@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/mchudgins/golang-service-starter/cmd"
+import "github.com/mchudgins/certMgr/cmd"
 
 func main() {
 

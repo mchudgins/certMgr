@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/mchudgins/golang-service-starter/pkg/devModeAuthService"
+	"github.com/mchudgins/certMgr/pkg/devModeAuthService"
 	"github.com/spf13/cobra"
 )
 

@@ -87,7 +87,7 @@ func pkgServiceServiceSwaggerJson() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/service/service.swagger.json", size: 2214, mode: os.FileMode(436), modTime: time.Unix(1473284620, 0)}
+	info := bindataFileInfo{name: "pkg/service/service.swagger.json", size: 2214, mode: os.FileMode(436), modTime: time.Unix(1482295019, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -224,10 +224,10 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"pkg/service/service.swagger.json": pkgServiceServiceSwaggerJson,
-	"home/mchudgins/golang/src/github.com/swagger-api/swagger-ui/dist/index.html": homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistIndexHtml,
-	"home/mchudgins/golang/src/github.com/swagger-api/swagger-ui/dist/o2c.html": homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistO2cHtml,
-	"home/mchudgins/golang/src/github.com/swagger-api/swagger-ui/dist/swagger-ui.js": homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistSwaggerUiJs,
+	"pkg/service/service.swagger.json":                                                   pkgServiceServiceSwaggerJson,
+	"home/mchudgins/golang/src/github.com/swagger-api/swagger-ui/dist/index.html":        homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistIndexHtml,
+	"home/mchudgins/golang/src/github.com/swagger-api/swagger-ui/dist/o2c.html":          homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistO2cHtml,
+	"home/mchudgins/golang/src/github.com/swagger-api/swagger-ui/dist/swagger-ui.js":     homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistSwaggerUiJs,
 	"home/mchudgins/golang/src/github.com/swagger-api/swagger-ui/dist/swagger-ui.min.js": homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistSwaggerUiMinJs,
 }
 
@@ -270,6 +270,7 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
 	"home": &bintree{nil, map[string]*bintree{
 		"mchudgins": &bintree{nil, map[string]*bintree{
@@ -279,9 +280,9 @@ var _bintree = &bintree{nil, map[string]*bintree{
 						"swagger-api": &bintree{nil, map[string]*bintree{
 							"swagger-ui": &bintree{nil, map[string]*bintree{
 								"dist": &bintree{nil, map[string]*bintree{
-									"index.html": &bintree{homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistIndexHtml, map[string]*bintree{}},
-									"o2c.html": &bintree{homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistO2cHtml, map[string]*bintree{}},
-									"swagger-ui.js": &bintree{homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistSwaggerUiJs, map[string]*bintree{}},
+									"index.html":        &bintree{homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistIndexHtml, map[string]*bintree{}},
+									"o2c.html":          &bintree{homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistO2cHtml, map[string]*bintree{}},
+									"swagger-ui.js":     &bintree{homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistSwaggerUiJs, map[string]*bintree{}},
 									"swagger-ui.min.js": &bintree{homeMchudginsGolangSrcGithubComSwaggerApiSwaggerUiDistSwaggerUiMinJs, map[string]*bintree{}},
 								}},
 							}},
@@ -344,4 +345,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-
