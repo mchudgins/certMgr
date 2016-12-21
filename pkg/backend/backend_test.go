@@ -25,7 +25,7 @@ func TestCreate(t *testing.T) {
 
 	// Contact the server and print out its response.
 	name := defaultName
-	r, err := c.CreateCertificate(context.Background(), &pb.CreateRequest{Name: name})
+	r, err := c.CreateCertificate(context.Background(), &pb.CreateRequest{Name: name, Duration: 90})
 	if err != nil {
 		log.Fatalf("could not create certificate: %v", err)
 	}

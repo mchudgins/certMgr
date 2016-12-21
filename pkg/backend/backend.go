@@ -20,27 +20,9 @@ import (
 	"github.com/mchudgins/certMgr/pkg/utils"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 type server struct{}
-
-// CreateCertificate creates an x509 certificate
-func (s *server) CreateCertificate(ctx context.Context, in *pb.CreateRequest) (*pb.CreateReply, error) {
-	log.Printf("ctx: %+v", ctx)
-
-	md, _ := metadata.FromContext(ctx)
-	for key, value := range md {
-		log.Printf("md[ %s ] : %s", key, value[0])
-	}
-
-	log.Printf("common name:  %s", in.GetName())
-	for _, s := range in.GetAlternateNames() {
-		log.Printf("alt:  %s", s)
-	}
-
-	return &pb.CreateReply{}, nil
-}
 
 func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context,
