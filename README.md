@@ -11,3 +11,4 @@ to create and retrieve self-signed certificates.
 * verify that openshift builder works
 * add configserver, hystrix, turbine to openshift deployments
 * swagger ui
+* use structured logging
