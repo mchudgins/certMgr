@@ -1,6 +1,8 @@
-# Golang-Service-Starter
+# Certificate Manager
 
-Provides an out-of-the-box example of building a frontend/backend microservice using Go.
+Let's Encrypt is awesome.  However, if you need to have ten's (or hundreds) of certificates for your domain,
+then you'll likely run into the rate limits imposed by Let's Encrypt.  This project provides a simple mechanism
+to create and retrieve self-signed certificates.
 
 ### ToDo
 * use TLS

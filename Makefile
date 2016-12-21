@@ -1,9 +1,9 @@
 #
-# sample micro-service written in golang using gRPC
+# certMgr, a certificate manager, written in golang using gRPC
 #
 
-NAME	:= golang-service-starter
-DESC	:= template for golang services
+NAME	:= certMgr
+DESC	:= a simple service for generating self-signed certificates
 PREFIX	?= usr/local
 VERSION := $(shell git describe --tags --always --dirty)
 GOVERSION := $(shell go version)
