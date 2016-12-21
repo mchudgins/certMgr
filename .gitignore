@@ -33,3 +33,4 @@ build.num
 */bindata.go
 
 service/*.json
+*.pem
