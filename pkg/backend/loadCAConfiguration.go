@@ -46,7 +46,6 @@ func NewCertificateAuthority(caName string,
 	certFile string,
 	keyFile string,
 	bundleFile string) (*ca, error) {
-	Name := caName
 	cert, err := findAndReadFile(certFile, "certificate")
 	if err != nil {
 		return nil, err
@@ -62,14 +61,21 @@ func NewCertificateAuthority(caName string,
 		return nil, err
 	}
 
-	pemCert, _ := pem.Decode([]byte(cert))
+	return createCA(caName, []byte(cert), []byte(key), bundle)
+}
+
+func createCA(caName string,
+	cert []byte,
+	key []byte,
+	bundle string) (*ca, error) {
+	pemCert, _ := pem.Decode(cert)
 	if pemCert == nil {
 		msg := "Unable to decode the certificate!"
 		log.Error(msg)
 		return nil, errors.New(msg)
 	}
 
-	pemKey, _ := pem.Decode([]byte(key))
+	pemKey, _ := pem.Decode(key)
 	if pemKey == nil {
 		msg := "Unable to decode the certificate's key!"
 		log.Error(msg)
@@ -101,7 +107,7 @@ func NewCertificateAuthority(caName string,
 
 	log.Infof("permittedDomains:  %s", strings.Join(caCertificate.PermittedDNSDomains, ", "))
 
-	return &ca{Name: Name,
+	return &ca{Name: caName,
 		SigningCertificate: *caCertificate,
 		SigningKey:         caKey.(crypto.Signer),
 		Bundle:             bundle}, nil

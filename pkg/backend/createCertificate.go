@@ -78,7 +78,7 @@ func (c ca) CreateCertificate(ctx context.Context,
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 	notBefore := time.Now()
-	notAfter := notBefore.Add(duration * 24 * 3600 * 1000000000)
+	notAfter := notBefore.Add(duration)
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
