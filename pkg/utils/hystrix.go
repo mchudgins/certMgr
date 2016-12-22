@@ -1,10 +1,11 @@
 package utils
 
 import (
-	"fmt"
-	"log"
+	"errors"
 	"net/http"
 
+	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/afex/hystrix-go/hystrix"
 )
 
@@ -72,18 +73,19 @@ func (y *hystrixHelper) Handler(h http.Handler) http.Handler {
 
 			rc := monitor.StatusCode()
 			if rc >= 500 && rc < 600 {
-				//log.Printf("StatusCode indicates backend failure")
-				return fmt.Errorf("backend failure")
+				log.WithField("hystrixCommand", y.commandName).
+					WithField("StatusCode", rc).Warn("StatusCode indicates backend failure")
+				return errors.New(fmt.Sprintf("StatusCode (%d) indicates backend failure", rc))
 			}
 			return nil
 		}, func(err error) error {
 			//log.Printf("breaker open")
-			//log.Printf("hystrix error handler for command %s with error '%s'", y.commandName, err)
+			log.WithError(err).WithField("hystrixCommand", y.commandName).Warn("hystrix error handler invoked")
 			//			w.WriteHeader(http.StatusServiceUnavailable)
 			return nil
 		})
 		if err != nil {
-			log.Printf("hystrix.Handler with error: %s", err)
+			log.WithError(err).WithField("hystrixCommand", y.commandName).Error("hystrix.Do with error")
 		}
 	})
 }
