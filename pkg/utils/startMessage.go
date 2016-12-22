@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 var (
@@ -15,6 +15,11 @@ var (
 )
 
 func StartUpMessage() {
-	log.Printf("certMgr: version %s; buildTime: %s; built by: %s; buildNum: %s; (%s)",
-		version, buildTime, builder, buildNum, goversion)
+	log.WithFields(log.Fields{
+		"version":   version,
+		"buildTime": buildTime,
+		"builder":   builder,
+		"buildNum":  buildNum,
+		"goVersion": goversion,
+	}).Info("certMgr startup")
 }

@@ -20,6 +20,7 @@ type AppConfig struct {
 	HTTPListenAddress  string `json:"http"`
 	GRPCListenAddress  string `json:"grpc"`
 	AuthServiceAddress string `json:"auth"`
+	Verbose            bool   `json:"verbose"`
 }
 
 // the default configuration
@@ -29,6 +30,7 @@ var (
 		HTTPListenAddress:  ":8080",
 		GRPCListenAddress:  ":50051",
 		AuthServiceAddress: "auth.dstcorp.net:443",
+		Verbose:            false,
 	}
 )
 

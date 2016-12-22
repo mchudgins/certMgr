@@ -2,7 +2,6 @@ package backend
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -10,6 +9,7 @@ import (
 	"syscall"
 	"text/template"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/mwitkow/go-grpc-middleware"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
@@ -37,14 +37,17 @@ func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
 
 // Run the backend command
 func Run(cmd *cobra.Command, args []string) {
-	utils.StartUpMessage()
-
 	cfg, err := utils.NewAppConfig(cmd)
 	if err != nil {
-		log.Printf("Unable to initialize the application (%s).  Exiting now.", err)
+		log.WithError(err).Fatal("Unable to initialize the application.  Exiting now.")
+	}
+	if cfg.Verbose {
+		log.SetLevel(log.DebugLevel)
 	}
 
-	log.Printf("Starting app ...")
+	utils.StartUpMessage()
+
+	log.Debugf("Current config:  %+v", cfg)
 
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -76,7 +79,7 @@ func Run(cmd *cobra.Command, args []string) {
 				grpc_prometheus.UnaryServerInterceptor,
 				grpcEndpointLog("certMgr")))
 		pb.RegisterCertMgrServer(s, &server{})
-		log.Printf("gRPC service listening on %s", cfg.GRPCListenAddress)
+		log.Infof("gRPC service listening on %s", cfg.GRPCListenAddress)
 		errc <- s.Serve(lis)
 	}()
 
@@ -97,17 +100,17 @@ func Run(cmd *cobra.Command, args []string) {
 
 			tmp, err := template.New("/").Parse(html)
 			if err != nil {
-				fmt.Fprintf(w, "Unable to parse template: %s", err)
+				log.WithError(err).WithField("template", "/").Errorf("Unable to parse template")
 				return
 			}
 
 			err = tmp.Execute(w, data{Hostname: hostname})
 			if err != nil {
-				fmt.Fprintf(w, "Unable to execute template: %s", err)
+				log.WithError(err).Error("Unable to execute template")
 			}
 		})
 
-		log.Printf("HTTP service listening on %s", cfg.HTTPListenAddress)
+		log.Infof("HTTP service listening on %s", cfg.HTTPListenAddress)
 		errc <- http.ListenAndServe(cfg.HTTPListenAddress, nil)
 	}()
 
