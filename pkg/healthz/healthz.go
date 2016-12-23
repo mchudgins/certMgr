@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/mchudgins/certMgr/pkg/utils"
+	"github.com/mchudgins/certMgr/pkg/certMgr"
 )
 
 // Config provides data for the healthz handler
@@ -28,7 +28,7 @@ type handler struct {
 }
 
 // NewConfig initializes a healthz.Config struct
-func NewConfig(appConfig *utils.AppConfig) (*Config, error) {
+func NewConfig(appConfig *certMgr.AppConfig) (*Config, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		log.Fatal(err)

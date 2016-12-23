@@ -15,8 +15,12 @@
 package cmd
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"github.com/mchudgins/certMgr/pkg/backend"
+	"github.com/mchudgins/certMgr/pkg/certMgr"
+	"github.com/mchudgins/certMgr/pkg/utils"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // backendCmd represents the backend command
@@ -29,11 +33,35 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: backend.Run,
+	Run: func(cmd *cobra.Command, args []string) {
+		// determine the backend app's configuration
+		cfg, err := utils.NewAppConfig(cmd)
+		if err != nil {
+			log.WithField("error", err).Fatal("an error occurred while obtaining the application configuration")
+		}
+
+		// these flags must be handled individually since the flag name doesn't match the field name
+		// they are in a sub-struct of the top level structure
+		cfg.Backend.KeyFilename = viper.GetString("key")
+
+		// set the log level
+		if cfg.Verbose {
+			log.SetLevel(log.DebugLevel)
+		}
+
+		utils.StartUpMessage()
+
+		log.Debugf("Current config:  %+v", cfg)
+
+		// ready to run...
+		backend.Run(cfg)
+	},
 }
 
 func init() {
 	RootCmd.AddCommand(backendCmd)
+
+	backendCmd.PersistentFlags().String("key", certMgr.DefaultAppConfig.Backend.KeyFilename, "key filename")
 
 	// Here you will define your flags and configuration settings.
 

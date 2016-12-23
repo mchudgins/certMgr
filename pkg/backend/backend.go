@@ -15,10 +15,9 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/mchudgins/certMgr/pkg/certMgr"
 	"github.com/mchudgins/certMgr/pkg/healthz"
 	pb "github.com/mchudgins/certMgr/pkg/service"
-	"github.com/mchudgins/certMgr/pkg/utils"
-	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 )
 
@@ -36,18 +35,7 @@ func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
 }
 
 // Run the backend command
-func Run(cmd *cobra.Command, args []string) {
-	cfg, err := utils.NewAppConfig(cmd)
-	if err != nil {
-		log.WithError(err).Fatal("Unable to initialize the application.  Exiting now.")
-	}
-	if cfg.Verbose {
-		log.SetLevel(log.DebugLevel)
-	}
-
-	utils.StartUpMessage()
-
-	log.Debugf("Current config:  %+v", cfg)
+func Run(cfg *certMgr.AppConfig) {
 
 	hostname, err := os.Hostname()
 	if err != nil {

@@ -10,28 +10,9 @@ import (
 	"strings"
 
 	"github.com/afex/hystrix-go/hystrix"
+	"github.com/mchudgins/certMgr/pkg/certMgr"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-)
-
-// AppConfig provides the global configuration of the application.
-type AppConfig struct {
-	Config             string `json:"config"`
-	HTTPListenAddress  string `json:"http"`
-	GRPCListenAddress  string `json:"grpc"`
-	AuthServiceAddress string `json:"auth"`
-	Verbose            bool   `json:"verbose"`
-}
-
-// the default configuration
-var (
-	DefaultAppConfig = &AppConfig{
-		Config:             "",
-		HTTPListenAddress:  ":8080",
-		GRPCListenAddress:  ":50051",
-		AuthServiceAddress: "auth.dstcorp.net:443",
-		Verbose:            false,
-	}
 )
 
 // readConfigFile
@@ -128,10 +109,10 @@ func NewConfig(cmd *cobra.Command, defaultConfig interface{}, cfg interface{}) e
 }
 
 // NewAppConfig sets up all the basic configuration data from flags, env, etc
-func NewAppConfig(cmd *cobra.Command) (*AppConfig, error) {
-	var activeConfig AppConfig
+func NewAppConfig(cmd *cobra.Command) (*certMgr.AppConfig, error) {
+	var activeConfig certMgr.AppConfig
 
-	err := NewConfig(cmd, DefaultAppConfig, &activeConfig)
+	err := NewConfig(cmd, certMgr.DefaultAppConfig, &activeConfig)
 	if err != nil {
 		panic(err)
 	}

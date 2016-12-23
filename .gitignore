@@ -25,7 +25,6 @@ _testmain.go
 
 #*.pb.go
 
-certMgr
 build.num
 .buildnum
 */docker/app
