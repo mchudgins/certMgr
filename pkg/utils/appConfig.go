@@ -25,7 +25,7 @@ type AppConfig struct {
 
 // the default configuration
 var (
-	defaultConfig = &AppConfig{
+	DefaultAppConfig = &AppConfig{
 		Config:             "",
 		HTTPListenAddress:  ":8080",
 		GRPCListenAddress:  ":50051",
@@ -131,13 +131,13 @@ func NewConfig(cmd *cobra.Command, defaultConfig interface{}, cfg interface{}) e
 func NewAppConfig(cmd *cobra.Command) (*AppConfig, error) {
 	var activeConfig AppConfig
 
-	err := NewConfig(cmd, defaultConfig, &activeConfig)
+	err := NewConfig(cmd, DefaultAppConfig, &activeConfig)
 	if err != nil {
 		panic(err)
 	}
 
-	// flags need special handling (sigh)
-	activeConfig.Config = viper.GetString("config")
+	// these flags need special handling 'cause
+	// the flag name and the field name don't match (sigh)
 	activeConfig.HTTPListenAddress = viper.GetString("http")
 	activeConfig.GRPCListenAddress = viper.GetString("grpc")
 	activeConfig.AuthServiceAddress = viper.GetString("auth")
