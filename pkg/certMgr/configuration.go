@@ -13,8 +13,9 @@ type AppConfig struct {
 }
 
 type BackendConfig struct {
-	KeyFilename string `json:"keyFilename"`
-	MaxDuration int    `json:"maxDuration"`
+	KeyFilename        string
+	SigningCertificate string
+	MaxDuration        int
 }
 
 // the default configuration
@@ -31,6 +32,6 @@ var (
 	// defaultConfig holds default values
 	defaultBackendConfig = BackendConfig{
 		KeyFilename: "key.pem",
-		MaxDuration: 365,
+		MaxDuration: 365, // max duration, in days, for any certificate
 	}
 )

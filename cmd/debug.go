@@ -23,6 +23,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/mchudgins/certMgr/pkg/assets"
 	"github.com/mchudgins/certMgr/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -70,8 +71,6 @@ to quickly create a Cobra application.`,
 		cfg.Debug = defaultDebugConfig
 
 		err = viper.Unmarshal(cfg)
-
-		//viper.Unmarshal(&cfg.Debug)
 		if err != nil {
 			fmt.Fprintf(cmd.OutOrStderr(), "unmarshal -- %s", err)
 		}
@@ -107,6 +106,54 @@ to quickly create a Cobra application.`,
 		//		cfg.Debug.AnInteger = viper.GetInt("int")
 
 		fmt.Printf("cfg: %+v\n", cfg)
+	},
+}
+
+// debugCmd represents the debug command
+var displayAssetCmd = &cobra.Command{
+	Hidden: true,
+	Use:    "get",
+	Short:  "get an asset",
+	Long: `A longer description that spans multiple lines and likely contains examples
+and usage of using your command. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("get called")
+		//		cmd.Flags().VisitAll(displayCobraFlag)
+
+		viper.BindPFlags(cmd.Flags())
+		viper.SetEnvPrefix("certMgr")
+		viper.AutomaticEnv()
+
+		viper.SetConfigName("config")
+		viper.AddConfigPath("$HOME/.certMgr")
+		err := viper.ReadInConfig()
+		if err != nil {
+			fmt.Fprintf(cmd.OutOrStderr(), "%s\n", err)
+		}
+
+		cfg := &rootConfig{Debug: defaultDebugConfig}
+		cfg.Debug = defaultDebugConfig
+
+		err = viper.Unmarshal(cfg)
+		if err != nil {
+			fmt.Fprintf(cmd.OutOrStderr(), "unmarshal -- %s", err)
+		}
+
+		fmt.Printf("cfg: %+v\n", cfg)
+
+		if len(args) != 1 {
+			fmt.Fprint(cmd.OutOrStderr(), "an asset name is required\n")
+		}
+
+		asset, err := assets.Asset(args[0])
+		if err != nil {
+			fmt.Fprintf(cmd.OutOrStderr(), "while loading asset %s -- %s", err)
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "%s", asset)
 	},
 }
 
@@ -148,6 +195,7 @@ func displayFlagInfo(f *pflag.Flag) {
 func init() {
 	RootCmd.AddCommand(debugCmd)
 	RootCmd.AddCommand(debug2Cmd)
+	debugCmd.AddCommand(displayAssetCmd)
 
 	// Here you will define your flags and configuration settings.
 

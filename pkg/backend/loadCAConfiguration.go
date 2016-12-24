@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/mchudgins/certMgr/pkg/certMgr"
+	"time"
 )
 
 func findAndReadFile(fileName string, fileDesc string) (string, error) {
@@ -64,10 +66,26 @@ func NewCertificateAuthority(caName string,
 	return createCA(caName, []byte(cert), []byte(key), bundle)
 }
 
+func NewCertificateAuthorityFromConfig(cfg *certMgr.AppConfig) (*ca, error) {
+	duration := time.Duration(cfg.Backend.MaxDuration)
+	_ = duration
+
+	// find the public portion of the Signing CA
+	if len(cfg.Backend.SigningCertificate) == 0 {
+
+	}
+	return createCA("", []byte(""), []byte(""), "")
+}
+
 func createCA(caName string,
 	cert []byte,
 	key []byte,
 	bundle string) (*ca, error) {
+
+	if len(caName) == 0 {
+		caName = "default"
+	}
+
 	pemCert, _ := pem.Decode(cert)
 	if pemCert == nil {
 		msg := "Unable to decode the certificate!"

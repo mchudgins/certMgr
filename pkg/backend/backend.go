@@ -21,7 +21,10 @@ import (
 	"google.golang.org/grpc"
 )
 
-type server struct{}
+type server struct {
+	cfg certMgr.AppConfig
+	ca  *ca
+}
 
 func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context,
@@ -41,6 +44,10 @@ func Run(cfg *certMgr.AppConfig) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// create the Certificate Authority
+	ca, err := NewCertificateAuthorityFromConfig(cfg)
+	_ = ca
 
 	// make a channel to listen on events,
 	// then launch the servers.
@@ -66,7 +73,7 @@ func Run(cfg *certMgr.AppConfig) {
 			grpc_middleware.WithUnaryServerChain(
 				grpc_prometheus.UnaryServerInterceptor,
 				grpcEndpointLog("certMgr")))
-		pb.RegisterCertMgrServer(s, &server{})
+		pb.RegisterCertMgrServer(s, &server{cfg: *cfg})
 		log.Infof("gRPC service listening on %s", cfg.GRPCListenAddress)
 		errc <- s.Serve(lis)
 	}()
