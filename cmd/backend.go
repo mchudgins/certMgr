@@ -26,13 +26,10 @@ import (
 // backendCmd represents the backend command
 var backendCmd = &cobra.Command{
 	Use:   "backend",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "runs the backend service listening on ports :8080 (http) and :50051 (grpc)",
+	Long: `The backend service provides the core functionality of certMgr.
+The backend is responsible for creating the certificate and interacting with
+the persistence tier.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// determine the backend app's configuration
 		cfg, err := utils.NewAppConfig(cmd)
@@ -41,7 +38,7 @@ to quickly create a Cobra application.`,
 		}
 
 		// these flags must be handled individually since the flag name doesn't match the field name
-		// they are in a sub-struct of the top level structure
+		// (they are in a sub-struct of the top level config structure)
 		cfg.Backend.KeyFilename = viper.GetString("key")
 
 		// set the log level
