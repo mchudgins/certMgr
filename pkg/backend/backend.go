@@ -39,6 +39,7 @@ func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
 
 // Run the backend command
 func Run(cfg *certMgr.AppConfig) {
+	server := &server{cfg: *cfg}
 
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -46,8 +47,7 @@ func Run(cfg *certMgr.AppConfig) {
 	}
 
 	// create the Certificate Authority
-	ca, err := NewCertificateAuthorityFromConfig(cfg)
-	_ = ca
+	server.ca, err = NewCertificateAuthorityFromConfig(cfg)
 
 	// make a channel to listen on events,
 	// then launch the servers.
@@ -73,7 +73,7 @@ func Run(cfg *certMgr.AppConfig) {
 			grpc_middleware.WithUnaryServerChain(
 				grpc_prometheus.UnaryServerInterceptor,
 				grpcEndpointLog("certMgr")))
-		pb.RegisterCertMgrServer(s, &server{cfg: *cfg})
+		pb.RegisterCertMgrServer(s, server)
 		log.Infof("gRPC service listening on %s", cfg.GRPCListenAddress)
 		errc <- s.Serve(lis)
 	}()
@@ -110,5 +110,5 @@ func Run(cfg *certMgr.AppConfig) {
 	}()
 
 	// wait for somthin'
-	log.Printf("exit: %s", <-errc)
+	log.Infof("exit: %s", <-errc)
 }

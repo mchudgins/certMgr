@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/mchudgins/certMgr/pkg/assets"
 	"github.com/mchudgins/certMgr/pkg/certMgr"
 	"time"
 )
@@ -16,7 +17,7 @@ import (
 func findAndReadFile(fileName string, fileDesc string) (string, error) {
 	const fileStr string = "file"
 
-	cfg, err := os.Open(fileName)
+	cfg, err := os.OpenFile(fileName, os.O_RDONLY, 0)
 	if err != nil {
 		if os.IsNotExist(err) {
 			log.WithError(err).WithField(fileStr, fileName).Error(fileDesc + " file does not exist.")
@@ -66,15 +67,44 @@ func NewCertificateAuthority(caName string,
 	return createCA(caName, []byte(cert), []byte(key), bundle)
 }
 
+func loadAsset(asset string) (string, error) {
+	b, err := assets.Asset(asset)
+	if err != nil {
+		log.WithError(err).WithField("asset", asset)
+		return "", err
+	}
+	return string(b), nil
+}
+
 func NewCertificateAuthorityFromConfig(cfg *certMgr.AppConfig) (*ca, error) {
+	var err error
 	duration := time.Duration(cfg.Backend.MaxDuration)
 	_ = duration
 
 	// find the public portion of the Signing CA
-	if len(cfg.Backend.SigningCertificate) == 0 {
-
+	cert := cfg.Backend.SigningCACertificate
+	if len(cert) == 0 {
+		cert, err = loadAsset("static/dst-root-ca.crt")
+		if err != nil {
+			log.Fatal("Application misconfigured, exiting.")
+		}
 	}
-	return createCA("", []byte(""), []byte(""), "")
+
+	// find the bundle of intermediate CA's
+	bundle := cfg.Backend.Bundle
+	if len(bundle) == 0 {
+		bundle, err = loadAsset("static/dst-root-ca.crt")
+		if err != nil {
+			log.Fatal("Application misconfigured, exiting.")
+		}
+	}
+
+	key, err := findAndReadFile(cfg.Backend.SigningCAKeyFilename, "CA key")
+	if err != nil {
+		log.Fatalf("Application misconfigured, exiting")
+	}
+
+	return createCA("", []byte(cert), []byte(key), bundle)
 }
 
 func createCA(caName string,

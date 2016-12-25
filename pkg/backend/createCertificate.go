@@ -32,8 +32,6 @@ type ca struct {
 	Bundle             string
 }
 
-var SimpleCA *ca
-
 // CreateCertificate creates an x509 certificate
 func (s *server) CreateCertificate(ctx context.Context, in *pb.CreateRequest) (*pb.CreateReply, error) {
 
@@ -45,7 +43,7 @@ func (s *server) CreateCertificate(ctx context.Context, in *pb.CreateRequest) (*
 	var validFor time.Duration
 	validFor = time.Duration(in.GetDuration()) * time.Hour * 24
 
-	cert, key, err := SimpleCA.CreateCertificate(ctx, in.GetName(), in.GetAlternateNames(), validFor)
+	cert, key, err := s.ca.CreateCertificate(ctx, in.GetName(), in.GetAlternateNames(), validFor)
 
 	return &pb.CreateReply{Certificate: cert, Key: key}, err
 }

@@ -80,7 +80,7 @@ var newCmd = &cobra.Command{
 		log.Debugf("Current config:  %+v", cfg)
 
 		// initialize the SimpleCA
-		backend.SimpleCA, err = backend.NewCertificateAuthority("signingCert",
+		ca, err := backend.NewCertificateAuthority("signingCert",
 			"ca/cap/cap-ca.crt",
 			"ca/cap/private/cap-ca.key",
 			"ca/cap/cap-ca.crt")
@@ -90,7 +90,7 @@ var newCmd = &cobra.Command{
 
 		ctx := context.Background()
 		var empty []string
-		cert, key, err := backend.SimpleCA.CreateCertificate(ctx, args[0], empty, time.Duration(cfg.Duration)*time.Hour*24)
+		cert, key, err := ca.CreateCertificate(ctx, args[0], empty, time.Duration(cfg.Duration)*time.Hour*24)
 		if err != nil {
 			log.WithField("error", err).Fatal("unable to create certificate")
 		}

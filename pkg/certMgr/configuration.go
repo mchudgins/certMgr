@@ -13,9 +13,11 @@ type AppConfig struct {
 }
 
 type BackendConfig struct {
-	KeyFilename        string
-	SigningCertificate string
-	MaxDuration        int
+	Bundle               string // the pem-encoded bundle of intermediate CA's
+	KeyFilename          string // the name of the file containing the pem-encoded key for the signing CA
+	SigningCACertificate string // the pem-encoded signing CA
+	SigningCAKeyFilename string // filename for the CA key
+	MaxDuration          int    // maximum # of days this CA will issue a cert
 }
 
 // the default configuration
@@ -31,7 +33,8 @@ var (
 
 	// defaultConfig holds default values
 	defaultBackendConfig = BackendConfig{
-		KeyFilename: "key.pem",
-		MaxDuration: 365, // max duration, in days, for any certificate
+		SigningCAKeyFilename: "ca-key.pem",
+		KeyFilename:          "key.pem",
+		MaxDuration:          365, // max duration, in days, for any certificate
 	}
 )

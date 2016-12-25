@@ -40,6 +40,7 @@ the persistence tier.`,
 		// these flags must be handled individually since the flag name doesn't match the field name
 		// (they are in a sub-struct of the top level config structure)
 		cfg.Backend.KeyFilename = viper.GetString("key")
+		cfg.Backend.SigningCAKeyFilename = viper.GetString("caKey")
 
 		// set the log level
 		if cfg.Verbose {
@@ -59,6 +60,7 @@ func init() {
 	RootCmd.AddCommand(backendCmd)
 
 	backendCmd.PersistentFlags().String("key", certMgr.DefaultAppConfig.Backend.KeyFilename, "key filename")
+	backendCmd.PersistentFlags().String("caKey", certMgr.DefaultAppConfig.Backend.SigningCAKeyFilename, "CA key filename")
 
 	// Here you will define your flags and configuration settings.
 

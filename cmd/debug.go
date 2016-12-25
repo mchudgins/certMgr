@@ -151,7 +151,7 @@ to quickly create a Cobra application.`,
 
 		asset, err := assets.Asset(args[0])
 		if err != nil {
-			fmt.Fprintf(cmd.OutOrStderr(), "while loading asset %s -- %s", err)
+			fmt.Fprintf(cmd.OutOrStderr(), "an error occurred while loading asset %s -- %s\n", args[0], err)
 		}
 		fmt.Fprintf(cmd.OutOrStdout(), "%s", asset)
 	},
