@@ -2,16 +2,16 @@ package backend
 
 import (
 	"context"
-	"log"
 	"testing"
 
+	log "github.com/Sirupsen/logrus"
 	pb "github.com/mchudgins/certMgr/pkg/service"
 	"google.golang.org/grpc"
 )
 
 var (
 	grpcAddr    = ":50051" //flag.String("grpc", ":50051", "listen address for the gRPC server")
-	defaultName = "www.example.com"
+	defaultName = "fubar.cap.dstcorp.io"
 )
 
 func TestCreate(t *testing.T) {
