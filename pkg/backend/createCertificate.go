@@ -103,6 +103,7 @@ func (c ca) CreateCertificate(ctx context.Context,
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &c.SigningCertificate, publicKey(priv), c.SigningKey)
 	if err != nil {
 		log.WithError(err).Error("Unable to CreateCertificate")
+		return "", "", err
 	}
 
 	// prepare the response

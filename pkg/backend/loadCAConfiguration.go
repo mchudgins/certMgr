@@ -84,24 +84,24 @@ func NewCertificateAuthorityFromConfig(cfg *certMgr.AppConfig) (*ca, error) {
 	// find the public portion of the Signing CA
 	cert := cfg.Backend.SigningCACertificate
 	if len(cert) == 0 {
-		cert, err = loadAsset("static/dst-root-ca.crt")
+		cert, err = loadAsset("static/signing-ca.crt")
 		if err != nil {
-			log.Fatal("Application misconfigured, exiting.")
+			log.WithError(err).Fatal("Application misconfigured, exiting.")
 		}
 	}
 
 	// find the bundle of intermediate CA's
 	bundle := cfg.Backend.Bundle
 	if len(bundle) == 0 {
-		bundle, err = loadAsset("static/dst-root-ca.crt")
+		bundle, err = loadAsset("static/ca-bundle.pem")
 		if err != nil {
-			log.Fatal("Application misconfigured, exiting.")
+			log.WithError(err).Fatal("Application misconfigured, exiting.")
 		}
 	}
 
 	key, err := findAndReadFile(cfg.Backend.SigningCAKeyFilename, "CA key")
 	if err != nil {
-		log.Fatalf("Application misconfigured, exiting")
+		log.WithError(err).Fatalf("Application misconfigured, exiting")
 	}
 
 	return createCA("", []byte(cert), []byte(key), bundle)
