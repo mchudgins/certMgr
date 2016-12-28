@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"io/ioutil"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/mchudgins/certMgr/pkg/backend"
 	"github.com/mchudgins/certMgr/pkg/certMgr"
@@ -41,6 +43,23 @@ the persistence tier.`,
 		// these flags must be handled individually since the flag name doesn't match the field name
 		// (they are in a sub-struct of the top level config structure)
 		cfg.Backend.SigningCAKeyFilename = viper.GetString("caKey")
+
+		// if we were given a cert, write it out to a tmp file
+		if len(cfg.Certificate) != 0 {
+			tmpfile, err := ioutil.TempFile("", "be")
+			if err != nil {
+				log.WithError(err).Fatal("unable to create a tmp file for certificate")
+			}
+
+			cfg.CertFilename = tmpfile.Name()
+
+			if _, err = tmpfile.Write([]byte(cfg.Certificate)); err != nil {
+				log.WithError(err).Fatalf("an error occurred while writing the certificate to temporary file %s", tmpfile.Name())
+			}
+			if err = tmpfile.Close(); err != nil {
+				log.WithError(err).Fatalf("an error occurred while closing the temporary file %s", tmpfile.Name())
+			}
+		}
 
 		utils.StartUpMessage(*cfg)
 

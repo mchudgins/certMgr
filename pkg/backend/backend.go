@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
@@ -19,6 +20,7 @@ import (
 	"github.com/mchudgins/certMgr/pkg/healthz"
 	pb "github.com/mchudgins/certMgr/pkg/service"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 type server struct {
@@ -68,6 +70,11 @@ func Run(cfg *certMgr.AppConfig) {
 
 	// gRPC server
 	go func() {
+		tlsCreds, err := credentials.NewServerTLSFromFile(cfg.CertFilename, cfg.KeyFilename)
+		if err != nil {
+			log.WithError(err).Fatal("Failed to generate grpc TLS credentials")
+		}
+
 		lis, err := net.Listen("tcp", cfg.GRPCListenAddress)
 		if err != nil {
 			errc <- err
@@ -75,6 +82,7 @@ func Run(cfg *certMgr.AppConfig) {
 		}
 
 		s := grpc.NewServer(
+			grpc.Creds(tlsCreds),
 			grpc_middleware.WithUnaryServerChain(
 				grpc_prometheus.UnaryServerInterceptor,
 				grpcEndpointLog("certMgr")))
@@ -110,8 +118,15 @@ func Run(cfg *certMgr.AppConfig) {
 			}
 		})
 
-		log.Infof("HTTP service listening on %s", cfg.HTTPListenAddress)
-		errc <- http.ListenAndServe(cfg.HTTPListenAddress, nil)
+		tlsServer := &http.Server{
+			Addr: cfg.HTTPListenAddress,
+			TLSConfig: &tls.Config{
+				MinVersion: tls.VersionTLS12,
+			},
+		}
+
+		log.Infof("HTTPS service listening on %s", cfg.HTTPListenAddress)
+		errc <- tlsServer.ListenAndServeTLS(cfg.CertFilename, cfg.KeyFilename)
 	}()
 
 	// wait for somthin'

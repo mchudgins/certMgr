@@ -7,6 +7,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	pb "github.com/mchudgins/certMgr/pkg/service"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 var (
@@ -16,9 +17,9 @@ var (
 
 func TestCreate(t *testing.T) {
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(grpcAddr, grpc.WithInsecure())
+	conn, err := grpc.Dial(defaultName+grpcAddr, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		log.WithError(err).Fatal("did not connect")
 	}
 	defer conn.Close()
 	c := pb.NewCertMgrClient(conn)
@@ -27,7 +28,7 @@ func TestCreate(t *testing.T) {
 	name := defaultName
 	r, err := c.CreateCertificate(context.Background(), &pb.CreateRequest{Name: name, Duration: 90})
 	if err != nil {
-		log.Fatalf("could not create certificate: %v", err)
+		log.WithError(err).Fatalf("could not create certificate: %v", err)
 	}
 	log.Printf("Certificate: %s\nKey: %s", r.GetCertificate(), r.GetKey())
 }

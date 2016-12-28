@@ -5,61 +5,30 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
-	"os"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/mchudgins/certMgr/pkg/assets"
 	"github.com/mchudgins/certMgr/pkg/certMgr"
+	"github.com/mchudgins/certMgr/pkg/utils"
 	"time"
 )
-
-func findAndReadFile(fileName string, fileDesc string) (string, error) {
-	const fileStr string = "file"
-
-	cfg, err := os.OpenFile(fileName, os.O_RDONLY, 0)
-	if err != nil {
-		if os.IsNotExist(err) {
-			log.WithError(err).WithField(fileStr, fileName).Error(fileDesc + " file does not exist.")
-		}
-		if os.IsPermission(err) {
-			log.WithError(err).WithField(fileStr, fileName).Error("Insufficient privilege to read " + fileDesc + ".")
-		}
-		return "", err
-	}
-	defer cfg.Close()
-
-	info, err := os.Stat(fileName)
-	if err != nil {
-		log.WithError(err).WithField(fileStr, fileName).Error("Unable to stat " + fileDesc + " file.")
-	}
-	buf := make([]byte, info.Size())
-
-	cb, err := cfg.Read(buf)
-	if err != nil || int64(cb) != info.Size() {
-		log.WithError(err).WithFields(log.Fields{fileStr: fileName, "bytes read": cb, "bytes expected": info.Size()}).
-			Error("Unable to read the entire " + fileDesc + " file")
-		return "", err
-	}
-
-	return string(buf), nil
-}
 
 func NewCertificateAuthority(caName string,
 	certFile string,
 	keyFile string,
 	bundleFile string) (*ca, error) {
-	cert, err := findAndReadFile(certFile, "certificate")
+	cert, err := utils.FindAndReadFile(certFile, "certificate")
 	if err != nil {
 		return nil, err
 	}
 
-	key, err := findAndReadFile(keyFile, "key")
+	key, err := utils.FindAndReadFile(keyFile, "key")
 	if err != nil {
 		return nil, err
 	}
 
-	bundle, err := findAndReadFile(bundleFile, "ca bundle")
+	bundle, err := utils.FindAndReadFile(bundleFile, "ca bundle")
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +68,7 @@ func NewCertificateAuthorityFromConfig(cfg *certMgr.AppConfig) (*ca, error) {
 		}
 	}
 
-	key, err := findAndReadFile(cfg.Backend.SigningCAKeyFilename, "CA key")
+	key, err := utils.FindAndReadFile(cfg.Backend.SigningCAKeyFilename, "CA key")
 	if err != nil {
 		log.WithError(err).Fatalf("Application misconfigured, exiting")
 	}

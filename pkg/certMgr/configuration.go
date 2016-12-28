@@ -2,6 +2,7 @@ package certMgr
 
 // AppConfig provides the global configuration of the application.
 type AppConfig struct {
+	Certificate        string // the pem-encoded certificate for the service
 	CertFilename       string // the name of the file containing the pem-encoded certicate for the service
 	KeyFilename        string // the name of the file containing the pem-encoded key for the service's cert
 	Config             string // load config data from this file (may be a url)
@@ -28,7 +29,7 @@ var (
 		CertFilename:       "cert.pem",
 		KeyFilename:        "key.pem",
 		Config:             "",
-		HTTPListenAddress:  ":8080",
+		HTTPListenAddress:  ":8443",
 		GRPCListenAddress:  ":50051",
 		AuthServiceAddress: "auth.dstcorp.net:443",
 		Verbose:            false,
