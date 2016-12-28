@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"github.com/mchudgins/certMgr/pkg/certMgr"
 )
 
 var (
@@ -14,12 +16,13 @@ var (
 	goversion string
 )
 
-func StartUpMessage() {
+func StartUpMessage(cfg certMgr.AppConfig) {
 	log.WithFields(log.Fields{
-		"version":   version,
-		"buildTime": buildTime,
-		"builder":   builder,
-		"buildNum":  buildNum,
-		"goVersion": goversion,
+		"version":       version,
+		"buildTime":     buildTime,
+		"builder":       builder,
+		"buildNum":      buildNum,
+		"goVersion":     goversion,
+		"configuration": fmt.Sprintf("%#v", cfg),
 	}).Info("certMgr startup")
 }

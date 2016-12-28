@@ -44,8 +44,6 @@ the persistence tier.`,
 
 		utils.StartUpMessage(*cfg)
 
-		log.Debugf("Current config:  %+v", cfg)
-
 		// ready to run...
 		backend.Run(cfg)
 	},

@@ -3,12 +3,12 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"net/http"
 	"os"
 	"path"
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/afex/hystrix-go/hystrix"
 	"github.com/mchudgins/certMgr/pkg/certMgr"
 	"github.com/spf13/cobra"
