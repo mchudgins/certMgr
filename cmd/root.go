@@ -63,19 +63,20 @@ func init() {
 	// Cobra supports Persistent Flags, which, if defined here,
 	// will be global for your application.
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.certMgr.yaml)")
-	RootCmd.PersistentFlags().String("grpc", certMgr.DefaultAppConfig.GRPCListenAddress, "listen address for the gRPC server")
-	RootCmd.PersistentFlags().String("http", certMgr.DefaultAppConfig.HTTPListenAddress, "listen address for the http server")
 	RootCmd.PersistentFlags().String("auth", certMgr.DefaultAppConfig.AuthServiceAddress, "gRPC port for Auth Service")
-	RootCmd.PersistentFlags().BoolP("verbose", "v", false, "provide verbose output")
 	RootCmd.PersistentFlags().String("certFilename", certMgr.DefaultAppConfig.CertFilename,
 		"filename of the pem-encoded certificate for the service")
 	RootCmd.PersistentFlags().String("certificate", certMgr.DefaultAppConfig.Certificate,
 		"the pem-encoded certificate for the service")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.certMgr.yaml)")
+	RootCmd.PersistentFlags().String("grpc", certMgr.DefaultAppConfig.GRPCListenAddress, "listen address for the gRPC server")
+	RootCmd.PersistentFlags().String("http", certMgr.DefaultAppConfig.HTTPListenAddress, "listen address for the http server")
+	RootCmd.PersistentFlags().Bool("insecure", certMgr.DefaultAppConfig.Insecure, "for testing, don't use TLS")
+	RootCmd.PersistentFlags().BoolP("verbose", "v", false, "provide verbose output")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	//	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.

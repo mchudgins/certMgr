@@ -33,8 +33,8 @@ func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
 		req interface{},
 		info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler) (interface{}, error) {
-		log.Printf("grpcEndpointLog %s+", s)
-		defer log.Printf("grpcEndpointLog %s-", s)
+		log.Debugf("grpcEndpointLog %s+", s)
+		defer log.Debugf("grpcEndpointLog %s-", s)
 		return handler(ctx, req)
 	}
 }
@@ -70,10 +70,6 @@ func Run(cfg *certMgr.AppConfig) {
 
 	// gRPC server
 	go func() {
-		tlsCreds, err := credentials.NewServerTLSFromFile(cfg.CertFilename, cfg.KeyFilename)
-		if err != nil {
-			log.WithError(err).Fatal("Failed to generate grpc TLS credentials")
-		}
 
 		lis, err := net.Listen("tcp", cfg.GRPCListenAddress)
 		if err != nil {
@@ -81,13 +77,34 @@ func Run(cfg *certMgr.AppConfig) {
 			return
 		}
 
-		s := grpc.NewServer(
-			grpc.Creds(tlsCreds),
-			grpc_middleware.WithUnaryServerChain(
-				grpc_prometheus.UnaryServerInterceptor,
-				grpcEndpointLog("certMgr")))
+		var s *grpc.Server
+
+		if cfg.Insecure {
+			s = grpc.NewServer(
+				grpc_middleware.WithUnaryServerChain(
+					grpc_prometheus.UnaryServerInterceptor,
+					grpcEndpointLog("certMgr")))
+		} else {
+			tlsCreds, err := credentials.NewServerTLSFromFile(cfg.CertFilename, cfg.KeyFilename)
+			if err != nil {
+				log.WithError(err).Fatal("Failed to generate grpc TLS credentials")
+			}
+			s = grpc.NewServer(
+				grpc.Creds(tlsCreds),
+				grpc.RPCCompressor(grpc.NewGZIPCompressor()),
+				grpc.RPCDecompressor(grpc.NewGZIPDecompressor()),
+				grpc_middleware.WithUnaryServerChain(
+					grpc_prometheus.UnaryServerInterceptor,
+					grpcEndpointLog("certMgr")))
+		}
+
 		pb.RegisterCertMgrServer(s, server)
-		log.Infof("gRPC service listening on %s", cfg.GRPCListenAddress)
+
+		if cfg.Insecure {
+			log.Warnf("gRPC service listening insecurely on %s", cfg.GRPCListenAddress)
+		} else {
+			log.Infof("gRPC service listening on %s", cfg.GRPCListenAddress)
+		}
 		errc <- s.Serve(lis)
 	}()
 
@@ -125,8 +142,13 @@ func Run(cfg *certMgr.AppConfig) {
 			},
 		}
 
-		log.Infof("HTTPS service listening on %s", cfg.HTTPListenAddress)
-		errc <- tlsServer.ListenAndServeTLS(cfg.CertFilename, cfg.KeyFilename)
+		if cfg.Insecure {
+			log.Warnf("HTTP service listening insecurely on %s", cfg.HTTPListenAddress)
+			errc <- http.ListenAndServe(cfg.HTTPListenAddress, nil)
+		} else {
+			log.Infof("HTTPS service listening on %s", cfg.HTTPListenAddress)
+			errc <- tlsServer.ListenAndServeTLS(cfg.CertFilename, cfg.KeyFilename)
+		}
 	}()
 
 	// wait for somthin'

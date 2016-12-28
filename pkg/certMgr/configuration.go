@@ -4,6 +4,7 @@ package certMgr
 type AppConfig struct {
 	Certificate        string // the pem-encoded certificate for the service
 	CertFilename       string // the name of the file containing the pem-encoded certicate for the service
+	Insecure           bool   // for testing purposes, do not start-up TLS endpoints
 	KeyFilename        string // the name of the file containing the pem-encoded key for the service's cert
 	Config             string // load config data from this file (may be a url)
 	HTTPListenAddress  string
@@ -32,6 +33,7 @@ var (
 		HTTPListenAddress:  ":8443",
 		GRPCListenAddress:  ":50051",
 		AuthServiceAddress: "auth.dstcorp.net:443",
+		Insecure:           false,
 		Verbose:            false,
 		Backend:            defaultBackendConfig,
 	}
