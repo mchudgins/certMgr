@@ -3,13 +3,13 @@ package frontend
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"regexp"
 	"time"
 
 	"google.golang.org/grpc"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/afex/hystrix-go/hystrix"
 	pb "github.com/mchudgins/certMgr/pkg/service"
 	"github.com/patrickmn/go-cache"
@@ -85,7 +85,7 @@ func (s *securityProxy) verifyToken(token string) (*pb.VerificationResponse, err
 		request := &pb.VerificationRequest{Token: token}
 		resp, err = s.auth.VerifyToken(context.Background(), request)
 		if err != nil {
-			log.Printf("VerifyToken:  %s for token \"%s\"", err, token)
+			log.WithError(err).WithField("token", token).Warn("VerifyToken returned an error")
 		}
 
 		return err

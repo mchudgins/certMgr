@@ -2,7 +2,6 @@ package devModeAuthService
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -14,6 +13,7 @@ import (
 
 	"google.golang.org/grpc"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/mchudgins/certMgr/pkg/healthz"
 	pb "github.com/mchudgins/certMgr/pkg/service"
@@ -52,19 +52,19 @@ func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
 		req interface{},
 		info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler) (interface{}, error) {
-		log.Printf("grpcEndpointLog %s+", s)
-		defer log.Printf("grpcEndpointLog %s-", s)
+		log.Debugf("grpcEndpointLog %s+", s)
+		defer log.Debugf("grpcEndpointLog %s-", s)
 		return handler(ctx, req)
 	}
 }
 
 func Command(cmd *cobra.Command, args []string) {
 	// TODO: Work your own magic here
-	log.Printf("'authService' started!  This command is for Development mode ONLY!")
+	log.Info("'authService' started!  This command is for Development mode ONLY!")
 
 	cfg, err := utils.NewAppConfig(cmd)
 	if err != nil {
-		log.Printf("Unable to initialize the application (%s).  Exiting now.", err)
+		log.WithError(err).Fatal("Unable to initialize the application.  Exiting now.")
 	}
 
 	listenAddress := cfg.AuthServiceAddress
@@ -94,7 +94,7 @@ func Command(cmd *cobra.Command, args []string) {
 				grpc_prometheus.UnaryServerInterceptor,
 				grpcEndpointLog("devModeAuthServer")))
 		pb.RegisterAuthVerifierServer(s, &server{})
-		log.Printf("gRPC service listening on %s", listenAddress)
+		log.Infof("gRPC service listening on %s", listenAddress)
 		errc <- s.Serve(lis)
 	}()
 
@@ -114,10 +114,10 @@ func Command(cmd *cobra.Command, args []string) {
 			}
 		})
 
-		log.Printf("HTTP service listening on %s", cfg.HTTPListenAddress)
+		log.Infof("HTTP service listening on %s", cfg.HTTPListenAddress)
 		errc <- http.ListenAndServe(cfg.HTTPListenAddress, nil)
 	}()
 
 	// wait for somthin'
-	log.Printf("exit: %s", <-errc)
+	log.Infof("exit: %s", <-errc)
 }

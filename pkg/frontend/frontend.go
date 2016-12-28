@@ -3,13 +3,13 @@ package frontend
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/afex/hystrix-go/hystrix"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/mchudgins/certMgr/pkg/certMgr"
@@ -58,7 +58,7 @@ func preflightHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", strings.Join(headers, ","))
 	methods := []string{"GET", "HEAD", "POST", "PUT", "DELETE"}
 	w.Header().Set("Access-Control-Allow-Methods", strings.Join(methods, ","))
-	log.Printf("preflight request for %s", r.URL.Path)
+	log.Debugf("preflight request for %s", r.URL.Path)
 	return
 }
 
@@ -94,7 +94,7 @@ func Run(cfg *certMgr.AppConfig) {
 
 		circuitBreaker, err := utils.NewHystrixHelper("grpc-backend")
 		if err != nil {
-			log.Fatalf("Error creating circuitBreaker: %s", err)
+			log.WithError(err).WithField("circuit-breaker", "grpc-backend").Fatal("Error creating circuitBreaker")
 		}
 
 		mux.Handle("/api/v1/", secProxy.Handler(circuitBreaker.Handler(gw)))
@@ -153,7 +153,7 @@ func Run(cfg *certMgr.AppConfig) {
 			return
 		}
 
-		log.Printf("HTTP service listening on %s", cfg.HTTPListenAddress)
+		log.Infof("HTTP service listening on %s", cfg.HTTPListenAddress)
 		correlator := utils.NewCoreRequest()
 		errc <- http.ListenAndServe(
 			cfg.HTTPListenAddress,

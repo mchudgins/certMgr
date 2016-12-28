@@ -6,10 +6,10 @@ package healthz
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"os"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/mchudgins/certMgr/pkg/certMgr"
 )
 
@@ -31,7 +31,7 @@ type handler struct {
 func NewConfig(appConfig *certMgr.AppConfig) (*Config, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
-		log.Fatal(err)
+		log.WithError(err).Fatal("calling os.Hostname()")
 	}
 
 	hc := &Config{
@@ -70,21 +70,23 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	statusCode := http.StatusOK
 
-	errors := make([]Error, 0)
+	/*
+		errors := make([]Error, 0)
 
-	response.Errors = errors
-	if len(response.Errors) > 0 {
-		statusCode = http.StatusInternalServerError
-		for _, e := range response.Errors {
-			log.Println(e.Error)
+		response.Errors = errors
+		if len(response.Errors) > 0 {
+			statusCode = http.StatusInternalServerError
+			for _, e := range response.Errors {
+				log.WithError(e).Info("why was this called?")
+			}
 		}
-	}
+	*/
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	data, err := json.MarshalIndent(&response, "", "  ")
 	if err != nil {
-		log.Println(err)
+		log.WithError(err).Error("MarshallIndent")
 	}
 	w.Write(data)
 }
