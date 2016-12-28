@@ -41,6 +41,11 @@ func grpcEndpointLog(s string) grpc.UnaryServerInterceptor {
 func Run(cfg *certMgr.AppConfig) {
 	server := &server{cfg: *cfg}
 
+	// set the log level
+	if cfg.Verbose {
+		log.SetLevel(log.DebugLevel)
+	}
+
 	hostname, err := os.Hostname()
 	if err != nil {
 		log.Fatal(err)

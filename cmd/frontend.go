@@ -15,7 +15,9 @@
 package cmd
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"github.com/mchudgins/certMgr/pkg/frontend"
+	"github.com/mchudgins/certMgr/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +29,16 @@ var (
 		Long: `Launch a 'frontend' API server for the sample service.
 
 The frontend service accepts and provides JSON for the gRPC backend.`,
-		Run: frontend.Run,
+		Run: func(cmd *cobra.Command, args []string) {
+			cfg, err := utils.NewAppConfig(cmd)
+			if err != nil {
+				log.Printf("Unable to initialize the application (%s).  Exiting now.", err)
+			}
+
+			utils.StartUpMessage(*cfg)
+
+			frontend.Run(cfg)
+		},
 	}
 )
 

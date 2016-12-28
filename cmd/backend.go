@@ -31,6 +31,7 @@ var backendCmd = &cobra.Command{
 The backend is responsible for creating the certificate and interacting with
 the persistence tier.`,
 	Run: func(cmd *cobra.Command, args []string) {
+
 		// determine the backend app's configuration
 		cfg, err := utils.NewAppConfig(cmd)
 		if err != nil {
@@ -39,15 +40,9 @@ the persistence tier.`,
 
 		// these flags must be handled individually since the flag name doesn't match the field name
 		// (they are in a sub-struct of the top level config structure)
-		cfg.Backend.KeyFilename = viper.GetString("key")
 		cfg.Backend.SigningCAKeyFilename = viper.GetString("caKey")
 
-		// set the log level
-		if cfg.Verbose {
-			log.SetLevel(log.DebugLevel)
-		}
-
-		utils.StartUpMessage()
+		utils.StartUpMessage(*cfg)
 
 		log.Debugf("Current config:  %+v", cfg)
 
@@ -59,9 +54,6 @@ the persistence tier.`,
 func init() {
 	RootCmd.AddCommand(backendCmd)
 
-	backendCmd.PersistentFlags().String("key", certMgr.DefaultAppConfig.Backend.KeyFilename, "key filename")
-	backendCmd.PersistentFlags().String("caKey", certMgr.DefaultAppConfig.Backend.SigningCAKeyFilename, "CA key filename")
-
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
@@ -72,4 +64,13 @@ func init() {
 	// is called directly, e.g.:
 	// backendCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
+	backendCmd.PersistentFlags().String("caKey", certMgr.DefaultAppConfig.Backend.SigningCAKeyFilename, "CA key filename")
+	backendCmd.PersistentFlags().Int("backend.maxDuration", 10, "maximum certificate lifetime (in # of days)")
+	backendCmd.PersistentFlags().StringSlice("backend.authorizedCreators", certMgr.DefaultAppConfig.Backend.AuthorizedCreators,
+		"email addresses/user ID's of those who may create certificates")
+
+	backendCmd.PersistentFlags().String("backend.bundle", certMgr.DefaultAppConfig.Backend.Bundle,
+		"CA key filename")
+	backendCmd.PersistentFlags().String("backend.signingCACertificate",
+		certMgr.DefaultAppConfig.Backend.SigningCACertificate, "CA key filename")
 }

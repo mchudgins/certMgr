@@ -12,13 +12,13 @@ import (
 
 	"github.com/afex/hystrix-go/hystrix"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/mchudgins/certMgr/pkg/certMgr"
 	"github.com/mchudgins/certMgr/pkg/healthz"
 	pb "github.com/mchudgins/certMgr/pkg/service"
 	"github.com/mchudgins/certMgr/pkg/utils"
 	"github.com/mchudgins/go-service-helper/pkg/loggingWriter"
 	"github.com/mchudgins/go-service-helper/pkg/serveSwagger"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 )
 
@@ -63,13 +63,7 @@ func preflightHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Run the frontend command
-func Run(cmd *cobra.Command, args []string) {
-	utils.StartUpMessage()
-
-	cfg, err := utils.NewAppConfig(cmd)
-	if err != nil {
-		log.Printf("Unable to initialize the application (%s).  Exiting now.", err)
-	}
+func Run(cfg *certMgr.AppConfig) {
 
 	// make a channel to listen on events,
 	// then launch the servers.

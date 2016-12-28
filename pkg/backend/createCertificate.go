@@ -37,7 +37,7 @@ func (s *server) CreateCertificate(ctx context.Context, in *pb.CreateRequest) (*
 
 	md, _ := metadata.FromContext(ctx)
 	for key, value := range md {
-		log.Printf("md[ %s ] : %s", key, value[0])
+		log.Debugf("md[ %s ] : %s", key, value[0])
 	}
 
 	var validFor time.Duration

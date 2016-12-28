@@ -19,6 +19,7 @@ import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/mchudgins/certMgr/pkg/certMgr"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -67,6 +68,10 @@ func init() {
 	RootCmd.PersistentFlags().String("http", ":8080", "listen address for the http server")
 	RootCmd.PersistentFlags().String("auth", ":50052", "gRPC port for Auth Service")
 	RootCmd.PersistentFlags().BoolP("verbose", "v", false, "provide verbose output")
+	RootCmd.PersistentFlags().String("certFilename", certMgr.DefaultAppConfig.CertFilename,
+		"filename of the pem-encoded certificate for the service")
+	RootCmd.PersistentFlags().String("keyFilename", certMgr.DefaultAppConfig.KeyFilename,
+		"filename of the pem-encoded key for the service's certificate")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -80,6 +85,9 @@ func initConfig() {
 	if cfgFile != "" { // enable ability to specify config file via flag
 		viper.SetConfigFile(cfgFile)
 	}
+
+	viper.RegisterAlias("cert", "certFilename")
+	viper.RegisterAlias("key", "keyFilename")
 
 	viper.SetConfigName(".certMgr") // name of config file (without extension)
 	viper.AddConfigPath("$HOME")    // adding home directory as first search path
