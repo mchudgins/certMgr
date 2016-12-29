@@ -35,3 +35,5 @@ pkg/assets/bindata_assets.go
 
 service/*.json
 *.pem
+
+ui/site

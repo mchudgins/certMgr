@@ -2,7 +2,8 @@
 #
 # run `make' to build the site
 #
-TEMPLATES = site.tmpl templates
+#TEMPLATES = site.tmpl templates
+TEMPLATES = site.tmpl
 SOURCE = src
 OUTPUT = site
 BUILD = dev
