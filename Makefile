@@ -103,9 +103,10 @@ container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 	go env
 	echo "go list:"
 	go list
-	godep get ./...
-	godep restore
+	godep get -v ./...
+	godep restore -v
 	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o bin/$(NAME)
+	@-rm docker/app
 	upx -9 -q bin/$(NAME) -o docker/app
 	cp bin/$(NAME) docker/app
 	docker build -t cert-mgr:$(BUILD_NUM) docker
