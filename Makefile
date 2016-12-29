@@ -94,11 +94,11 @@ run: $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
 	godep go run -ldflags "$(LDFLAGS)" $(DEPS) backend --http :9090
 
 container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
-	go get ./...
-	#godep restore
-	CGO_ENABLED=0 go build -a -ldflags "$(LDFLAGS) '-s'" -o bin/$(NAME)
-	upx -9 -q $(NAME) -o docker/app
-	cp $(NAME) docker/app
+#	go get ./...
+#	godep get ./...
+	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o bin/$(NAME)
+	upx -9 -q bin/$(NAME) -o docker/app
+	cp bin/$(NAME) docker/app
 	docker build -t $(NAME):$(BUILD_NUM) docker
 
 deploy:
