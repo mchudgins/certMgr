@@ -1,0 +1,77 @@
+{{ define "script" }}<script src="{{ chomp . | staticURL }}"></script>{{ end }}
+
+{{ define "header" }}<!doctype html>
+<html class="no-js" lang="" ng-app="app" >
+<head>
+  <!-- Build {{ .Site.Other.Build }} -->
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="description" content="">
+  {{ if .Other.Apiendpoint }}
+    <meta name="apiEndpoint" content="{{ .Other.Apiendpoint }}">
+  {{ end }}
+  <meta name="generator" content="gostatic" >
+  <meta name="publisher" content="DST Systems, Inc." >
+  <meta name="viewport" context="width=device-width, initial-scale=1">
+  <link href="{{ staticURL "favicon.ico" }}" type="image/gif" rel="shortcut icon"/>
+  <link type="text/plain" rel="author" href="{{ staticURL "/humans.txt" }}" >
+  <link rel="alternate" type="application/atom+xml" title="{{ html .Site.Other.Title }} feed" href="{{ .Rel "blog.atom" }}">
+  <title>{{ .Site.Other.Title }}{{ if .Title }}: {{ .Title }}{{ end }}</title>
+  <link href="{{ staticURL "bootstrap.css" }}" rel="stylesheet" >
+  <link rel="stylesheet" type="text/css" href="{{ staticURL "/style.css" }}">
+</head>
+{{ template "script" "jquery.js" }}
+{{ if .Other.Scripts }}
+  {{ range split "," .Other.Scripts }}{{ template "script" chomp . }}{{ end }}
+{{ end }}
+<body>
+
+<div class="container-fluid" >
+{{ end }}
+
+{{ define "footer" }}
+</div>
+</body>
+{{ template "script" "bootstrap.js" }}
+</html>
+{{ end }}
+
+{{define "date"}}
+<time datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}">
+  {{ .Format "2006, January 02" }}
+</time>
+{{end}}
+
+{{ define "homepage" }}{{ template "header" . }}
+  {{ .Content }}
+{{ template "footer" . }}{{ end }}
+
+{{ define "page" }}{{ template "header" . }}
+<div class="page-header">
+  <h1>{{ .Title }} <small>Certificate Manager</small></h1>
+</div>
+  {{ .Content }}
+{{ template "footer" . }}{{ end }}
+
+{{ define "post" }}
+<article>
+  <header>
+    <h1>{{ .Title }}</h1>
+    <div class="info">
+      {{ template "date" .Date }} &mdash;
+      {{ range $i, $t := .Tags }}{{if $i}},{{end}}
+      <a href="/tags/{{ $t }}/">{{ $t }}</a>{{ end }}
+    </div>
+  </header>
+  <section>
+  {{ .Content }}
+  </section>
+</article>
+{{ end }}
+
+{{define "tag"}}
+# Pages tagged with {{ .Title }}
+{{ range .Site.Pages.WithTag .Title }}
+- [{{ .Title }}](../../{{ .Url }})
+{{ end }}
+{{ end }}

@@ -1,0 +1,26 @@
+title: Index
+apiEndpoint: /api/v1/certificates
+scripts: angular.js, angular-route.js, /certificates.js
+something: good
+----
+
+<section>
+<h2>Active Certificates</h2>
+
+<div ng-controller="ListControl">
+  <p>Angular says:  [[ x ]]</p>
+  <div class="row header">
+    <div class="col-md-4">Name</div>
+    <div class="col-md-4">Active Certs</div>
+  </div>
+  <div class="row" ng-repeat="item in list.certificates">
+    <div class="col-md-4">
+      <a href="//{{ .Site.Other.Url }}/certificates/[[item.name]]">[[ item.name ]]</a>
+    </div>
+    <div class="col-md-4">
+      [[item.count]]
+    </div>
+  </div>
+</div>
+
+</section>

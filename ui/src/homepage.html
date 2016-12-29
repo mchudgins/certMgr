@@ -1,0 +1,74 @@
+title: Main
+----
+
+<div class="row top-menu">
+  <div class="col-md-2">
+    <button type="button" class="btn btn-lg top" >
+      <a href="{{ .Site.Other.Url }}">
+        <span class="glyphicon glyphicon-lock"></span>
+      </a>
+    </button>
+  </div>
+  <div class="col-md-2">
+    <p class="text-center top"><a href="{{ .Site.Other.Url }}/newCert">New Certificate</a></p>
+  </div>
+  <div class="col-md-2">
+    <p class="text-center top"><a href="{{ .Site.Other.Url }}/downloads">Download Root Certificate</a></p>
+  </div>
+  <div class="col-md-2">
+    <p class="text-center top"><a href="{{ .Site.Other.Url }}/docs">Documentation</a></p>
+  </div>
+  <div class="col-md-2">
+    <p class="text-center top"><a href="{{ .Site.Other.Url }}/blog">Blog</a></p>
+  </div>
+  <div class="col-md-2">
+    <img class="center-block" src="{{ staticURL "/logo-lg.png" }}" height="114" width="178" alt="DST Systems, Inc">
+  </div>
+</div>
+
+<div class="jumbotron">
+  <h1>Certificate Manager</h1>
+  <h2>Manage your internal and non-production certificates.</h2>
+</div>
+
+<h1>Get Started</h1>
+
+<p class="lead">
+Certificate Manager provides a convenient way to create and, optionally for
+the Kubernetes cluster, deploy certificates for internal or non-production use.
+</p>
+
+<div class="row">
+  <div class="col-md-9" role="main">
+    <div class="col-md-4">
+      <h1 class="page-header">Create</h1>
+      <p class="lead">Create a new certificate for your server.
+        Simply specify the desired domain name and download the certificate and
+        key.</p>
+      <p><a href="{{ .Site.Other.Url }}/newCert" class="btn btn-lg btn-outline">
+        Create A Certificate</a></p>
+
+    </div>
+    <div class="col-md-4">
+      <h1 class="page-header">Start at the Top</h1>
+      <p class="lead">Download the root certificate for your browser or client machine.</p>
+      <p><a href="{{ .Site.Other.Url }}/downloads" class="btn btn-lg btn-outline">
+        Download Root</a></p>
+
+    </div>
+    <div class="col-md-4">
+      <h1 class="page-header">Learn More</h1>
+      <p class="lead">We've prepared a high level overview for you of the process.</p>
+      <p><a href="{{ .Site.Other.Url }}/docs" class="btn btn-lg btn-outline">
+        Documentation</a></p>
+
+    </div>
+  </div>
+
+<div class="col-md-3" role="complementary">
+  <h3>Updates</h3>
+{{ range .Site.Pages.Children "blog/" }}
+  <p><span class="minor"{{ template "date" .Date }} -</span> <a href="{{ $.Rel .Url }}">{{ .Title }}</a></p>
+{{ end }}
+
+</div>

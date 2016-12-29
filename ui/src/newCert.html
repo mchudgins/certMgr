@@ -1,0 +1,56 @@
+title: New
+apiEndpoint: /api/v1
+scripts: angular.js, angular-route.js, /newCert.js
+----
+
+<section ng-controller="NewCertForm">
+  <div ng-switch="moduleState">
+    <div ng-switch-when="form">
+      <div>
+        <form name="certificateRequest"
+          ng-submit="submit()" class="form-horizontal">
+          <div class="form-group">
+             <label for="inputServerName" class="col-sm-2 control-label">Server</label>
+             <div class="col-sm-2">
+               <input type="text" class="form-control" id="inputServerName"
+                 name="fServer"
+                 placeholder="Service Name" ng-model="form.server" required >
+             </div>
+             <div class="col-sm-4">
+               <select class="form-control" id="supportedSubZones"
+                  ng-model="form.subzone" >
+                 <option ng-repeat="s in subzones">.[[ s ]]</option>
+               </select>
+             </div>
+           </div>
+           <div class="form-group">
+             <div class="col-sm-offset-2 col-sm-10">
+               <button type="submit" class="btn btn-primary">Create</button>&nbsp;
+               <button type="reset" class="btn">Reset</button>
+             </div>
+           </div>
+           <div><pre>[[ form ]]</pre></div>
+         </form>
+      </div>
+    </div>
+    <div ng-switch-when="result">
+      <h1>Instructions</h1>
+      <p><span class="label label-warning">This is the only time the
+        certificate key will be available.</span></p>
+      <p>A certificate and private key have been generated.</p>
+      <p>Copy the certificate and private key into files.  Download the 'bundle'
+        which contains the intermediate certificate authorities.</p>
+      <h3>Helpful links</h3>
+      <ul>
+        <li><a href="http://httpd.apache.org/docs/2.4/mod/mod_ssl.html">Apache</a></li>
+        <li><a href="https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html">Tomcat</a></li>
+      </ul>
+      <h2>Certificate</h2>
+      <pre>[[ certificate ]]</pre>
+      <h2>Key</h2>
+      <pre>[[ key ]]</pre>
+      <h2>Bundle</h2>
+      <a href="/static/bundle.pem">Download the certificate bundle.</a>
+    </div>
+  </div>
+</section>
