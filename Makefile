@@ -69,6 +69,7 @@ pkg/frontend/bindata.go: pkg/service/service.pb.gw.go
 	mv bindata.go pkg/frontend
 
 pkg/assets/bindata_assetfs.go: ui/site/index.html
+	mkdir -p pkg/assets
 	go-bindata-assetfs -pkg assets -prefix ui/site ui/site/...
 	mv bindata_assetfs.go pkg/assets
 
@@ -107,7 +108,7 @@ container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o bin/$(NAME)
 	upx -9 -q bin/$(NAME) -o docker/app
 	cp bin/$(NAME) docker/app
-	docker build -t $(NAME):$(BUILD_NUM) docker
+	docker build -t cert-mgr:$(BUILD_NUM) docker
 
 deploy:
 	oc new-app --file openshift-deployer-template.json -p APPLICATION=certMgr,BASE_IMAGESTREAM=scratch,GIT_URI=https://github.com/mchudgins/certMgr.git
