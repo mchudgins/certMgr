@@ -95,7 +95,8 @@ run: $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
 
 container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 #	go get ./...
-#	godep get ./...
+	godep get ./...
+	godep restore
 	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o bin/$(NAME)
 	upx -9 -q bin/$(NAME) -o docker/app
 	cp bin/$(NAME) docker/app
