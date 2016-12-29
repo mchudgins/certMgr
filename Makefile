@@ -28,7 +28,7 @@ PROTO_GEN_FILES := pkg/service/service.pb.go \
     pkg/service/certMgrService.pb.go \
     pkg/service/certMgrService.pb.gw.go
 
-GENERATED_FILES := $(PROTO_GEN_FILES) pkg/assets/bindata_assetfs.go pkg/frontend/bindata.go
+GENERATED_FILES := $(PROTO_GEN_FILES) pkg/assets/bindata_assetfs.go pkg/frontend/bindata.go ui/site/index.html
 
 .PHONY: fmt test fulltest run container clean site $(BUILD_NUMBER_FILE)
 
@@ -68,9 +68,12 @@ pkg/frontend/bindata.go: pkg/service/service.pb.gw.go
 	go-bindata -pkg frontend pkg/service/service.swagger.json $(GOPATH)/src/github.com/swagger-api/swagger-ui/dist
 	mv bindata.go pkg/frontend
 
-pkg/assets/bindata_assetfs.go:
+pkg/assets/bindata_assetfs.go: ui/site/index.html
 	go-bindata-assetfs -pkg assets -prefix ui/site ui/site/...
 	mv bindata_assetfs.go pkg/assets
+
+ui/site/index.html: ui/src/homepage.html
+    cd ui && make
 
 $(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
 	go build -ldflags "$(LDFLAGS)" -o bin/$(NAME)
