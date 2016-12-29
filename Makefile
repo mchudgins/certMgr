@@ -99,7 +99,7 @@ container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 	docker build -t $(NAME):$(BUILD_NUM) docker
 
 deploy:
-	oc new-app --file openshift-deployer-template.json -p APPLICATION=gss,BASE_IMAGESTREAM=scratch,GIT_URI=https://github.com/mchudgins/certMgr.git
+	oc new-app --file openshift-deployer-template.json -p APPLICATION=certMgr,BASE_IMAGESTREAM=scratch,GIT_URI=https://github.com/mchudgins/certMgr.git
 	oc start-build gss
 
 $(BUILD_NUMBER_FILE):
