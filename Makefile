@@ -95,13 +95,13 @@ run: $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
 
 container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 #	go get ./...
-    echo "starting godep build"
-    pwd
-    ll pkg/assets
-    echo "go env:"
-    go env
-    echo "go list:"
-    go list
+	echo "starting godep build"
+	pwd
+	ll pkg/assets
+	echo "go env:"
+	go env
+	echo "go list:"
+	go list
 	godep get ./...
 	godep restore
 	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o bin/$(NAME)
