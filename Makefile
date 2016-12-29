@@ -95,16 +95,7 @@ run: $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
 	godep go run -ldflags "$(LDFLAGS)" $(DEPS) backend --http :9090
 
 container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
-	go get ./...
-	echo "starting godep build"
-	pwd
-	ls -l pkg/assets
-	echo "go env:"
-	go env
-	echo "go list:"
-	go list
-	#godep get -v ./...
-	godep restore -v
+	#go get ./...
 	CGO_ENABLED=0 godep go build -a -ldflags "$(LDFLAGS) '-s'" -o bin/$(NAME)
 	@-rm docker/app
 	upx -9 -q bin/$(NAME) -o docker/app

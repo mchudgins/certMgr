@@ -1,8 +1,13 @@
 {
 	"ImportPath": "github.com/mchudgins/certMgr",
 	"GoVersion": "go1.7",
-	"GodepVersion": "v63",
+	"GodepVersion": "v75",
 	"Deps": [
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.11.0-25-g881bee4",
+			"Rev": "881bee4e20a5d11a6a88a5667c6f292072ac1963"
+		},
 		{
 			"ImportPath": "github.com/afex/hystrix-go/hystrix",
 			"Rev": "39520ddd07a9d9a071d615f7476798659f5a3b89"
