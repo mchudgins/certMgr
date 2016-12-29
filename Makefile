@@ -97,7 +97,7 @@ container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 #	go get ./...
 	echo "starting godep build"
 	pwd
-	ll pkg/assets
+	ls -l pkg/assets
 	echo "go env:"
 	go env
 	echo "go list:"
