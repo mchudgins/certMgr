@@ -73,7 +73,7 @@ pkg/assets/bindata_assetfs.go: ui/site/index.html
 	mv bindata_assetfs.go pkg/assets
 
 ui/site/index.html: ui/src/homepage.html
-    cd ui && make
+	cd ui && make
 
 $(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
 	go build -ldflags "$(LDFLAGS)" -o bin/$(NAME)
