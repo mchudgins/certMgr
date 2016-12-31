@@ -170,14 +170,13 @@ caIssuers;URI.0         = http://certs.dstcorp.io/fsg.crt
 OCSP;URI.0              = http://ocsp.dstcorp.io:9080
 
 [name_constraints]
-permitted;DNS.0=$tla.k8s
-permitted;DNS.1=$tla.dstcorp.net
+permitted;DNS.0=$tla.dstcorp.net
+permitted;DNS.1=awddev.dstcorp.net
 permitted;DNS.2=$tla.dstcorp.io
-permitted;DNS.3=local
-permitted;DNS.4=test
-permitted;DNS.5=internal
-permitted;DNS.6=cap
-permitted;DNS.7=awddev.dstcorp.net
+permitted;DNS.3=dstcorp.cloud
+permitted;DNS.4=ta2k.com
+permitted;DNS.5=test
+permitted;DNS.6=localhost
 permitted;IP.0=192.168.0.0/255.255.0.0
 permitted;IP.1=172.16.0.0/255.240.0.0
 permitted;IP.2=10.0.0.0/255.0.0.0

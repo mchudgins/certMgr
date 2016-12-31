@@ -12,4 +12,4 @@ cd intermediate-ca
 ../bin/generate-intermediate.sh
 cd -
 
-#bin/create-bu-ca.sh "Financial Services Group" fsg
+bin/create-bu-ca.sh "Cloud Application Platform" cap
