@@ -31,7 +31,7 @@ build.num
 */Godeps/_workspace
 */bindata.go
 pkg/frontend/bindata.go
-pkg/assets/bindata_assets.go
+pkg/assets/*.go
 
 service/*.json
 *.pem
