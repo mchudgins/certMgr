@@ -58,7 +58,6 @@ all: fmt container
 
 fmt:
 	go fmt
-#	godep go fix .
 
 build: $(NAME)
 
@@ -77,25 +76,24 @@ ui/site/index.html: ui/src/homepage.html
 	cd ui && make
 
 $(NAME): fmt $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
-	go build -ldflags "$(LDFLAGS)" -o bin/$(NAME)
+	go install -ldflags "$(LDFLAGS)"
 
 test: $(DEPS) $(GENERATED_FILES)
-	godep go test -v $$(go list ./... | grep -v /vendor/ | grep -v /cmd/)
+	go test -v $$(go list ./... | grep -v /vendor/ | grep -v /cmd/)
 
 coverage: $(DEPS) $(GENERATED_FILES)
-	godep go test -v -coverprofile=cover.out $$(go list ./... | grep -v /vendor/ | grep -v /cmd/)
-	godep go tool cover -html=cover.out -o cover.html
+	go test -v -coverprofile=cover.out $$(go list ./... | grep -v /vendor/ | grep -v /cmd/)
+	go tool cover -html=cover.out -o cover.html
 
 fulltest: $(DEPS) $(GENERATED_FILES)
-	godep go test -v -cpuprofile=cpu.out
-	godep go test -v -blockprofile=block.out
-	godep go test -v -memprofile=mem.out
+	go test -v -cpuprofile=cpu.out
+	go test -v -blockprofile=block.out
+	go test -v -memprofile=mem.out
 
 run: $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
-	godep go run -ldflags "$(LDFLAGS)" $(DEPS) backend --http :9090
+	go run -ldflags "$(LDFLAGS)" $(DEPS) backend --http :9090
 
 container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
-	#go get ./...
 	CGO_ENABLED=0 go build -a -ldflags "$(LDFLAGS) '-s'" -o bin/$(NAME)
 	@-rm docker/app
 	upx -9 -q bin/$(NAME) -o docker/app
