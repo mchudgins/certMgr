@@ -1,0 +1,13 @@
+#! /bin/bash
+#
+# this script configures the git repo in the current directory
+# to provide Openshift authentication credentials
+#
+# Assumptions:
+#   - The cwd is the location of a git repo
+#   - The current openshift project has already deployed git (ephemeral)
+#     (see:  https://github.com/openshift/origin/blob/master/examples/gitserver/gitserver-ephemeral.yaml)
+#
+GITSERVER=http://$(oc get route git -o template --template '{{.spec.host}}')
+git config credential.$GITSERVER.helper '!f() { echo "username=$(oc whoami)"; echo "password=$(oc whoami -t)"; }; f'
+echo "Don't forget to:  'git remote add oc http://git.oc.localhost/certMgr.git'"
