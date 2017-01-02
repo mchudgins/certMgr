@@ -46,7 +46,7 @@ the persistence tier.`,
 
 		// if we were given a cert, write it out to a tmp file
 		if len(cfg.Certificate) != 0 {
-			tmpfile, err := ioutil.TempFile("", "be")
+			tmpfile, err := ioutil.TempFile("/", "be")
 			if err != nil {
 				log.WithError(err).Fatal("unable to create a tmp file for certificate")
 			}
