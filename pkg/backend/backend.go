@@ -142,7 +142,8 @@ func Run(cfg *certMgr.AppConfig) {
 			},
 		}
 
-		if cfg.Insecure {
+		// FIXME:  cluster can't health check the self-signed cert endpoint
+		if true {
 			log.Warnf("HTTP service listening insecurely on %s", cfg.HTTPListenAddress)
 			errc <- http.ListenAndServe(cfg.HTTPListenAddress, nil)
 		} else {
