@@ -186,7 +186,8 @@
                             {
                                 "image": "${APPLICATION}",
                                 "args" : [ "backend",
-                                    "--config=http://configserver/master/backend-prod.yaml"
+                                    "--config=http://configserver/master/backend-prod.yaml",
+                                    "--caKey=/keys/ca-key.pem"
                                 ],
                                 "imagePullPolicy": "IfNotPresent",
                                 "livenessProbe": {
