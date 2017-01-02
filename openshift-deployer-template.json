@@ -2,16 +2,16 @@
     "apiVersion": "v1",
     "kind": "Template",
     "labels": {
-        "application": "TODO",
-        "createdBy": "golang-app-template"
+        "application": "certmgr",
+        "createdBy": "certmgr-app-template"
     },
     "metadata": {
         "annotations": {
-            "description": "Builds and deploys a golang application from a git repository with a Dockerfile and an existing, base image stream",
+            "description": "Builds and deploys the certMgr application from a git repository with a Dockerfile and an existing, base image stream",
             "iconClass": "icon-golang",
             "tags": "builder, golang"
         },
-        "name": "golang-app-template"
+        "name": "certmgr-app-template"
     },
     "objects": [
         {
@@ -176,22 +176,30 @@
                         }
                     },
                     "spec": {
+                        "volumes": [
+                            {
+                                "name":"keys",
+                                "secret": { "secretName": "certmgrkeys" }
+                            }
+                        ],
                         "containers": [
                             {
                                 "image": "${APPLICATION}",
-                                "args" : [ "backend" ],
+                                "args" : [ "backend",
+                                    "--config=http://configserver/master/backend-prod.yaml"
+                                ],
                                 "imagePullPolicy": "IfNotPresent",
                                 "livenessProbe": {
                                     "initialDelaySeconds": 30,
                                     "tcpSocket": {
-                                        "port": 8080
+                                        "port": 8443
                                     },
                                     "timeoutSeconds": 1
                                 },
                                 "name": "${APPLICATION}",
                                 "ports": [
                                     {
-                                        "containerPort": 8080,
+                                        "containerPort": 8443,
                                         "protocol": "TCP"
                                     },
                                     {
@@ -199,10 +207,17 @@
                                         "protocol": "TCP"
                                     }
                                 ],
+                                "volumeMounts": [
+                                    {
+                                        "name": "keys",
+                                        "readOnly": true,
+                                        "mountPath": "/keys"
+                                    }
+                                ],
                                 "readinessProbe": {
                                     "httpGet": {
                                         "path": "/healthz",
-                                        "port": 8080
+                                        "port": 8443
                                     },
                                     "initialDelaySeconds": 3,
                                     "timeoutSeconds": 1
@@ -246,7 +261,7 @@
                 "name": "${APPLICATION}-frontend"
             },
             "spec": {
-                "replicas": 1,
+                "replicas": 0,
                 "selector": {
                     "deploymentconfig": "${APPLICATION}-frontend"
                 },
@@ -332,7 +347,7 @@
                 "name": "${APPLICATION}-auth-backend"
             },
             "spec": {
-                "replicas": 1,
+                "replicas": 0,
                 "selector": {
                     "deploymentconfig": "${APPLICATION}-auth-backend"
                 },

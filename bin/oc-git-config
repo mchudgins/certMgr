@@ -10,4 +10,4 @@
 #
 GITSERVER=http://$(oc get route git -o template --template '{{.spec.host}}')
 git config credential.$GITSERVER.helper '!f() { echo "username=$(oc whoami)"; echo "password=$(oc whoami -t)"; }; f'
-echo "Don't forget to:  'git remote add oc http://git.oc.localhost/certMgr.git'"
+echo "Don't forget to:  git remote add oc $GITSERVER/certMgr.git"

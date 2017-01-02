@@ -101,8 +101,9 @@ container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 	docker build -t cert-mgr:$(BUILD_NUM) docker
 
 deploy:
-	oc new-app --file openshift-deployer-template.json -p APPLICATION=certMgr,BASE_IMAGESTREAM=scratch,GIT_URI=https://github.com/mchudgins/certMgr.git
-	oc start-build gss
+	-oc secrets new certmgrkeys ca-key.pem=ca/cap/private/cap-ca.key
+	oc new-app --file openshift-deployer-template.json -p APPLICATION=certmgr,BASE_IMAGESTREAM=scratch,GIT_URI=https://github.com/mchudgins/certMgr.git
+	oc start-build certmgr
 
 $(BUILD_NUMBER_FILE):
 	@if ! test -f $(BUILD_NUMBER_FILE); then echo 0 > $(BUILD_NUMBER_FILE); echo setting file to zero; fi
