@@ -183,7 +183,7 @@
                             },
                             {
                                 "name":"tmp",
-                                "emptyDir": ""
+                                "emptyDir": {}
                             }
                         ],
                         "containers": [
@@ -225,6 +225,7 @@
                                 ],
                                 "readinessProbe": {
                                     "httpGet": {
+                                        "scheme": "HTTP",
                                         "path": "/healthz",
                                         "port": 8443
                                     },
