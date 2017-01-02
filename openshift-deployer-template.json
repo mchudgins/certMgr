@@ -180,6 +180,10 @@
                             {
                                 "name":"keys",
                                 "secret": { "secretName": "certmgrkeys" }
+                            },
+                            {
+                                "name":"tmp",
+                                "emptyDir": ""
                             }
                         ],
                         "containers": [
@@ -213,6 +217,10 @@
                                         "name": "keys",
                                         "readOnly": true,
                                         "mountPath": "/keys"
+                                    },
+                                    {
+                                        "name": "tmp",
+                                        "mountPath": "/tmp"
                                     }
                                 ],
                                 "readinessProbe": {

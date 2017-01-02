@@ -101,7 +101,7 @@ container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 	docker build -t cert-mgr:$(BUILD_NUM) docker
 
 deploy:
-	-oc secrets new certmgrkeys ca-key.pem=ca/cap/private/cap-ca.key
+	-oc secrets new certmgrkeys ca-key.pem=ca/cap/private/cap-ca.key key.pem=key.pem
 	oc new-app --file openshift-deployer-template.json -p APPLICATION=certmgr,BASE_IMAGESTREAM=scratch,GIT_URI=https://github.com/mchudgins/certMgr.git
 	oc start-build certmgr
 
