@@ -142,6 +142,8 @@ func Run(cfg *certMgr.AppConfig) {
 			},
 		}
 
+		cfg.Insecure = true
+
 		if cfg.Insecure {
 			log.Warnf("HTTP service listening insecurely on %s", cfg.HTTPListenAddress)
 			errc <- http.ListenAndServe(cfg.HTTPListenAddress, nil)
