@@ -23,11 +23,12 @@ _testmain.go
 *.test
 *.prof
 
-#*.pb.go
 
+# the following files are products of the build process
 build.num
 .buildnum
 */docker/app
+docker/app
 */Godeps/_workspace
 */bindata.go
 pkg/frontend/bindata.go
@@ -38,4 +39,13 @@ service/*.json
 
 ui/site
 
-docker/app
+*.pb.go
+*.pb.gw.go
+*.swagger.json
+*.swp
+
+# these subdir's have confidential certificate data.  never publish them in a git repo
+ca/cap
+ca/intermediate-ca
+ca/root-ca
+
