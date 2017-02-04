@@ -102,8 +102,15 @@ container: $(DEPS) docker/Dockerfile $(GENERATED_FILES)
 
 deploy:
 	-oc secrets new certmgrkeys ca-key.pem=ca/cap/private/cap-ca.key key.pem=key.pem
-	oc new-app --file openshift-deployer-template.json -p APPLICATION=certmgr,BASE_IMAGESTREAM=scratch,GIT_URI=https://github.com/mchudgins/certMgr.git
+	oc new-app --file openshift-deployer-template.json \
+	    -p APPLICATION=certmgr \
+	    -p GIT_URI=https://github.com/mchudgins/certMgr.git
 	oc start-build certmgr
+
+undeploy:
+	oc process -f openshift-deployer-template.json \
+	    -v APPLICATION=certmgr \
+	    -v GIT_URI=https://github.com/mchudgins/certMgr.git | oc delete -f -
 
 $(BUILD_NUMBER_FILE):
 	@if ! test -f $(BUILD_NUMBER_FILE); then echo 0 > $(BUILD_NUMBER_FILE); echo setting file to zero; fi
