@@ -25,8 +25,8 @@ DEPS := $(shell ls *.go | sed 's/.*_test.go//g')
 PROTO_GEN_FILES := pkg/service/service.pb.go \
 	pkg/service/common.pb.go \
 	pkg/service/service.pb.gw.go \
-    pkg/service/certMgrService.pb.go \
-    pkg/service/certMgrService.pb.gw.go
+	pkg/service/certMgrService.pb.go \
+	pkg/service/certMgrService.pb.gw.go
 
 GENERATED_FILES := $(PROTO_GEN_FILES) pkg/assets/bindata_assetfs.go pkg/frontend/bindata.go ui/site/index.html
 

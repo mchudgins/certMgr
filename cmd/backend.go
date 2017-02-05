@@ -37,7 +37,8 @@ the persistence tier.`,
 		// determine the backend app's configuration
 		cfg, err := utils.NewAppConfig(cmd)
 		if err != nil {
-			log.WithField("error", err).Fatal("an error occurred while obtaining the application configuration")
+			log.WithField("error", err).
+				Fatal("an error occurred while obtaining the application configuration")
 		}
 
 		// these flags must be handled individually since the flag name doesn't match the field name
@@ -48,16 +49,21 @@ the persistence tier.`,
 		if len(cfg.Certificate) != 0 {
 			tmpfile, err := ioutil.TempFile("", "be")
 			if err != nil {
-				log.WithError(err).Fatal("unable to create a tmp file for certificate")
+				log.WithError(err).
+					Fatal("unable to create a tmp file for certificate")
 			}
 
 			cfg.CertFilename = tmpfile.Name()
 
 			if _, err = tmpfile.Write([]byte(cfg.Certificate)); err != nil {
-				log.WithError(err).Fatalf("an error occurred while writing the certificate to temporary file %s", tmpfile.Name())
+				log.WithError(err).
+					Fatalf("an error occurred while writing the certificate to temporary file %s",
+						tmpfile.Name())
 			}
 			if err = tmpfile.Close(); err != nil {
-				log.WithError(err).Fatalf("an error occurred while closing the temporary file %s", tmpfile.Name())
+				log.WithError(err).
+					Fatalf("an error occurred while closing the temporary file %s",
+						tmpfile.Name())
 			}
 		}
 
@@ -81,13 +87,20 @@ func init() {
 	// is called directly, e.g.:
 	// backendCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	backendCmd.PersistentFlags().String("caKey", certMgr.DefaultAppConfig.Backend.SigningCAKeyFilename, "CA key filename")
-	backendCmd.PersistentFlags().Int("backend.maxDuration", 10, "maximum certificate lifetime (in # of days)")
-	backendCmd.PersistentFlags().StringSlice("backend.authorizedCreators", certMgr.DefaultAppConfig.Backend.AuthorizedCreators,
+	backendCmd.PersistentFlags().String("caKey",
+		certMgr.DefaultAppConfig.Backend.SigningCAKeyFilename,
+		"CA key filename")
+	backendCmd.PersistentFlags().Int("backend.maxDuration",
+		10,
+		"maximum certificate lifetime (in # of days)")
+	backendCmd.PersistentFlags().StringSlice("backend.authorizedCreators",
+		certMgr.DefaultAppConfig.Backend.AuthorizedCreators,
 		"email addresses/user ID's of those who may create certificates")
 
-	backendCmd.PersistentFlags().String("backend.bundle", certMgr.DefaultAppConfig.Backend.Bundle,
+	backendCmd.PersistentFlags().String("backend.bundle",
+		certMgr.DefaultAppConfig.Backend.Bundle,
 		"CA key filename")
 	backendCmd.PersistentFlags().String("backend.signingCACertificate",
-		certMgr.DefaultAppConfig.Backend.SigningCACertificate, "CA key filename")
+		certMgr.DefaultAppConfig.Backend.SigningCACertificate,
+		"CA key filename")
 }
