@@ -2,7 +2,7 @@
     "apiVersion": "v1",
     "kind": "Template",
     "labels": {
-        "application": "certmgr",
+        "app": "certmgr",
         "createdBy": "certmgr-app-template"
     },
     "metadata": {
@@ -11,7 +11,7 @@
             "iconClass": "icon-golang",
             "tags": "builder, golang"
         },
-        "name": "certmgr-app-template"
+        "name": "certmgr"
     },
     "objects": [
         {
@@ -38,6 +38,9 @@
                 },
                 "strategy": {
                     "customStrategy": {
+                        "env": [
+                            { "name": "BUILD_LOGLEVEL", "value": "5" }
+                        ],
                         "exposeDockerSocket": true,
                         "from": {
                             "kind": "ImageStreamTag",
@@ -101,7 +104,8 @@
                     }
                 ],
                 "selector": {
-                    "deploymentconfig": "${APPLICATION}-backend"
+                    "app" : "${APPLICATION}",
+                    "tier" : "backend"
                 },
                 "sessionAffinity": "None",
                 "type": "ClusterIP"
@@ -122,7 +126,8 @@
                     }
                 ],
                 "selector": {
-                    "deploymentconfig": "${APPLICATION}-auth-backend"
+                    "app" : "${APPLICATION}",
+                    "tier" : "authn"
                 },
                 "sessionAffinity": "None",
                 "type": "ClusterIP"
@@ -143,7 +148,8 @@
                     }
                 ],
                 "selector": {
-                    "deploymentconfig": "${APPLICATION}-frontend"
+                    "app" : "${APPLICATION}",
+                    "tier" : "frontend"
                 },
                 "sessionAffinity": "None",
                 "type": "ClusterIP"
@@ -158,7 +164,8 @@
             "spec": {
                 "replicas": 1,
                 "selector": {
-                    "deploymentconfig": "${APPLICATION}-backend"
+                    "app" : "${APPLICATION}",
+                    "tier" : "backend"
                 },
                 "strategy": {
                     "resources": {},
@@ -172,7 +179,8 @@
                 "template": {
                     "metadata": {
                         "labels": {
-                            "deploymentconfig": "${APPLICATION}-backend"
+                            "app" : "${APPLICATION}",
+                            "tier" : "backend"
                         }
                     },
                     "spec": {
@@ -273,7 +281,8 @@
             "spec": {
                 "replicas": 0,
                 "selector": {
-                    "deploymentconfig": "${APPLICATION}-frontend"
+                    "app" : "${APPLICATION}",
+                    "tier" : "frontend"
                 },
                 "strategy": {
                     "resources": {},
@@ -287,7 +296,8 @@
                 "template": {
                     "metadata": {
                         "labels": {
-                            "deploymentconfig": "${APPLICATION}-frontend"
+                            "app" : "${APPLICATION}",
+                            "tier" : "frontend"
                         }
                     },
                     "spec": {
@@ -359,7 +369,8 @@
             "spec": {
                 "replicas": 0,
                 "selector": {
-                    "deploymentconfig": "${APPLICATION}-auth-backend"
+                    "app" : "${APPLICATION}",
+                    "tier" : "authn"
                 },
                 "strategy": {
                     "resources": {},
@@ -373,7 +384,8 @@
                 "template": {
                     "metadata": {
                         "labels": {
-                            "deploymentconfig": "${APPLICATION}-auth-backend"
+                            "app" : "${APPLICATION}",
+                            "tier" : "authn"
                         }
                     },
                     "spec": {
