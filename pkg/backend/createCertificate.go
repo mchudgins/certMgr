@@ -19,9 +19,10 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"golang.org/x/net/context"
 
+	"os"
+
 	pb "github.com/mchudgins/certMgr/pkg/service"
 	"google.golang.org/grpc/metadata"
-	"os"
 )
 
 type ca struct {

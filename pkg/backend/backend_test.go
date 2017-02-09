@@ -4,11 +4,12 @@ import (
 	"context"
 	"testing"
 
+	"os"
+
 	log "github.com/Sirupsen/logrus"
 	pb "github.com/mchudgins/certMgr/pkg/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"os"
 )
 
 var (

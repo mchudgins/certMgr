@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"fmt"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/afex/hystrix-go/hystrix"
 )

@@ -7,11 +7,12 @@ import (
 	"errors"
 	"strings"
 
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/mchudgins/certMgr/pkg/assets"
 	"github.com/mchudgins/certMgr/pkg/certMgr"
 	"github.com/mchudgins/certMgr/pkg/utils"
-	"time"
 )
 
 func NewCertificateAuthority(caName string,

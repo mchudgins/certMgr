@@ -1,8 +1,9 @@
 package utils
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"os"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 // FindAndReadFile loads the specified file from disk
