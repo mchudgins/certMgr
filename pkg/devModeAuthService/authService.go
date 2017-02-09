@@ -2,6 +2,7 @@ package devModeAuthService
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"golang.org/x/net/context"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
@@ -67,6 +69,30 @@ func Command(cmd *cobra.Command, args []string) {
 		log.WithError(err).Fatal("Unable to initialize the application.  Exiting now.")
 	}
 
+	// if we were given a cert, write it out to a tmp file
+	if len(cfg.Certificate) != 0 {
+		tmpfile, err := ioutil.TempFile("", "be")
+		if err != nil {
+			log.WithError(err).
+				Fatal("unable to create a tmp file for certificate")
+		}
+
+		cfg.CertFilename = tmpfile.Name()
+
+		if _, err = tmpfile.Write([]byte(cfg.Certificate)); err != nil {
+			log.WithError(err).
+				Fatalf("an error occurred while writing the certificate to temporary file %s",
+				tmpfile.Name())
+		}
+		if err = tmpfile.Close(); err != nil {
+			log.WithError(err).
+				Fatalf("an error occurred while closing the temporary file %s",
+				tmpfile.Name())
+		}
+	}
+
+	utils.StartUpMessage(*cfg)
+
 	listenAddress := cfg.AuthServiceAddress
 
 	// make a channel to listen on events,
@@ -89,12 +115,34 @@ func Command(cmd *cobra.Command, args []string) {
 			return
 		}
 
-		s := grpc.NewServer(
-			grpc_middleware.WithUnaryServerChain(
-				grpc_prometheus.UnaryServerInterceptor,
-				grpcEndpointLog("devModeAuthServer")))
+		var s *grpc.Server
+
+		if cfg.Insecure {
+			s = grpc.NewServer(
+				grpc_middleware.WithUnaryServerChain(
+					grpc_prometheus.UnaryServerInterceptor,
+					grpcEndpointLog("devModeAuthServer")))
+		} else {
+			tlsCreds, err := credentials.NewServerTLSFromFile(cfg.CertFilename, cfg.KeyFilename)
+			if err != nil {
+				log.WithError(err).Fatal("Failed to generate grpc TLS credentials")
+			}
+			s = grpc.NewServer(
+				grpc.Creds(tlsCreds),
+				grpc.RPCCompressor(grpc.NewGZIPCompressor()),
+				grpc.RPCDecompressor(grpc.NewGZIPDecompressor()),
+				grpc_middleware.WithUnaryServerChain(
+					grpc_prometheus.UnaryServerInterceptor,
+					grpcEndpointLog("devModeAuthServer")))
+		}
+
 		pb.RegisterAuthVerifierServer(s, &server{})
-		log.Infof("gRPC service listening on %s", listenAddress)
+
+		if cfg.Insecure {
+			log.Warnf("gRPC service listening insecurely on %s", listenAddress)
+		} else {
+			log.Infof("gRPC service listening on %s", listenAddress)
+		}
 		errc <- s.Serve(lis)
 	}()
 
