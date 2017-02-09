@@ -32,7 +32,7 @@ var (
 		Config:             "",
 		HTTPListenAddress:  ":8443",
 		GRPCListenAddress:  ":50051",
-		AuthServiceAddress: "auth.dstcorp.net:443",
+		AuthServiceAddress: ":50051",
 		Insecure:           false,
 		Verbose:            false,
 		Backend:            defaultBackendConfig,
