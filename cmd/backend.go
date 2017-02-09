@@ -37,7 +37,7 @@ the persistence tier.`,
 		// determine the backend app's configuration
 		cfg, err := utils.NewAppConfig(cmd)
 		if err != nil {
-			log.WithField("error", err).
+			log.WithError(err).
 				Fatal("an error occurred while obtaining the application configuration")
 		}
 
