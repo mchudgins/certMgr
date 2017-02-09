@@ -178,6 +178,7 @@ permitted;DNS.4=ta2k.com
 permitted;DNS.5=test
 permitted;DNS.6=localhost
 permitted;DNS.7=cluster.local
+permitted;DNS.8=xip.io
 permitted;IP.0=192.168.0.0/255.255.0.0
 permitted;IP.1=172.16.0.0/255.240.0.0
 permitted;IP.2=10.0.0.0/255.0.0.0
