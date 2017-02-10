@@ -52,8 +52,9 @@ var defaultConfig = &newCmdConfig{
 // newCmd represents the new command
 var newCmd = &cobra.Command{
 	Use:   "new <common name>",
-	Short: "Create a new certificate",
-	Long:  `Creates a new certificate and key for the specified common name.`,
+	Short: "Create a new certificate (dev mode only)",
+	Long: `Creates a new certificate and key for the specified common name. This command must be run
+with the CA certificates in place.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
 			fmt.Fprint(cmd.OutOrStderr(), "fatal: a common name for the certificate must be provided on the command line\n")

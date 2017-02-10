@@ -1,7 +1,11 @@
 package utils
 
 import (
+	"errors"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -36,4 +40,49 @@ func FindAndReadFile(fileName string, fileDesc string) (string, error) {
 	}
 
 	return string(buf), nil
+}
+
+// readFile
+func readFile(uri string) (io.ReadCloser, error) {
+
+	// did they include a "file://"?
+	filename := uri
+	if strings.HasPrefix(uri, "file://") {
+		filename = uri[0:len("file://")]
+	}
+
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	return file, nil
+}
+
+// readViaNet
+func readViaNet(uri string, desc string) (io.ReadCloser, error) {
+
+	c := &http.Client{}
+
+	return c.Get(uri)
+}
+
+// readConfig
+func OpenReadCloser(uri string, desc string) (io.ReadCloser, error) {
+
+	switch uri[0:5] {
+	case "http:":
+		return readConfigViaNet(uri)
+
+	case "https":
+		return readConfigViaNet(uri)
+
+	case "file:":
+		return readConfigFile(uri[7:])
+
+	default:
+		log.Printf("Warning: unable to interpret %s as a file or network location.", uri)
+	}
+
+	return nil, errors.New("unable to determine access mode")
 }
