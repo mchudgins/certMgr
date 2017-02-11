@@ -82,12 +82,12 @@ func Command(cmd *cobra.Command, args []string) {
 		if _, err = tmpfile.Write([]byte(cfg.Certificate)); err != nil {
 			log.WithError(err).
 				Fatalf("an error occurred while writing the certificate to temporary file %s",
-				tmpfile.Name())
+					tmpfile.Name())
 		}
 		if err = tmpfile.Close(); err != nil {
 			log.WithError(err).
 				Fatalf("an error occurred while closing the temporary file %s",
-				tmpfile.Name())
+					tmpfile.Name())
 		}
 	}
 
