@@ -2,11 +2,11 @@ package certMgr
 
 // AppConfig provides the global configuration of the application.
 type AppConfig struct {
-	Certificate        string // the pem-encoded certificate for the service
-	CertFilename       string // the name of the file containing the pem-encoded certicate for the service
+	Certificate        string `json:",omitempty"` // the pem-encoded certificate for the service
+	CertFilename       string `json:",omitempty"` // the name of the file containing the pem-encoded certicate for the service
 	Insecure           bool   // for testing purposes, do not start-up TLS endpoints
 	KeyFilename        string // the name of the file containing the pem-encoded key for the service's cert
-	Config             string // load config data from this file (may be a url)
+	Config             string `json:",omitempty"` // load config data from this file (may be a url)
 	HTTPListenAddress  string
 	GRPCListenAddress  string
 	AuthServiceAddress string
@@ -19,8 +19,8 @@ type AppConfig struct {
 type BackendConfig struct {
 	AuthorizedCreators   []string // users authorized to create new certificates (an empty list permits anyone)
 	Bundle               string   // the pem-encoded bundle of intermediate CA's
-	SigningCACertificate string   // the pem-encoded signing CA
-	SigningCAKeyFilename string   // filename for the CA key
+	SigningCACertificate string   `json:",omitempty"` // the pem-encoded signing CA
+	SigningCAKeyFilename string   `json:",omitempty"` // filename for the CA key
 	MaxDuration          int      // maximum # of days this CA will issue a cert
 }
 
