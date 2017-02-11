@@ -45,20 +45,20 @@ func (s *server) CreateCertificate(ctx context.Context, in *pb.CreateRequest) (*
 	validFor = time.Duration(in.GetDuration()) * time.Hour * 24
 
 	cert, key, err := s.ca.CreateCertificate(ctx, in.GetName(), in.GetAlternateNames(), validFor)
-	return &pb.CreateReply{Certificate: cert, Key: key}, err
+	return &pb.CreateReply{Certificate: string(cert[:]), Key: string(key[:])}, err
 }
 
 func (c ca) CreateCertificate(ctx context.Context,
 	commonName string,
 	alternateNames []string,
-	duration time.Duration) (cert string, key string, err error) {
+	duration time.Duration) (cert []byte, key []byte, err error) {
 	requestedHosts := make([]string, len(alternateNames)+1, len(alternateNames)+1)
 	requestedHosts[0] = commonName
 	copy(requestedHosts[1:], alternateNames)
 
 	hosts, err := c.validateRequest(requestedHosts, duration)
 	if err != nil {
-		return "", "", err
+		return nil, nil, err
 	}
 
 	// create the CSR
@@ -104,7 +104,7 @@ func (c ca) CreateCertificate(ctx context.Context,
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &c.SigningCertificate, publicKey(priv), c.SigningKey)
 	if err != nil {
 		log.WithError(err).Error("Unable to CreateCertificate")
-		return "", "", err
+		return nil, nil, err
 	}
 
 	// prepare the response
@@ -121,9 +121,9 @@ func (c ca) CreateCertificate(ctx context.Context,
 	*/
 
 	pem.Encode(&certBuffer, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
-	cert = certBuffer.String()
+	cert = certBuffer.Bytes()
 	pem.Encode(&keyBuffer, pemBlockForKey(priv))
-	key = keyBuffer.String()
+	key = keyBuffer.Bytes()
 
 	//	// persist the certificate
 	//	serverCert, err := x509.ParseCertificate(derBytes)

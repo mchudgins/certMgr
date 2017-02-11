@@ -102,15 +102,15 @@ with the CA certificates in place.`,
 			os.Exit(1)
 		}
 		defer certFile.Close()
-		certFile.WriteString(cert)
+		certFile.Write(cert)
 
-		keyFile, err := os.OpenFile(cfg.KeyFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0400)
+		keyFile, err := os.OpenFile(cfg.KeyFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 		if err != nil {
 			log.WithError(err).WithField("file", cfg.KeyFilename).Fatal("unable to open file")
 			os.Exit(1)
 		}
 		defer keyFile.Close()
-		keyFile.WriteString(key)
+		keyFile.Write(key)
 
 	},
 }
