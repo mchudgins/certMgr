@@ -20,16 +20,22 @@ import (
 	"github.com/spf13/viper"
 )
 
-// backend2Cmd represents the backend2 command
+// newConfigBackendCmd represents the backend2 command
 var newConfigBackendCmd = &cobra.Command{
 	Use:   "backend <host.domain>",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "creates a new configuration file for the certMgr backend (dev mode only)",
+	Long: `This command creates a new configuration file for the backend application.
+For example:
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	certmgr new-config backend <host.domain> [flags]
+
+An existing configuration can be updated with new certificates using
+--config=<config file>; example:
+
+	certmgr new-config backend <host.docmain> --config=old-config.yaml
+
+This command needs to be run in the 'certMgr' subdirectory with the CA files available.`,
+
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := newConfigCmdConfig{}
 
@@ -44,15 +50,4 @@ to quickly create a Cobra application.`,
 
 func init() {
 	newConfigCmd.AddCommand(newConfigBackendCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// backend2Cmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// backend2Cmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }

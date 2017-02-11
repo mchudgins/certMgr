@@ -15,38 +15,38 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/mchudgins/certMgr/pkg/new-config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
-// auth2Cmd represents the auth2 command
+// authCmd represents the auth2 command
 var newConfigAuthCmd = &cobra.Command{
-	Use:   "auth",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "auth <host.domain>",
+	Short: "creates a new configuration file for the certMgr auth (dev mode only)",
+	Long: `This command creates a new configuration file for the auth application.
+For example:
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	certmgr new-config auth <host.domain> [flags]
+
+An existing configuration can be updated with new certificates using
+--config=<config file>; example:
+
+	certmgr new-config auth <host.docmain> --config=old-config.yaml
+
+This command needs to be run in the 'certMgr' subdirectory with the CA files available.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("auth2 called")
+		cfg := newConfigCmdConfig{}
+
+		// some flags need special handling (sigh)
+		cfg.Duration = viper.GetInt("duration")
+		cfg.Verbose = viper.GetBool("verbose")
+		cfg.Config = viper.GetString("config")
+
+		new_config.RunAuthConfig(cmd, args, cfg.Config, cfg.Duration, cfg.Verbose)
 	},
 }
 
 func init() {
 	newConfigCmd.AddCommand(newConfigAuthCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// auth2Cmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// auth2Cmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }

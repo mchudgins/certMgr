@@ -15,38 +15,38 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/mchudgins/certMgr/pkg/new-config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
-// frontend2Cmd represents the frontend2 command
+// newConfigFrontendCmd represents the frontend2 command
 var newConfigFrontendCmd = &cobra.Command{
-	Use:   "frontend",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "frontend <host.domain>",
+	Short: "creates a new configuration file for the certMgr frontend (dev mode only)",
+	Long: `This command creates a new configuration file for the frontend application.
+For example:
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	certmgr new-config frontend <host.domain> [flags]
+
+An existing configuration can be updated with new certificates using
+--config=<config file>; example:
+
+	certmgr new-config frontend <host.docmain> --config=old-config.yaml
+
+This command needs to be run in the 'certMgr' subdirectory with the CA files available.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("frontend2 called")
+		cfg := newConfigCmdConfig{}
+
+		// some flags need special handling (sigh)
+		cfg.Duration = viper.GetInt("duration")
+		cfg.Verbose = viper.GetBool("verbose")
+		cfg.Config = viper.GetString("config")
+
+		new_config.RunFrontendConfig(cmd, args, cfg.Config, cfg.Duration, cfg.Verbose)
 	},
 }
 
 func init() {
 	newConfigCmd.AddCommand(newConfigFrontendCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// frontend2Cmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// frontend2Cmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }
