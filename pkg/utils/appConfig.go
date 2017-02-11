@@ -3,75 +3,29 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
-	"net/http"
 	"os"
 	"path"
-	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/afex/hystrix-go/hystrix"
 	"github.com/mchudgins/certMgr/pkg/certMgr"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-// readConfigFile
-func readConfigFile(uri string) error {
+// readConfig
+func readConfig(uri string) error {
 
 	// what kind of config file?
 	ext := path.Ext(uri)
 	viper.SetConfigType(ext[1:])
 
-	// did they include a "file://"?
-	filename := uri
-	if strings.HasPrefix(uri, "file://") {
-		filename = uri[0:len("file://")]
-	}
-
-	file, err := os.Open(filename)
+	file, err := OpenReadCloser(uri)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
 	return viper.MergeConfig(file)
-}
-
-// readConfigViaNet
-func readConfigViaNet(uri string) error {
-
-	// what kind of config file?
-	ext := path.Ext(uri)
-	viper.SetConfigType(ext[1:])
-
-	c := &http.Client{}
-	err := hystrix.Do("configServer", func() (err error) {
-		resp, err := c.Get(uri)
-		if err != nil {
-			return err
-		}
-		defer resp.Body.Close()
-		return viper.MergeConfig(resp.Body)
-	}, nil)
-
-	return err
-}
-
-// readConfig
-func readConfig(uri string) error {
-
-	switch uri[0:5] {
-	case "http:":
-		return readConfigViaNet(uri)
-
-	case "file:":
-		return readConfigFile(uri[7:])
-
-	default:
-		log.Printf("Warning: unable to interpret %s as a file or network location.", uri)
-	}
-
-	return nil
 }
 
 func NewConfig(cmd *cobra.Command, defaultConfig interface{}, cfg interface{}) error {

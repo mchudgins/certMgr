@@ -4,17 +4,19 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/afex/hystrix-go/hystrix"
 )
 
 // FindAndReadFile loads the specified file from disk
 func FindAndReadFile(fileName string, fileDesc string) (string, error) {
 	const fileStr string = "file"
 
-	cfg, err := os.OpenFile(fileName, os.O_RDONLY, 0)
+	cfg, err := os.Open(fileName)
 	if err != nil {
 		if os.IsNotExist(err) {
 			log.WithError(err).WithField(fileStr, fileName).Error(fileDesc + " file does not exist.")
@@ -51,7 +53,7 @@ func readFile(uri string) (io.ReadCloser, error) {
 		filename = uri[0:len("file://")]
 	}
 
-	file, err := os.Open(filename)
+	file, err := os.OpenFile(filename, os.O_RDONLY, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -60,28 +62,48 @@ func readFile(uri string) (io.ReadCloser, error) {
 }
 
 // readViaNet
-func readViaNet(uri string, desc string) (io.ReadCloser, error) {
+func readViaNet(uri string) (io.ReadCloser, error) {
 
 	c := &http.Client{}
 
-	return c.Get(uri)
+	url, err := url.Parse(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp *http.Response
+
+	err = hystrix.Do(url.Host, func() (err error) {
+		r, err := c.Get(uri)
+		if err != nil {
+			return err
+		}
+		resp = r
+		return nil
+	}, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Body, nil
 }
 
 // readConfig
-func OpenReadCloser(uri string, desc string) (io.ReadCloser, error) {
+func OpenReadCloser(uri string) (io.ReadCloser, error) {
 
 	switch uri[0:5] {
 	case "http:":
-		return readConfigViaNet(uri)
+		return readViaNet(uri)
 
 	case "https":
-		return readConfigViaNet(uri)
+		return readViaNet(uri)
 
 	case "file:":
-		return readConfigFile(uri[7:])
+		return readFile(uri[7:])
 
 	default:
-		log.Printf("Warning: unable to interpret %s as a file or network location.", uri)
+		log.Printf("unable to interpret %s as a file or network location.", uri)
 	}
 
 	return nil, errors.New("unable to determine access mode")
