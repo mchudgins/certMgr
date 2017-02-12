@@ -80,11 +80,143 @@ func generateCert(cmd *cobra.Command, serverName string, bundle string, cmdConfi
 }
 
 func RunAuthConfig(cmd *cobra.Command, args []string, cmdConfig *NewConfigCmdConfig) {
-	RunBackendConfig(cmd, args, cmdConfig)
+	if cmdConfig.Verbose {
+		log.Info("verbose mode ON")
+		log.SetLevel(log.DebugLevel)
+	}
+
+	if len(args) != 1 {
+		cmd.Usage()
+		os.Exit(1)
+	}
+
+	serverName := args[0]
+
+	var cfg *certMgr.AppConfig
+	if len(cmdConfig.Config) == 0 {
+		cfg = certMgr.DefaultAppConfig
+	} else {
+		log.WithField("config", cmdConfig.Config).Debug("")
+		file, err := utils.OpenReadCloser(cmdConfig.Config)
+		if err != nil {
+			log.WithError(err).WithField("config", cmdConfig.Config).
+				Fatal("exiting")
+		}
+		defer file.Close()
+
+		buf, err := ioutil.ReadAll(file)
+		if err != nil {
+			log.WithError(err).WithField("config", cmdConfig.Config).
+				Fatal("exiting")
+		}
+
+		cfg = &certMgr.AppConfig{}
+		err = yaml.Unmarshal(buf, cfg)
+		if err != nil {
+			log.WithError(err).WithField("config", cmdConfig.Config).
+				Fatal("exiting")
+		}
+	}
+
+	// fetch the bundle
+	bundleFile, err := utils.OpenReadCloser("file://ca/cap/ca-bundle.pem")
+	if err != nil {
+		log.WithError(err).
+			Fatal("unable to open ca-bundle.pem")
+	}
+	defer bundleFile.Close()
+	buf, err := ioutil.ReadAll(bundleFile)
+	if err != nil {
+		log.WithError(err).
+			Fatal("unable to read ca-bundle.pem")
+	}
+	bundle := string(buf)
+
+	// generate the cert
+	cfg, err = generateCert(cmd, serverName, bundle, cmdConfig, cfg)
+	if err != nil {
+		log.WithError(err).
+			Fatal("while generating cert")
+	}
+
+	// write out the new config
+	y, err := yaml.Marshal(cfg)
+	if err != nil {
+		log.WithError(err).
+			Fatal("while marshaling configuration to yaml")
+	}
+
+	os.Stdout.Write(y)
 }
 
 func RunFrontendConfig(cmd *cobra.Command, args []string, cmdConfig *NewConfigCmdConfig) {
-	RunBackendConfig(cmd, args, cmdConfig)
+	if cmdConfig.Verbose {
+		log.Info("verbose mode ON")
+		log.SetLevel(log.DebugLevel)
+	}
+
+	if len(args) != 1 {
+		cmd.Usage()
+		os.Exit(1)
+	}
+
+	serverName := args[0]
+
+	var cfg *certMgr.AppConfig
+	if len(cmdConfig.Config) == 0 {
+		cfg = certMgr.DefaultAppConfig
+	} else {
+		log.WithField("config", cmdConfig.Config).Debug("")
+		file, err := utils.OpenReadCloser(cmdConfig.Config)
+		if err != nil {
+			log.WithError(err).WithField("config", cmdConfig.Config).
+				Fatal("exiting")
+		}
+		defer file.Close()
+
+		buf, err := ioutil.ReadAll(file)
+		if err != nil {
+			log.WithError(err).WithField("config", cmdConfig.Config).
+				Fatal("exiting")
+		}
+
+		cfg = &certMgr.AppConfig{}
+		err = yaml.Unmarshal(buf, cfg)
+		if err != nil {
+			log.WithError(err).WithField("config", cmdConfig.Config).
+				Fatal("exiting")
+		}
+	}
+
+	// fetch the bundle
+	bundleFile, err := utils.OpenReadCloser("file://ca/cap/ca-bundle.pem")
+	if err != nil {
+		log.WithError(err).
+			Fatal("unable to open ca-bundle.pem")
+	}
+	defer bundleFile.Close()
+	buf, err := ioutil.ReadAll(bundleFile)
+	if err != nil {
+		log.WithError(err).
+			Fatal("unable to read ca-bundle.pem")
+	}
+	bundle := string(buf)
+
+	// generate the cert
+	cfg, err = generateCert(cmd, serverName, bundle, cmdConfig, cfg)
+	if err != nil {
+		log.WithError(err).
+			Fatal("while generating cert")
+	}
+
+	// write out the new config
+	y, err := yaml.Marshal(cfg)
+	if err != nil {
+		log.WithError(err).
+			Fatal("while marshaling configuration to yaml")
+	}
+
+	os.Stdout.Write(y)
 }
 
 func RunBackendConfig(cmd *cobra.Command, args []string, cmdConfig *NewConfigCmdConfig) {
