@@ -57,7 +57,7 @@ GENERATED_FILES := $(PROTO_GEN_FILES) pkg/assets/bindata_assetfs.go pkg/frontend
 all: fmt container
 
 fmt:
-	go fmt
+	goimports -w main.go ./cmd ./pkg
 
 build: $(NAME)
 
@@ -113,11 +113,11 @@ undeploy:
 	    -v GIT_URI=https://github.com/mchudgins/certMgr.git | oc delete -f -
 
 certificateAuthorities:
-    cd ca && bin/fromScratch.sh
-    cp ca/root-ca/root-ca.crt ui/src/static
-    cp ca/cap/ca-bundle.pem ui/src/static
-    cp ca/cap/cap-ca.crt ui/src/static/signing-ca.crt
-    cd ui && make
+	cd ca && bin/fromScratch.sh
+	cp ca/root-ca/root-ca.crt ui/src/static
+	cp ca/cap/ca-bundle.pem ui/src/static
+	cp ca/cap/cap-ca.crt ui/src/static/signing-ca.crt
+	cd ui && make
 
 $(BUILD_NUMBER_FILE):
 	@if ! test -f $(BUILD_NUMBER_FILE); then echo 0 > $(BUILD_NUMBER_FILE); echo setting file to zero; fi
