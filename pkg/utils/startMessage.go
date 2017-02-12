@@ -2,9 +2,10 @@ package utils
 
 import (
 	"fmt"
+	"os"
+	"path"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/mchudgins/certMgr/pkg/certMgr"
 )
 
 var (
@@ -17,7 +18,11 @@ var (
 	goversion string
 )
 
-func StartUpMessage(cfg certMgr.AppConfig) {
+func StartUpMessage(cfg interface{}) {
+	var appName string
+
+	appName = path.Base(os.Args[0])
+
 	log.WithFields(log.Fields{
 		"version":       version,
 		"buildTime":     buildTime,
@@ -25,5 +30,5 @@ func StartUpMessage(cfg certMgr.AppConfig) {
 		"buildNum":      buildNum,
 		"goVersion":     goversion,
 		"configuration": fmt.Sprintf("%#v", cfg),
-	}).Info("certMgr startup")
+	}).Infof("%s startup", appName)
 }
