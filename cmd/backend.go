@@ -22,7 +22,6 @@ import (
 	"github.com/mchudgins/certMgr/pkg/certMgr"
 	"github.com/mchudgins/certMgr/pkg/utils"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // backendCmd represents the backend command
@@ -40,10 +39,6 @@ the persistence tier.`,
 			log.WithError(err).
 				Fatal("an error occurred while obtaining the application configuration")
 		}
-
-		// these flags must be handled individually since the flag name doesn't match the field name
-		// (they are in a sub-struct of the top level config structure)
-		cfg.Backend.SigningCAKeyFilename = viper.GetString("caKey")
 
 		// if we were given a cert, write it out to a tmp file
 		if len(cfg.Certificate) != 0 {
@@ -87,9 +82,6 @@ func init() {
 	// is called directly, e.g.:
 	// backendCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	backendCmd.PersistentFlags().String("caKey",
-		certMgr.DefaultAppConfig.Backend.SigningCAKeyFilename,
-		"CA key filename")
 	backendCmd.PersistentFlags().Int("backend.maxDuration",
 		10,
 		"maximum certificate lifetime (in # of days)")
@@ -99,8 +91,8 @@ func init() {
 
 	backendCmd.PersistentFlags().String("backend.bundle",
 		certMgr.DefaultAppConfig.Backend.Bundle,
-		"CA key filename")
+		"bundle filename")
 	backendCmd.PersistentFlags().String("backend.signingCACertificate",
 		certMgr.DefaultAppConfig.Backend.SigningCACertificate,
-		"CA key filename")
+		"CA filename")
 }

@@ -15,9 +15,8 @@
 package cmd
 
 import (
-	"github.com/mchudgins/certMgr/pkg/new-config"
+	"github.com/mchudgins/certMgr/pkg/newConfig"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // newConfigBackendCmd represents the backend2 command
@@ -37,14 +36,7 @@ An existing configuration can be updated with new certificates using
 This command needs to be run in the 'certMgr' subdirectory with the CA files available.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := newConfigCmdConfig{}
-
-		// some flags need special handling (sigh)
-		cfg.Duration = viper.GetInt("duration")
-		cfg.Verbose = viper.GetBool("verbose")
-		cfg.Config = viper.GetString("config")
-
-		new_config.RunBackendConfig(cmd, args, cfg.Config, cfg.Duration, cfg.Verbose)
+		newConfig.RunBackendConfig(cmd, args, newConfig.NewConfigDefault)
 	},
 }
 

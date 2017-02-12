@@ -14,19 +14,11 @@
 
 package cmd
 
-import "github.com/spf13/cobra"
-
-type newConfigCmdConfig struct {
-	Duration int    `json:"duration"`
-	Verbose  bool   `json:"verbose"`
-	Config   string `json:"config"`
-}
-
-// defaultConfig holds default values
-var defaultNewConfig = &newConfigCmdConfig{
-	Duration: 90,
-	Verbose:  false,
-}
+import (
+	"github.com/mchudgins/certMgr/pkg/newConfig"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+)
 
 // new-configCmd represents the new-config command
 var newConfigCmd = &cobra.Command{
@@ -39,6 +31,16 @@ For example:
 
 This command needs to be run in the 'certMgr' subdirectory with the CA files available.`,
 
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+
+		// some flags need special handling (sigh)
+		viper.BindPFlags(cmd.Flags())
+		newConfig.NewConfigDefault.Duration = viper.GetInt("duration")
+		newConfig.NewConfigDefault.Verbose = viper.GetBool("verbose")
+		newConfig.NewConfigDefault.Config = viper.GetString("config")
+		newConfig.NewConfigDefault.WriteKey = viper.GetBool("write-key")
+	},
+
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Usage()
 	},
@@ -46,5 +48,6 @@ This command needs to be run in the 'certMgr' subdirectory with the CA files ava
 
 func init() {
 	RootCmd.AddCommand(newConfigCmd)
-	newConfigCmd.PersistentFlags().Int("duration", defaultNewConfig.Duration, "# of days duration for the certificate's validity")
+	newConfigCmd.PersistentFlags().Int("duration", newConfig.NewConfigDefault.Duration, "# of days duration for the certificate's validity")
+	newConfigCmd.PersistentFlags().Bool("write-key", newConfig.NewConfigDefault.WriteKey, "write out the key for the generated cert")
 }
