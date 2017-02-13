@@ -2,15 +2,16 @@ package certMgr
 
 // AppConfig provides the global configuration of the application.
 type AppConfig struct {
-	Certificate        string `json:",omitempty"` // the pem-encoded certificate for the service
-	CertFilename       string `json:",omitempty"` // the name of the file containing the pem-encoded certicate for the service
-	Insecure           bool   // for testing purposes, do not start-up TLS endpoints
-	KeyFilename        string // the name of the file containing the pem-encoded key for the service's cert
-	Config             string `json:",omitempty"` // load config data from this file (may be a url)
-	HTTPListenAddress  string
-	GRPCListenAddress  string
-	AuthServiceAddress string
-	Verbose            bool
+	Certificate           string `json:",omitempty"` // the pem-encoded certificate for the service
+	CertFilename          string `json:",omitempty"` // the name of the file containing the pem-encoded certicate for the service
+	Insecure              bool   // for testing purposes, do not start-up TLS endpoints
+	KeyFilename           string // the name of the file containing the pem-encoded key for the service's cert
+	Config                string `json:",omitempty"` // load config data from this file (may be a url)
+	HTTPListenAddress     string
+	GRPCListenAddress     string
+	AuthServiceAddress    string
+	BackendServiceAddress string
+	Verbose               bool
 
 	// specific config options for each command & subcommand
 	Backend BackendConfig
@@ -27,14 +28,15 @@ type BackendConfig struct {
 // the default configuration
 var (
 	DefaultAppConfig = &AppConfig{
-		KeyFilename:        "/secrets/key.pem",
-		Config:             "",
-		HTTPListenAddress:  ":8443",
-		GRPCListenAddress:  ":50051",
-		AuthServiceAddress: "authn:50051",
-		Insecure:           false,
-		Verbose:            false,
-		Backend:            defaultBackendConfig,
+		KeyFilename:           "/secrets/key.pem",
+		Config:                "",
+		HTTPListenAddress:     ":8443",
+		GRPCListenAddress:     ":50051",
+		AuthServiceAddress:    "authn:50051",
+		BackendServiceAddress: "backend:50051",
+		Insecure:              false,
+		Verbose:               false,
+		Backend:               defaultBackendConfig,
 	}
 
 	// defaultConfig holds default values

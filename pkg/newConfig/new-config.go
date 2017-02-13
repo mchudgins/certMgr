@@ -114,6 +114,20 @@ func RunAuthConfig(cmd *cobra.Command, args []string, cmdConfig *NewConfigCmdCon
 			log.WithError(err).WithField("config", cmdConfig.Config).
 				Fatal("exiting")
 		}
+
+		// set up default values
+		if len(cfg.AuthServiceAddress) == 0 {
+			cfg.AuthServiceAddress = certMgr.DefaultAppConfig.AuthServiceAddress
+		}
+		if len(cfg.BackendServiceAddress) == 0 {
+			cfg.BackendServiceAddress = certMgr.DefaultAppConfig.BackendServiceAddress
+		}
+		if len(cfg.GRPCListenAddress) == 0 {
+			cfg.GRPCListenAddress = certMgr.DefaultAppConfig.GRPCListenAddress
+		}
+		if len(cfg.HTTPListenAddress) == 0 {
+			cfg.HTTPListenAddress = certMgr.DefaultAppConfig.HTTPListenAddress
+		}
 	}
 
 	// fetch the bundle
@@ -183,6 +197,20 @@ func RunFrontendConfig(cmd *cobra.Command, args []string, cmdConfig *NewConfigCm
 		if err != nil {
 			log.WithError(err).WithField("config", cmdConfig.Config).
 				Fatal("exiting")
+		}
+
+		// set up default values
+		if len(cfg.AuthServiceAddress) == 0 {
+			cfg.AuthServiceAddress = certMgr.DefaultAppConfig.AuthServiceAddress
+		}
+		if len(cfg.BackendServiceAddress) == 0 {
+			cfg.BackendServiceAddress = certMgr.DefaultAppConfig.BackendServiceAddress
+		}
+		if len(cfg.GRPCListenAddress) == 0 {
+			cfg.GRPCListenAddress = certMgr.DefaultAppConfig.GRPCListenAddress
+		}
+		if len(cfg.HTTPListenAddress) == 0 {
+			cfg.HTTPListenAddress = certMgr.DefaultAppConfig.HTTPListenAddress
 		}
 	}
 
@@ -254,6 +282,20 @@ func RunBackendConfig(cmd *cobra.Command, args []string, cmdConfig *NewConfigCmd
 		if err != nil {
 			log.WithError(err).WithField("config", cmdConfig.Config).
 				Fatal("exiting")
+		}
+
+		// set up default values
+		if len(cfg.AuthServiceAddress) == 0 {
+			cfg.AuthServiceAddress = certMgr.DefaultAppConfig.AuthServiceAddress
+		}
+		if len(cfg.BackendServiceAddress) == 0 {
+			cfg.BackendServiceAddress = certMgr.DefaultAppConfig.BackendServiceAddress
+		}
+		if len(cfg.GRPCListenAddress) == 0 {
+			cfg.GRPCListenAddress = certMgr.DefaultAppConfig.GRPCListenAddress
+		}
+		if len(cfg.HTTPListenAddress) == 0 {
+			cfg.HTTPListenAddress = certMgr.DefaultAppConfig.HTTPListenAddress
 		}
 	}
 
