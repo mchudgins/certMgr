@@ -27,8 +27,7 @@ type BackendConfig struct {
 // the default configuration
 var (
 	DefaultAppConfig = &AppConfig{
-		CertFilename:       "cert.pem",
-		KeyFilename:        "key.pem",
+		KeyFilename:        "/secrets/key.pem",
 		Config:             "",
 		HTTPListenAddress:  ":8443",
 		GRPCListenAddress:  ":50051",

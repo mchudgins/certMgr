@@ -38,7 +38,7 @@ This command needs to be run in the 'certMgr' subdirectory with the CA files ava
 		newConfig.NewConfigDefault.Duration = viper.GetInt("duration")
 		newConfig.NewConfigDefault.Verbose = viper.GetBool("verbose")
 		newConfig.NewConfigDefault.Config = viper.GetString("config")
-		newConfig.NewConfigDefault.WriteKey = viper.GetBool("write-key")
+		newConfig.NewConfigDefault.WriteKey = viper.GetString("write-key")
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
@@ -49,5 +49,5 @@ This command needs to be run in the 'certMgr' subdirectory with the CA files ava
 func init() {
 	RootCmd.AddCommand(newConfigCmd)
 	newConfigCmd.PersistentFlags().Int("duration", newConfig.NewConfigDefault.Duration, "# of days duration for the certificate's validity")
-	newConfigCmd.PersistentFlags().Bool("write-key", newConfig.NewConfigDefault.WriteKey, "write out the key for the generated cert")
+	newConfigCmd.PersistentFlags().String("write-key", newConfig.NewConfigDefault.WriteKey, "write out the key for the generated cert")
 }

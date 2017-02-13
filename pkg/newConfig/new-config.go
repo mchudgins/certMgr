@@ -21,14 +21,12 @@ type NewConfigCmdConfig struct {
 	Duration int    `json:"duration"`
 	Verbose  bool   `json:"verbose"`
 	Config   string `json:"config"`
-	WriteKey bool   `json:"writeKeyfile"`
+	WriteKey string `json:"writeKeyfile"`
 }
 
 // defaultConfig holds default values
 var NewConfigDefault = &NewConfigCmdConfig{
 	Duration: 90,
-	Verbose:  false,
-	WriteKey: false,
 }
 
 // generate the cert (optionally writing the the key to the keyfile) and return the updated cfg
@@ -59,10 +57,10 @@ func generateCert(cmd *cobra.Command, serverName string, bundle string, cmdConfi
 	cfg.CertFilename = ""
 
 	// write the key, if requested
-	if cmdConfig.WriteKey {
+	if len(cmdConfig.WriteKey) > 0 {
 		var keyfile io.Writer
-		if len(cfg.KeyFilename) > 0 {
-			file, err := os.OpenFile(cfg.KeyFilename, os.O_WRONLY|os.O_CREATE, 0600)
+		if len(cmdConfig.WriteKey) > 0 {
+			file, err := os.OpenFile(cmdConfig.WriteKey, os.O_WRONLY|os.O_CREATE, 0600)
 			if err != nil {
 				log.WithError(err).
 					WithField("filename", cfg.KeyFilename).
