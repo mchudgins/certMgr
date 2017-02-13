@@ -58,6 +58,8 @@ all: fmt container
 
 fmt:
 	goimports -w main.go ./cmd ./pkg
+	#goimports breaks the bindata_assets.go file; deleting it so that it will be regenerated
+	@-rm pkg/assets/bindata_assetfs.go
 
 build: $(NAME)
 
