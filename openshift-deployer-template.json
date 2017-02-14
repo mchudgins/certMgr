@@ -93,7 +93,12 @@
             "apiVersion": "v1",
             "kind": "Service",
             "metadata": {
-                "name": "${APPLICATION}-backend"
+                "name": "${APPLICATION}-backend",
+                "annotations": {
+                    "prometheus.io/scrape" : "true",
+                    "prometheus.io/scheme" : "http",
+                    "prometheus.io/port"   : "8080"
+                }
             },
             "spec": {
                 "ports": [
@@ -115,7 +120,12 @@
             "apiVersion": "v1",
             "kind": "Service",
             "metadata": {
-                "name": "${APPLICATION}-auth-backend"
+                "name": "${APPLICATION}-auth-backend",
+                "annotations": {
+                    "prometheus.io/scrape" : "true",
+                    "prometheus.io/scheme" : "http",
+                    "prometheus.io/port"   : "8080"
+                }
             },
             "spec": {
                 "ports": [
@@ -137,7 +147,12 @@
             "apiVersion": "v1",
             "kind": "Service",
             "metadata": {
-                "name": "${APPLICATION}"
+                "name": "${APPLICATION}",
+                "annotations": {
+                    "prometheus.io/scrape" : "true",
+                    "prometheus.io/scheme" : "http",
+                    "prometheus.io/port"   : "8080"
+                }
             },
             "spec": {
                 "ports": [
@@ -205,7 +220,7 @@
                                 "livenessProbe": {
                                     "initialDelaySeconds": 30,
                                     "tcpSocket": {
-                                        "port": 8443
+                                        "port": 8080
                                     },
                                     "timeoutSeconds": 1
                                 },
@@ -213,6 +228,10 @@
                                 "ports": [
                                     {
                                         "containerPort": 8443,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 8080,
                                         "protocol": "TCP"
                                     },
                                     {
@@ -235,7 +254,7 @@
                                     "httpGet": {
                                         "scheme": "HTTP",
                                         "path": "/healthz",
-                                        "port": 8443
+                                        "port": 8080
                                     },
                                     "initialDelaySeconds": 3,
                                     "timeoutSeconds": 1
