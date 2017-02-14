@@ -10,7 +10,6 @@ import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/mchudgins/certMgr/pkg/certMgr"
 )
 
 // Config provides data for the healthz handler
@@ -28,7 +27,7 @@ type handler struct {
 }
 
 // NewConfig initializes a healthz.Config struct
-func NewConfig(appConfig *certMgr.AppConfig) (*Config, error) {
+func NewConfig() (*Config, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		log.WithError(err).Fatal("calling os.Hostname()")

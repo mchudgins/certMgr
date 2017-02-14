@@ -108,9 +108,9 @@ func Run(cfg *certMgr.AppConfig) {
 		errc <- s.Serve(lis)
 	}()
 
-	// http server
+	// https server
 	go func() {
-		hc, err := healthz.NewConfig(cfg)
+		hc, err := healthz.NewConfig()
 		healthzHandler, err := healthz.Handler(hc)
 		if err != nil {
 			log.Panic(err)
@@ -151,6 +151,37 @@ func Run(cfg *certMgr.AppConfig) {
 			log.Error("cluster can't health check a self-signed cert endpoint!")
 			errc <- tlsServer.ListenAndServeTLS(cfg.CertFilename, cfg.KeyFilename)
 		}
+	}()
+
+	// http server
+	go func() {
+		hc, err := healthz.NewConfig()
+		healthzHandler, err := healthz.Handler(hc)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		http.Handle("/healthz", healthzHandler)
+		http.Handle("/metrics", prometheus.Handler())
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			type data struct {
+				Hostname string
+			}
+
+			tmp, err := template.New("/").Parse(html)
+			if err != nil {
+				log.WithError(err).WithField("template", "/").Errorf("Unable to parse template")
+				return
+			}
+
+			err = tmp.Execute(w, data{Hostname: hostname})
+			if err != nil {
+				log.WithError(err).Error("Unable to execute template")
+			}
+		})
+
+		log.Infof("HTTPS service listening on %s", cfg.HTTPListenAddress)
+		errc <- http.ListenAndServe(":8080", nil)
 	}()
 
 	// wait for somthin'
