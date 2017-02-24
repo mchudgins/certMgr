@@ -19,6 +19,7 @@ import (
 	"github.com/mchudgins/certMgr/pkg/certMgr"
 	"github.com/mchudgins/certMgr/pkg/healthz"
 	pb "github.com/mchudgins/certMgr/pkg/service"
+	"github.com/mchudgins/go-service-helper/actuator"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -108,44 +109,48 @@ func Run(cfg *certMgr.AppConfig) {
 		errc <- s.Serve(lis)
 	}()
 
-	// https server
-	go func() {
-		hc, err := healthz.NewConfig()
-		healthzHandler, err := healthz.Handler(hc)
-		if err != nil {
-			log.Panic(err)
+	// configure http/s endpoints
+	mux := actuator.NewActuatorMux("")
+
+	hc, err := healthz.NewConfig()
+	healthzHandler, err := healthz.Handler(hc)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	mux.Handle("/healthz", healthzHandler)
+	mux.Handle("/metrics", prometheus.Handler())
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		type data struct {
+			Hostname string
 		}
 
-		http.Handle("/healthz", healthzHandler)
-		http.Handle("/metrics", prometheus.Handler())
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			type data struct {
-				Hostname string
-			}
+		tmp, err := template.New("/").Parse(html)
+		if err != nil {
+			log.WithError(err).WithField("template", "/").Errorf("Unable to parse template")
+			return
+		}
 
-			tmp, err := template.New("/").Parse(html)
-			if err != nil {
-				log.WithError(err).WithField("template", "/").Errorf("Unable to parse template")
-				return
-			}
+		err = tmp.Execute(w, data{Hostname: hostname})
+		if err != nil {
+			log.WithError(err).Error("Unable to execute template")
+		}
+	})
 
-			err = tmp.Execute(w, data{Hostname: hostname})
-			if err != nil {
-				log.WithError(err).Error("Unable to execute template")
-			}
-		})
-
+	// https server
+	go func() {
 		tlsServer := &http.Server{
 			Addr: cfg.HTTPListenAddress,
 			TLSConfig: &tls.Config{
 				MinVersion: tls.VersionTLS12,
 			},
+			Handler: mux,
 		}
 
 		// FIXME:  cluster can't health check the self-signed cert endpoint
 		if cfg.Insecure {
 			log.Warnf("HTTP service listening insecurely on %s", cfg.HTTPListenAddress)
-			errc <- http.ListenAndServe(cfg.HTTPListenAddress, nil)
+			errc <- http.ListenAndServe(cfg.HTTPListenAddress, mux)
 		} else {
 			log.Infof("HTTPS service listening on %s", cfg.HTTPListenAddress)
 			log.Error("cluster can't health check a self-signed cert endpoint!")
@@ -155,33 +160,8 @@ func Run(cfg *certMgr.AppConfig) {
 
 	// http server
 	go func() {
-		hc, err := healthz.NewConfig()
-		healthzHandler, err := healthz.Handler(hc)
-		if err != nil {
-			log.Panic(err)
-		}
-
-		http.Handle("/healthz", healthzHandler)
-		http.Handle("/metrics", prometheus.Handler())
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			type data struct {
-				Hostname string
-			}
-
-			tmp, err := template.New("/").Parse(html)
-			if err != nil {
-				log.WithError(err).WithField("template", "/").Errorf("Unable to parse template")
-				return
-			}
-
-			err = tmp.Execute(w, data{Hostname: hostname})
-			if err != nil {
-				log.WithError(err).Error("Unable to execute template")
-			}
-		})
-
 		log.Infof("HTTPS service listening on %s", cfg.HTTPListenAddress)
-		errc <- http.ListenAndServe(":8080", nil)
+		errc <- http.ListenAndServe(":8080", mux)
 	}()
 
 	// wait for somthin'
