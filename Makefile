@@ -30,7 +30,7 @@ PROTO_GEN_FILES := pkg/service/service.pb.go \
 
 GENERATED_FILES := $(PROTO_GEN_FILES) pkg/assets/bindata_assetfs.go pkg/frontend/bindata.go ui/site/index.html
 
-.PHONY: fmt test fulltest run container clean site $(BUILD_NUMBER_FILE)
+.PHONY: fmt test fulltest run container clean site size $(BUILD_NUMBER_FILE)
 
 # rule for .pb.gw.go files
 %.pb.gw.go: %.proto
@@ -91,6 +91,10 @@ fulltest: $(DEPS) $(GENERATED_FILES)
 	go test -v -cpuprofile=cpu.out
 	go test -v -blockprofile=block.out
 	go test -v -memprofile=mem.out
+
+size: $(DEPS) $(GENERATED_FILES)
+	@echo "Display the components which make up the binary and corresponding sizes..."
+	@eval `go build -work -a 2>&1` && find $$WORK -type f -name "*.a" | xargs -I{} du -hxs "{}" | sort -rh | sed -e s:$${WORK}/::g
 
 run: $(DEPS) $(BUILD_NUMBER_FILE) $(GENERATED_FILES)
 	go run -ldflags "$(LDFLAGS)" $(DEPS) backend --http :9090
