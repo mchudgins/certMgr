@@ -34,25 +34,21 @@ GENERATED_FILES := $(PROTO_GEN_FILES) pkg/assets/bindata_assetfs.go pkg/frontend
 
 # rule for .pb.gw.go files
 %.pb.gw.go: %.proto
-	cd pkg/service \
-		&& protoc -I/usr/local/include \
-			-I. \
- 			-I$(GOPATH)/src \
- 			-I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
- 			--grpc-gateway_out=logtostderr=true:. \
- 			$(shell basename $<) \
-		&& protoc -I/usr/local/include \
-			 -I. \
-			 -I$(GOPATH)/src \
-			 -I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-			 --swagger_out=logtostderr=true:. \
-			 $(shell basename $<)
+		protoc \
+			-I$(shell dirname $<) \
+            -I$(GOPATH)/src/github.com/google/protobuf/src \
+    		-I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+ 			--grpc-gateway_out=logtostderr=true:$(shell dirname $<) \
+			--swagger_out=logtostderr=true:$(shell dirname $<) \
+ 			$<
 
+# rule for .pb.go files
 %.pb.go: %.proto
-	cd pkg/service && protoc -I/usr/local/include -I. \
+	protoc -I$(shell dirname $<) \
+            -I$(GOPATH)/src/github.com/google/protobuf/src \
 			 	-I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-			 	--go_out=Mgoogle/api/annotations.proto=github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api,plugins=grpc:. \
-			 	*.proto
+			 	--go_out=Mgoogle/api/annotations.proto=github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api,plugins=grpc:$(shell dirname $<) \
+			 	$<
 
 all: fmt container
 
