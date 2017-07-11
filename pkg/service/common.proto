@@ -8,6 +8,7 @@
  option java_package = "com.dstsytems.pb.common";
  option java_outer_classname = "CommonProto";
 
+ option go_package = "service";
  package service;
 
  // The request message containing:

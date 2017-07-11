@@ -22,9 +22,7 @@ LDFLAGS	:= -X '$(HYGIENEPKG).version=$(VERSION)' \
 	-X '$(HYGIENEPKG).buildNum=$(BUILD_NUM)'
 
 DEPS := $(shell ls *.go | sed 's/.*_test.go//g')
-PROTO_GEN_FILES := pkg/service/service.pb.go \
-	pkg/service/common.pb.go \
-	pkg/service/service.pb.gw.go \
+PROTO_GEN_FILES := pkg/service/common.pb.go \
 	pkg/service/certMgrService.pb.go \
 	pkg/service/certMgrService.pb.gw.go
 
@@ -40,15 +38,16 @@ GENERATED_FILES := $(PROTO_GEN_FILES) pkg/assets/bindata_assetfs.go pkg/frontend
     		-I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
  			--grpc-gateway_out=logtostderr=true:$(shell dirname $<) \
 			--swagger_out=logtostderr=true:$(shell dirname $<) \
- 			$<
+ 			$(shell dirname $<)/*.proto
 
 # rule for .pb.go files
 %.pb.go: %.proto
-	protoc -I$(shell dirname $<) \
+	protoc \
+	        -I$(shell dirname $<) \
             -I$(GOPATH)/src/github.com/google/protobuf/src \
 			 	-I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-			 	--go_out=Mgoogle/api/annotations.proto=github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api,plugins=grpc:$(shell dirname $<) \
-			 	$<
+			 	--go_out=Mservice1=pkg/service,Mgoogle/api/annotations.proto=github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api,plugins=grpc:$(shell dirname $<) \
+			 	$(shell dirname $<)/*.proto
 
 all: fmt container
 
@@ -57,10 +56,10 @@ fmt:
 
 build: $(NAME)
 
-pkg/frontend/bindata.go: pkg/service/service.pb.gw.go
+pkg/frontend/bindata.go: pkg/service/certMgrService.pb.gw.go
 	@echo The next step will generate a message "(\"no buildable Go source files\")" which may be safely ignored.
 	@-go get github.com/swagger-api/swagger-ui
-	go-bindata -pkg frontend pkg/service/service.swagger.json $(GOPATH)/src/github.com/swagger-api/swagger-ui/dist
+	go-bindata -pkg frontend pkg/service/certMgrService.swagger.json $(GOPATH)/src/github.com/swagger-api/swagger-ui/dist
 	mv bindata.go pkg/frontend
 
 pkg/assets/bindata_assetfs.go: ui/site/index.html
