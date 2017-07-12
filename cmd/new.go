@@ -26,6 +26,8 @@ import (
 	"os"
 	"time"
 
+	"io/ioutil"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/mchudgins/certMgr/pkg/backend"
 	"github.com/mchudgins/certMgr/pkg/utils"
@@ -102,6 +104,9 @@ var newCmd = &cobra.Command{
 		}
 		defer certFile.Close()
 		certFile.WriteString(cert)
+
+		bundle, err := ioutil.ReadFile("ca/cap/cap-ca.crt")
+		certFile.Write(bundle)
 
 		keyFile, err := os.OpenFile(cfg.KeyFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0400)
 		if err != nil {
