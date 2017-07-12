@@ -46,7 +46,7 @@ GENERATED_FILES := $(PROTO_GEN_FILES) pkg/assets/bindata_assetfs.go pkg/frontend
 	        -I$(shell dirname $<) \
             -I$(GOPATH)/src/github.com/google/protobuf/src \
 			 	-I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-			 	--go_out=Mservice1=pkg/service,Mgoogle/api/annotations.proto=github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api,plugins=grpc:$(shell dirname $<) \
+			 	--go_out=plugins=grpc:$(shell dirname $<) \
 			 	$(shell dirname $<)/*.proto
 
 all: fmt container

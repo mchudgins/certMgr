@@ -16,15 +16,15 @@ import (
 	"github.com/mchudgins/certMgr/pkg/healthz"
 	pb "github.com/mchudgins/certMgr/pkg/service"
 	"github.com/mchudgins/certMgr/pkg/utils"
-	"github.com/mchudgins/go-service-helper/pkg/loggingWriter"
-	"github.com/mchudgins/go-service-helper/pkg/serveSwagger"
+	"github.com/mchudgins/go-service-helper/handlers"
+	"github.com/mchudgins/go-service-helper/serveSwagger"
 	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
 )
 
 // frontendCmd represents the frontend command
 var (
-	swagger = MustAsset("pkg/service/service.swagger.json")
+	swagger = MustAsset("pkg/service/certMgrService.swagger.json")
 )
 
 func serveSwaggerData(w http.ResponseWriter, r *http.Request) {
@@ -147,7 +147,7 @@ func Run(cfg *certMgr.AppConfig) {
 		   })
 		*/
 		opts := []grpc.DialOption{grpc.WithInsecure()}
-		err = pb.RegisterGreeterHandlerFromEndpoint(ctx, gw, cfg.GRPCListenAddress, opts)
+		err = pb.RegisterCertMgrHandlerFromEndpoint(ctx, gw, cfg.GRPCListenAddress, opts)
 		if err != nil {
 			errc <- err
 			return
@@ -157,7 +157,7 @@ func Run(cfg *certMgr.AppConfig) {
 		correlator := utils.NewCoreRequest()
 		errc <- http.ListenAndServe(
 			cfg.HTTPListenAddress,
-			correlator.CorrelateRequest(loggingWriter.HttpLogger(allowCORS(mux))))
+			correlator.CorrelateRequest(handlers.HTTPLogrusLogger(allowCORS(mux))))
 	}()
 
 	// wait for somethin'
