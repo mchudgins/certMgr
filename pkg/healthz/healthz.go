@@ -27,6 +27,7 @@ type handler struct {
 	metadata map[string]string
 }
 
+
 // NewConfig initializes a healthz.Config struct
 func NewConfig(appConfig *certMgr.AppConfig) (*Config, error) {
 	hostname, err := os.Hostname()
