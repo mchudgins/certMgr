@@ -50,6 +50,7 @@ Features:
 - K-ordered
 - Embedded time with 1 second precision
 - Unicity guaranteed for 16,777,216 (24 bits) unique ids per second and per host/process
+- Lock-free (i.e.: unlike UUIDv1 and v2)
 
 Best used with [xlog](https://github.com/rs/xlog)'s
 [RequestIDHandler](https://godoc.org/github.com/rs/xlog#RequestIDHandler).
@@ -82,6 +83,24 @@ guid.Pid()
 guid.Time()
 guid.Counter()
 ```
+
+## Benchmark
+
+Benchmark against Go [Maxim Bublis](https://github.com/satori)'s [UUID](https://github.com/satori/go.uuid).
+
+```
+BenchmarkXID        	20000000	        91.1 ns/op	      32 B/op	       1 allocs/op
+BenchmarkXID-2      	20000000	        55.9 ns/op	      32 B/op	       1 allocs/op
+BenchmarkXID-4      	50000000	        32.3 ns/op	      32 B/op	       1 allocs/op
+BenchmarkUUIDv1     	10000000	       204 ns/op	      48 B/op	       1 allocs/op
+BenchmarkUUIDv1-2   	10000000	       160 ns/op	      48 B/op	       1 allocs/op
+BenchmarkUUIDv1-4   	10000000	       195 ns/op	      48 B/op	       1 allocs/op
+BenchmarkUUIDv4     	 1000000	      1503 ns/op	      64 B/op	       2 allocs/op
+BenchmarkUUIDv4-2   	 1000000	      1427 ns/op	      64 B/op	       2 allocs/op
+BenchmarkUUIDv4-4   	 1000000	      1452 ns/op	      64 B/op	       2 allocs/op
+```
+
+Note: UUIDv1 requires a global lock, hence the performence degrading as we add more CPUs.
 
 ## Licenses
 
