@@ -5,7 +5,7 @@
  syntax = "proto3";
 
  option java_multiple_files = true;
- option java_package = "com.dstsytems.pb.common";
+ option java_package = "com.dstsystems.common";
  option java_outer_classname = "CommonProto";
 
  option go_package = "service";
@@ -18,7 +18,6 @@
  message CommonRequest {
    string user = 1;
    string correlationID = 2;
-   string spanID = 3;
  }
 
  // The response message

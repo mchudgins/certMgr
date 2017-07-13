@@ -8,7 +8,7 @@ syntax = "proto3";
 import "common.proto";
 
 option java_multiple_files = true;
-option java_package = "com.dstsytems.auth";
+option java_package = "com.dstsystems.auth";
 option java_outer_classname = "AuthVerifier";
 
 package service;
@@ -16,7 +16,7 @@ package service;
 import "google/api/annotations.proto";
 
 // The greeting service definition.
-service AuthVerifier {
+service AuthVerifierService {
  // verify a token
  rpc VerifyToken (VerificationRequest) returns (VerificationResponse) {
  option (google.api.http) = {
