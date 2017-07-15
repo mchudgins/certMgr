@@ -22,12 +22,12 @@ const (
 
 var (
 	bearerRegex  = regexp.MustCompile(`^\s*bearer\s+([[:alnum:]]+)`)
-	authVerifier pb.AuthVerifierClient
+	authVerifier pb.AuthVerifierServiceClient
 )
 
 type securityProxy struct {
 	url       string
-	auth      pb.AuthVerifierClient
+	auth      pb.AuthVerifierServiceClient
 	logonURL  string
 	logoutURL string
 	cache     *cache.Cache
@@ -43,7 +43,7 @@ func NewSecurityProxy(idp string) (*securityProxy, error) {
 		return nil, err
 	}
 
-	client := pb.NewAuthVerifierClient(conn)
+	client := pb.NewAuthVerifierServiceClient(conn)
 	server := &securityProxy{url: idp, auth: client}
 
 	hystrix.ConfigureCommand(server.url, hystrix.CommandConfig{

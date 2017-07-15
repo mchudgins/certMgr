@@ -93,7 +93,7 @@ func Command(cmd *cobra.Command, args []string) {
 			grpc_middleware.WithUnaryServerChain(
 				grpc_prometheus.UnaryServerInterceptor,
 				grpcEndpointLog("devModeAuthServer")))
-		pb.RegisterAuthVerifierServer(s, &server{})
+		pb.RegisterAuthVerifierServiceServer(s, &server{})
 		log.Infof("gRPC service listening on %s", listenAddress)
 		errc <- s.Serve(lis)
 	}()
