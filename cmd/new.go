@@ -41,6 +41,10 @@ type newCmdConfig struct {
 	KeyFilename  string `json:"keyFilename"`
 	Duration     int    `json:"duration"`
 	Verbose      bool   `json:"verbose"`
+
+	SigningCertFilename   string `json:"signingCertFilename"`
+	SigningKeyFilename    string `json:"signingKeyFilenae"`
+	SigningBundleFilename string `json:"signingBundleFilename"`
 }
 
 // defaultConfig holds default values
@@ -49,6 +53,10 @@ var defaultConfig = &newCmdConfig{
 	CertFilename: "cert.pem",
 	KeyFilename:  "key.pem",
 	Duration:     90,
+
+	SigningCertFilename:   "ca/cap/cap-ca.crt",
+	SigningKeyFilename:    "ca/cap/private/cap-ca.key",
+	SigningBundleFilename: "ca/cap/cap-ca.crt",
 }
 
 // newCmd represents the new command
@@ -76,6 +84,10 @@ var newCmd = &cobra.Command{
 		cfg.Duration = viper.GetInt("duration")
 		cfg.Verbose = viper.GetBool("verbose")
 
+		cfg.SigningCertFilename = viper.GetString("signerCert")
+		cfg.SigningKeyFilename = viper.GetString("signerKey")
+		cfg.SigningBundleFilename = viper.GetString("signerBundle")
+
 		if cfg.Verbose {
 			log.SetLevel(log.DebugLevel)
 		}
@@ -83,9 +95,9 @@ var newCmd = &cobra.Command{
 
 		// initialize the SimpleCA
 		ca, err := backend.NewCertificateAuthority("signingCert",
-			"ca/cap/cap-ca.crt",
-			"ca/cap/private/cap-ca.key",
-			"ca/cap/cap-ca.crt")
+			cfg.SigningCertFilename,
+			cfg.SigningKeyFilename,
+			cfg.SigningBundleFilename)
 		if err != nil {
 			log.WithError(err).Fatal("unable to initialize the CA")
 		}
@@ -134,4 +146,7 @@ func init() {
 	newCmd.Flags().String("cert", defaultConfig.CertFilename, "output file for the PEM encoded certificate")
 	newCmd.Flags().Int("duration", defaultConfig.Duration, "# of days duration for the certificate's validity")
 	newCmd.Flags().String("key", defaultConfig.KeyFilename, "output file for the PEM encoded key")
+	newCmd.Flags().String("signerCert", defaultConfig.SigningCertFilename, "signer CA certificate file")
+	newCmd.Flags().String("signerKey", defaultConfig.SigningKeyFilename, "signer CA key file")
+	newCmd.Flags().String("signerBundle", defaultConfig.SigningBundleFilename, "signer CA bundle file")
 }
