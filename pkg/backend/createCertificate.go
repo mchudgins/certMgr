@@ -160,6 +160,11 @@ func (c *ca) validateRequest(requestedHosts []string, validFor time.Duration) ([
 
 		supportedDomain := false
 		for _, dns := range c.SigningCertificate.PermittedDNSDomains {
+			if strings.Compare(dns, h) == 0 {
+				supportedDomain = true
+				break
+			}
+
 			tld := "." + dns
 			if strings.HasSuffix(h, tld) {
 				supportedDomain = true
