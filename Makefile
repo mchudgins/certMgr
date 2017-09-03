@@ -34,7 +34,7 @@ GENERATED_FILES := $(PROTO_GEN_FILES) pkg/assets/bindata_assetfs.go pkg/frontend
 %.pb.gw.go: %.proto
 		protoc \
 			-I$(shell dirname $<) \
-            -I$(GOPATH)/src/github.com/google/protobuf/src \
+            -I$/usr/local/include/google/protobuf/src \
     		-I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
  			--grpc-gateway_out=logtostderr=true:$(shell dirname $<) \
 			--swagger_out=logtostderr=true:$(shell dirname $<) \
@@ -44,7 +44,7 @@ GENERATED_FILES := $(PROTO_GEN_FILES) pkg/assets/bindata_assetfs.go pkg/frontend
 %.pb.go: %.proto
 	protoc \
 	        -I$(shell dirname $<) \
-            -I$(GOPATH)/src/github.com/google/protobuf/src \
+            -I$/usr/local/include/google/protobuf/src \
 			 	-I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
 			 	--go_out=plugins=grpc:$(shell dirname $<) \
 			 	$(shell dirname $<)/*.proto

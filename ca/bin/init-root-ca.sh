@@ -110,19 +110,19 @@ caIssuers;URI.0         = $aia_url
 OCSP;URI.0              = $ocsp_url
 
 [name_constraints]
-permitted;DNS.0=dstcorp.net
-permitted;DNS.1=awddev.dstcorp.net
-permitted;DNS.2=dstcorp.io
-permitted;DNS.3=dstcorp.cloud
-permitted;DNS.4=ta2k.com
-permitted;DNS.5=test
-permitted;DNS.6=localhost
-permitted;DNS.7=cluster.local
-permitted;DNS.8=xip.io
-permitted;DNS.9=local.dstcorp.io
+permitted;DNS.0=.dstcorp.net
+permitted;DNS.1=.dstcorp.io
+permitted;DNS.2=.dstcorp.cloud
+permitted;DNS.3=.dst.cloud
+permitted;DNS.4=.ta2k.com
+permitted;DNS.5=.localhost
+permitted;DNS.6=.local
+permitted;DNS.7=.xip.io
+permitted;DNS.8=.internal
 permitted;IP.0=192.168.0.0/255.255.0.0
 permitted;IP.1=172.16.0.0/255.240.0.0
 permitted;IP.2=10.0.0.0/255.0.0.0
+permitted;IP.3=127.0.0.0/255.0.0.0
 #excluded;IP.0=0.0.0.0/0.0.0.0
 #excluded;IP.1=0:0:0:0:0:0:0:0/0:0:0:0:0:0:0:0
 

@@ -106,7 +106,7 @@ var newCmd = &cobra.Command{
 		var empty []string
 		cert, key, err := ca.CreateCertificate(ctx, args[0], empty, time.Duration(cfg.Duration)*time.Hour*24)
 		if err != nil {
-			log.WithField("error", err).Fatal("unable to create certificate")
+			log.WithField("error", err).WithField("Subject Name", args[0]).Fatal("unable to create certificate")
 		}
 
 		certFile, err := os.OpenFile(cfg.CertFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
