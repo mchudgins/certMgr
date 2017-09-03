@@ -143,6 +143,32 @@ func (c ca) CreateCertificate(ctx context.Context,
 	return cert, key, err
 }
 
+// from golang.org/pkg/crypto/x509/verify.go
+func matchNameConstraint(domain, constraint string) bool {
+	// The meaning of zero length constraints is not specified, but this
+	// code follows NSS and accepts them as valid for everything.
+	if len(constraint) == 0 {
+		return true
+	}
+
+	if len(domain) < len(constraint) {
+		return false
+	}
+
+	prefixLen := len(domain) - len(constraint)
+	if !strings.EqualFold(domain[prefixLen:], constraint) {
+		return false
+	}
+
+	if prefixLen == 0 {
+		return true
+	}
+
+	isSubdomain := domain[prefixLen-1] == '.'
+	constraintHasLeadingDot := constraint[0] == '.'
+	return isSubdomain != constraintHasLeadingDot
+}
+
 func (c *ca) validateRequest(requestedHosts []string, validFor time.Duration) ([]string, error) {
 	var hosts = make([]string, len(requestedHosts))
 
@@ -159,17 +185,8 @@ func (c *ca) validateRequest(requestedHosts []string, validFor time.Duration) ([
 		}
 
 		supportedDomain := false
-		for _, dns := range c.SigningCertificate.PermittedDNSDomains {
-			if strings.Compare(dns, h) == 0 {
-				supportedDomain = true
-				break
-			}
-
-			tld := "." + dns
-			if strings.HasSuffix(h, tld) {
-				supportedDomain = true
-				break
-			} else if ip := net.ParseIP(h); ip != nil && i != 0 {
+		for _, constraint := range c.SigningCertificate.PermittedDNSDomains {
+			if matchNameConstraint(h, constraint) {
 				supportedDomain = true
 			}
 		}
