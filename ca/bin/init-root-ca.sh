@@ -50,7 +50,8 @@ name_opt          = utf8,esc_ctrl,multiline,lname,align
 [ca_dn]
 countryName       = "US"
 organizationName  = "DST Systems, Inc"
-commonName        = "DST Internal Use Only -- ROOT CA"
+organizationalUnitName = "DST Internal Use Only -- ROOT CA"
+commonName        = "root-ca.dstcorp.io"
 
 [ca_default]
 home                    = .

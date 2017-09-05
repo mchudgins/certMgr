@@ -70,8 +70,8 @@ name_opt          = utf8,esc_ctrl,multiline,lname,align
 [ca_dn]
 countryName       = "US"
 organizationName  = "DST Systems, Inc"
-organizationalUnitName = "$name"
-commonName        = "DST Internal Use Only -- $TLA Intermediate CA"
+organizationalUnitName = "DST Internal Use Only -- $TLA Intermediate CA"
+commonName = "$TLA-ca.dstcorp.io"
 
 [ca_default]
 home                    = .
