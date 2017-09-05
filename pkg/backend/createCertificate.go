@@ -11,17 +11,16 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"math/big"
 	"net"
+	"os"
 	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"golang.org/x/net/context"
-
-	"os"
-
 	pb "github.com/mchudgins/certMgr/pkg/service"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -52,11 +51,11 @@ func (c ca) CreateCertificate(ctx context.Context,
 	commonName string,
 	alternateNames []string,
 	duration time.Duration) (cert string, key string, err error) {
-	requestedHosts := make([]string, len(alternateNames)+1, len(alternateNames)+1)
+	requestedHosts := make([]string, 1, len(alternateNames)+1)
 	requestedHosts[0] = commonName
 	copy(requestedHosts[1:], alternateNames)
 
-	hosts, err := c.validateRequest(requestedHosts, duration)
+	hosts, err := c.validateRequest(alternateNames, duration)
 	if err != nil {
 		return "", "", err
 	}
@@ -172,26 +171,40 @@ func matchNameConstraint(domain, constraint string) bool {
 func (c *ca) validateRequest(requestedHosts []string, validFor time.Duration) ([]string, error) {
 	var hosts = make([]string, len(requestedHosts))
 
+	supportedDomain := false
+	fIPAddr := false
+
 	for i, s := range requestedHosts {
-		h := strings.ToLower(s)
-		hosts[i] = h
-
-		if strings.HasPrefix(h, "www.") {
-			return nil, errors.New("www. host names are not supported")
-		}
-
-		if strings.HasPrefix(h, ".") {
-			return nil, errors.New(". host names are not supported")
-		}
-
-		supportedDomain := false
-		for _, constraint := range c.SigningCertificate.PermittedDNSDomains {
-			if matchNameConstraint(h, constraint) {
-				supportedDomain = true
+		if ip := net.ParseIP(s); ip != nil {
+			fIPAddr = true
+			if i == 0 {
+				return nil, errors.New("Subject name of Certificate must NOT be an IP address")
 			}
+			hosts[i] = s
 		}
-		if !supportedDomain {
-			return nil, errors.New("one or more host names are not within the permitted domain list")
+
+		if !fIPAddr {
+			h := strings.ToLower(s)
+			hosts[i] = h
+
+			if strings.HasPrefix(h, "www.") {
+				return nil, errors.New("www. host names are not supported")
+			}
+
+			if strings.HasPrefix(h, ".") {
+				return nil, errors.New(". host names are not supported")
+			}
+
+			for _, constraint := range c.SigningCertificate.PermittedDNSDomains {
+				if matchNameConstraint(h, constraint) {
+					supportedDomain = true
+				}
+			}
+
+			if !supportedDomain {
+				return nil, fmt.Errorf("%s is not a permitted domain", h)
+			}
+
 		}
 	}
 
