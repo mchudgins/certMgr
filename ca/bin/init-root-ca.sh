@@ -21,7 +21,7 @@ if [[ ! -d private ]]; then
 fi
 
 if [[ ! -e private/root-ca.passphrase.bin ]]; then
-  curl -s https://www.fourmilab.ch/cgi-bin/Hotbits?nbytes=128\&fmt=bin >private/root-ca.passphrase.bin
+  curl -s https://www.fourmilab.ch/cgi-bin/Hotbits?apikey=Pseudorandom\&nbytes=128\&fmt=bin >private/root-ca.passphrase.bin
   chmod 0400 private/root-ca.passphrase.bin
 fi
 
@@ -91,7 +91,6 @@ req_extensions          = ca_ext
 basicConstraints        = critical,CA:true
 keyUsage                = critical,keyCertSign,cRLSign
 subjectKeyIdentifier    = hash
-nameConstraints         = @name_constraints
 
 [sub_ca_ext]
 authorityInfoAccess     = @issuer_info
@@ -100,8 +99,8 @@ basicConstraints        = critical,CA:true,pathlen:2
 crlDistributionPoints   = @crl_info
 extendedKeyUsage        = clientAuth,serverAuth
 keyUsage                = critical,keyCertSign,cRLSign
-nameConstraints         = @name_constraints
 subjectKeyIdentifier    = hash
+#nameConstraints         = @name_constraints
 
 [crl_info]
 URI.0                   = $crl_url
@@ -109,23 +108,6 @@ URI.0                   = $crl_url
 [issuer_info]
 caIssuers;URI.0         = $aia_url
 OCSP;URI.0              = $ocsp_url
-
-[name_constraints]
-permitted;DNS.0=.dstcorp.net
-permitted;DNS.1=.dstcorp.io
-permitted;DNS.2=.dstcorp.cloud
-permitted;DNS.3=.dst.cloud
-permitted;DNS.4=.ta2k.com
-permitted;DNS.5=.localhost
-permitted;DNS.6=.local
-permitted;DNS.7=.xip.io
-permitted;DNS.8=.internal
-permitted;IP.0=192.168.0.0/255.255.0.0
-permitted;IP.1=172.16.0.0/255.240.0.0
-permitted;IP.2=10.0.0.0/255.0.0.0
-permitted;IP.3=127.0.0.0/255.0.0.0
-#excluded;IP.0=0.0.0.0/0.0.0.0
-#excluded;IP.1=0:0:0:0:0:0:0:0/0:0:0:0:0:0:0:0
 
 [ocsp_ext]
 authorityKeyIdentifier  = keyid:always

@@ -71,7 +71,7 @@ name_opt          = utf8,esc_ctrl,multiline,lname,align
 countryName       = "US"
 organizationName  = "DST Systems, Inc"
 organizationalUnitName = "DST Internal Use Only -- $TLA Intermediate CA"
-commonName = "$TLA-ca.dstcorp.io"
+commonName = "$tla-ca.$domain_suffix"
 
 [ca_default]
 home                    = .
@@ -139,10 +139,10 @@ permitted;DNS.5=.localhost
 permitted;DNS.6=.local
 permitted;DNS.7=.xip.io
 permitted;DNS.8=.internal
-permitted;IP.0=192.168.0.0/255.255.0.0
-permitted;IP.1=172.16.0.0/255.240.0.0
-permitted;IP.2=10.0.0.0/255.0.0.0
-permitted;IP.3=127.0.0.0/255.0.0.0
+#permitted;IP.0=192.168.0.0/255.255.0.0
+#permitted;IP.1=172.16.0.0/255.240.0.0
+#permitted;IP.2=10.0.0.0/255.0.0.0
+#permitted;IP.3=127.0.0.0/255.0.0.0
 
 [ocsp_ext]
 authorityKeyIdentifier  = keyid:always
@@ -185,10 +185,10 @@ permitted;DNS.5=.localhost
 permitted;DNS.6=.local
 permitted;DNS.7=.xip.io
 permitted;DNS.8=.internal
-permitted;IP.0=192.168.0.0/255.255.0.0
-permitted;IP.1=172.16.0.0/255.240.0.0
-permitted;IP.2=10.0.0.0/255.0.0.0
-permitted;IP.3=127.0.0.0/255.0.0.0
+#permitted;IP.0=192.168.0.0/255.255.0.0
+#permitted;IP.1=172.16.0.0/255.240.0.0
+#permitted;IP.2=10.0.0.0/255.0.0.0
+#permitted;IP.3=127.0.0.0/255.0.0.0
 #excluded;IP.0=0.0.0.0/0.0.0.0
 #excluded;IP.1=0:0:0:0:0:0:0:0/0:0:0:0:0:0:0:0
 
@@ -220,6 +220,7 @@ cd -
 
 # sign the CSR with the intermediate's CA
 cd intermediate-ca
+echo -n "signing CSR..."
 openssl ca -batch \
   -config intermediate-ca.cnf \
   -extfile $tla-ca.ext \
@@ -228,6 +229,7 @@ openssl ca -batch \
   -in ../$tla/$tla-ca.csr \
   -passin file:private/intermediate-ca.passphrase.bin \
   -out $tla-ca.crt
+echo "done"
 mv $tla-ca.crt ../$tla/$tla-ca.crt
 cd -
 
