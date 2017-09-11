@@ -117,7 +117,7 @@ var newCmd = &cobra.Command{
 		defer certFile.Close()
 		certFile.WriteString(cert)
 
-		bundle, err := ioutil.ReadFile("ca/cap/ca-bundle.pem")
+		bundle, err := ioutil.ReadFile(cfg.SigningBundleFilename)
 		certFile.Write(bundle)
 
 		keyFile, err := os.OpenFile(cfg.KeyFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0400)
