@@ -195,10 +195,14 @@ func (c *ca) validateRequest(requestedHosts []string, validFor time.Duration) ([
 				return nil, errors.New(". host names are not supported")
 			}
 
-			for _, constraint := range c.SigningCertificate.PermittedDNSDomains {
-				if matchNameConstraint(h, constraint) {
-					supportedDomain = true
+			if len(c.SigningCertificate.PermittedDNSDomains) > 0 {
+				for _, constraint := range c.SigningCertificate.PermittedDNSDomains {
+					if matchNameConstraint(h, constraint) {
+						supportedDomain = true
+					}
 				}
+			} else {
+				supportedDomain = true
 			}
 
 			if !supportedDomain {
