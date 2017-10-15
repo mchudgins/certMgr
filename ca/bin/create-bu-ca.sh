@@ -70,7 +70,7 @@ name_opt          = utf8,esc_ctrl,multiline,lname,align
 [ca_dn]
 countryName       = "US"
 organizationName  = "DST Systems, Inc"
-organizationalUnitName = "DST Internal Use Only -- $TLA Intermediate CA"
+organizationalUnitName = "DST Internal Use Only -- $name Intermediate CA"
 commonName = "$tla-ca.$domain_suffix"
 
 [ca_default]
@@ -130,15 +130,15 @@ caIssuers;URI.0         = $aia_url
 OCSP;URI.0              = $ocsp_url
 
 [name_constraints]
-permitted;DNS.0=.dstcorp.net
-permitted;DNS.1=.dstcorp.io
-permitted;DNS.2=.dstcorp.cloud
-permitted;DNS.3=.dst.cloud
-permitted;DNS.4=.ta2k.com
-permitted;DNS.5=.localhost
-permitted;DNS.6=.local
-permitted;DNS.7=.xip.io
-permitted;DNS.8=.internal
+permitted;DNS.0=dstcorp.net
+permitted;DNS.1=dstcorp.io
+permitted;DNS.2=dstcorp.cloud
+permitted;DNS.3=dst.cloud
+permitted;DNS.4=ta2k.com
+permitted;DNS.5=localhost
+permitted;DNS.6=local
+permitted;DNS.7=xip.io
+permitted;DNS.8=internal
 #permitted;IP.0=192.168.0.0/255.255.0.0
 #permitted;IP.1=172.16.0.0/255.240.0.0
 #permitted;IP.2=10.0.0.0/255.0.0.0
@@ -176,15 +176,15 @@ caIssuers;URI.0         = http://certs.dstcorp.io/fsg.crt
 OCSP;URI.0              = http://ocsp.dstcorp.io:9080
 
 [name_constraints]
-permitted;DNS.0=.dstcorp.net
-permitted;DNS.1=.dstcorp.io
-permitted;DNS.2=.dstcorp.cloud
-permitted;DNS.3=.dst.cloud
-permitted;DNS.4=.ta2k.com
-permitted;DNS.5=.localhost
-permitted;DNS.6=.local
-permitted;DNS.7=.xip.io
-permitted;DNS.8=.internal
+permitted;DNS.0=dstcorp.net
+permitted;DNS.1=dstcorp.io
+permitted;DNS.2=dstcorp.cloud
+permitted;DNS.3=dst.cloud
+permitted;DNS.4=ta2k.com
+permitted;DNS.5=localhost
+permitted;DNS.6=local
+permitted;DNS.7=xip.io
+permitted;DNS.8=internal
 #permitted;IP.0=192.168.0.0/255.255.0.0
 #permitted;IP.1=172.16.0.0/255.240.0.0
 #permitted;IP.2=10.0.0.0/255.0.0.0
