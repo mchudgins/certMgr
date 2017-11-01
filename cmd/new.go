@@ -56,7 +56,7 @@ var defaultConfig = &newCmdConfig{
 
 	SigningCertFilename:   "ca/cap/cap-ca.crt",
 	SigningKeyFilename:    "ca/cap/private/cap-ca.key",
-	SigningBundleFilename: "ca/cap/cap-ca.crt",
+	SigningBundleFilename: "ca/cap/ca-bundle.pem",
 }
 
 // newCmd represents the new command
