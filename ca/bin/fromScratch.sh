@@ -13,3 +13,4 @@ cd intermediate-ca
 cd -
 
 bin/create-bu-ca.sh "Cloud Application Platform" cap
+bin/create-ubu-ca.sh "Unconstrained Cloud Cert" ucap
