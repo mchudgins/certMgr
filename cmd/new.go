@@ -54,9 +54,9 @@ var defaultConfig = &newCmdConfig{
 	KeyFilename:  "key.pem",
 	Duration:     90,
 
-	SigningCertFilename:   "ca/cap/cap-ca.crt",
-	SigningKeyFilename:    "ca/cap/private/cap-ca.key",
-	SigningBundleFilename: "ca/cap/ca-bundle.pem",
+	SigningCertFilename:   "ca/ucap/cap-ca.crt",
+	SigningKeyFilename:    "ca/ucap/private/cap-ca.key",
+	SigningBundleFilename: "ca/ucap/ca-bundle.pem",
 }
 
 // newCmd represents the new command
