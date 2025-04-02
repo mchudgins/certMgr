@@ -17,7 +17,7 @@ package cmd
 import (
 	"io/ioutil"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/mchudgins/certMgr/pkg/backend"
 	"github.com/mchudgins/certMgr/pkg/certMgr"
 	"github.com/mchudgins/certMgr/pkg/utils"

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"syscall"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/afex/hystrix-go/hystrix"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/mchudgins/certMgr/pkg/certMgr"

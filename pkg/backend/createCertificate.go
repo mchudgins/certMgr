@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	pb "github.com/mchudgins/certMgr/pkg/service"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"

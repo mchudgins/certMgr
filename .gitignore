@@ -50,3 +50,7 @@ ca/cap
 ca/intermediate-ca
 ca/root-ca
 ca/ucap
+
+personal-ca/root-ca
+personal-ca/intermediate-ca
+personal-ca/k8s

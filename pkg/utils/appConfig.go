@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/afex/hystrix-go/hystrix"
 	"github.com/mchudgins/certMgr/pkg/certMgr"
 	"github.com/spf13/cobra"

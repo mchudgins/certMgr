@@ -9,7 +9,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/afex/hystrix-go/hystrix"
 	pb "github.com/mchudgins/certMgr/pkg/service"
 	"github.com/patrickmn/go-cache"

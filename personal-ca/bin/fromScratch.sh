@@ -12,4 +12,4 @@ cd intermediate-ca
 ../bin/generate-intermediate.sh
 cd -
 
-bin/create-bu-ca.sh "WWW sites" web
+bin/create-bu-ca.sh "k8s" k8s

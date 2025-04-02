@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"text/template"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/mwitkow/go-grpc-middleware"
+	log "github.com/sirupsen/logrus"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
 
